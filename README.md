@@ -1,58 +1,171 @@
-# MySQL, PHPMyAdmin and Node.js (ready for Express development)
+# G.a.i.A. — Green AI Alchemy 🌿🤖  
+*A Natural Health Guidance Platform Powered by Artificial Intelligence*
 
-This will install Mysql and phpmyadmin (including all dependencies to run Phpmyadmin) AND node.js
+---
 
-This receipe is for development - Node.js is run in using supervisor: changes to any file in the app will trigger a rebuild automatically.
+## 📘 Project Overview
 
-For security, this receipe uses a .env file for credentials.  A sample is provided in the env-sample file. If using these files for a fresh project, copy the env-sample file to a file called .env.  Do NOT commit the changed .env file into your new project for security reasons (in the node package its included in .gitignore so you can't anyway)
+**G.a.i.A. (Green AI Alchemy)** is a wellness-focused web application designed to help users support their recovery naturally after receiving a confirmed medical diagnosis.  
+Instead of giving medical diagnoses, the system provides **safe, research-based herbal blends, nutrition plans, lifestyle suggestions, and natural recovery routines**.
 
-In node.js, we use the MySQl2 packages (to avoid problems with MySQL8) and the dotenv package to read the environment variables.
+Using a curated herbal knowledge base combined with AI-driven personalisation, G.a.i.A. bridges the gap between traditional botanical wisdom and modern computer science.
 
-Local files are mounted into the container using the 'volumes' directive in the docker-compose.yml for ease of development.
+---
 
-### Super-quickstart your new project:
+## 🌿 Key Features
 
-* Make sure that you don't have any other containers running usind docker ps
-* run ```docker-compose up --build```
+### 🔍 Condition Search (Post-Diagnosis Support)
+Users enter the name of a medically confirmed condition (e.g., *fatty liver*, *mild inflammation*).  
+The system returns structured natural support options (not medical treatment).
 
-#### Visit phphmyadmin at:
+### 🌱 Herbal Mixtures & Preparation Guides
+- Evidence-based herbs for each condition  
+- Recipes for teas, decoctions, tinctures, and blends  
+- Doses & safety guidance  
+- Interactions & contraindications where applicable  
 
-http://localhost:8081/
+### 🍽️ Nutrition & Meal Plans
+- Condition-aligned meal recommendations  
+- Recipes that support recovery (e.g., high-fibre for fatty liver)  
+- AI-generated weekly meal ideas  
+- Optional shopping list creation  
 
-#### Visit your express app at:
+### 📅 Daily Routine Builder
+- AI-generated routine templates (e.g., “Morning Liver Support Routine”)  
+- Reminders (take blend, prepare meal, drink infusion)  
+- Progress tracking  
 
-http://localhost:3000
+### 🤖 AI Personalisation Engine
+- Tailors suggestions based on user habits  
+- Learns user preferences over time  
+- Generates recipe explanations with NLG templates  
+- **Never** provides diagnoses — only supportive information  
 
-For reference, see the video at: https://roehampton.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=6f290a6b-ba94-4729-9632-adcf00ac336e
+### 📚 Herbal Knowledge Base (KB)
+- Scientific references  
+- Herbal actions, safety, and preparation methods  
+- Structured MySQL database for fast retrieval  
 
-NB if you are running this on your own computer rather than the azure labs that has been set up for you, you will need to install the following:
+### 🧩 Future Extensions (not part of MVP)
+- Smartphone herbal recognition (image classifier)  
+- Audio assistant for routines  
+- User community features  
 
-* node.js  (windows: https://nodejs.org/en/download/)
-* docker desktop (for windows, this will also prompt you to install linux subsystem for windows https://docs.docker.com/desktop/windows/install/ )
+---
 
-### Whats provided in these scaffolding files?
+## 🎯 Target Audience
 
+- Adults interested in **natural wellness support**  
+- People who want **structured guidance** after a confirmed diagnosis  
+- Anyone wanting **easy herbal recipes** and lifestyle routines  
+- Users exploring **AI-driven health personalisation**  
 
-  * A docker setup which will provide you with node.js, mysql and phpmyadmin, including the configuration needed so that both node.js AND phpmyadmin can 'see' and connect to your mysql database.  If you don't use docker you'll have to set up and connect each of these components separately.
-  * A basic starting file structure for a node.js app.
-  * A package.json file that will pull in the node.js libraries required and start your app as needed.
-  * A db.js file which provides all the code needed to connect to the mysql database, using the credentials in the .env file, and which provides a query() function that can send queries to the database and receive a result.  In order to use this (ie. interact with the database, you simply need to include this file in any file you create that needs this database interaction) with the following code:
+---
 
-```const db = require('./services/db');
-```
+## 🧠 Technology Stack
 
-____
+### **Frontend**
+- **React.js** (JavaScript library for building UI)
 
-Useful commands:
+### **Backend**
+- **Node.js + Express.js** (web server + routing)
+- **Docker** for local containerised development
 
-Get a shell in any of the containers
+### **Database**
+- **MySQL** (herbal knowledge base, conditions, recipes)
+
+### **AI Components**
+- NLP for condition–to–recommendation mapping  
+- Template-based NLG (human-like explanations)  
+- Light personalisation logic (rule-based for MVP)
+
+---
+
+## 🚀 Getting Started
+
+### ✔️ Prerequisites  
+Ensure you have installed:
+
+- **Node.js** → https://nodejs.org  
+- **npm** or **yarn**  
+- **Docker Desktop** → https://docs.docker.com/desktop/setup/install/windows-install/  
+
+---
+
+## 📦 Installation
+
+Clone the repository:
 
 ```bash
-docker exec -it <container name> bash -l
+git clone https://github.com/yourusername/gaia-fyp
+cd gaia-fyp
 ```
 
-Once in the database container, you can get a MySQL CLI in the usual way
+Install backend dependencies:
 
 ```bash
-mysql -uroot -p<password> 
+npm install
+npm install pug
 ```
+
+Start Docker containers:
+
+```bash
+docker-compose up
+```
+
+---
+
+## ▶️ Running the App
+
+Start the backend:
+
+```bash
+npm start
+```
+
+Then open:
+
+- **App / Frontend:** http://localhost:3000  
+- **phpMyAdmin:** http://localhost:8081  
+
+(Use the credentials stored in your `.env` file.)
+
+---
+
+## 🤝 Contributing
+
+By contributing to this project, you agree to follow the  
+**[Code of Conduct](CODE_OF_CONDUCT.md)**.
+
+### 🧪 How to Contribute
+
+1. **Fork the repository**  
+2. Create a feature branch  
+   ```bash
+   git checkout -b feature-name
+   ```
+3. Make meaningful commits  
+   ```bash
+   git commit -m "Add: meaningful description"
+   ```
+4. Push your branch  
+   ```bash
+   git push origin feature-name
+   ```
+5. Open a **Pull Request**  
+
+---
+
+## 📄 License
+
+This project is licensed under the **MIT License**.  
+See the **[LICENSE](LICENSE)** file for details.
+
+---
+
+## 📬 Contact
+
+For questions or suggestions, please open an **Issue** or contact:
+
+📧 stadlerm@roehampton.ac.uk  
