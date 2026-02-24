@@ -1,48 +1,75 @@
-// Import express.js
+"use strict";
+
 const express = require("express");
+const path = require("path");
+const db = require("./services/db");
 
-// Create express app
-var app = express();
+const app = express();
 
-// Add static files location
-app.use(express.static("static"));
+// Serve static files from /static
+app.use(express.static(path.join(__dirname, "..", "static")));
 
-// Get the functions in the db.js file to use
-const db = require('./services/db');
-
-// Create a route for root - /
-app.get("/", function(req, res) {
-    res.send("Hello world!");
+// Basic route
+app.get("/", (req, res) => {
+  res.send("Hello world!");
 });
 
-// Create a route for testing the db
-app.get("/db_test", function(req, res) {
-    // Assumes a table called test_table exists in your database
-    sql = 'select * from test_table';
-    db.query(sql).then(results => {
-        console.log(results);
-        res.send(results)
+// Health check (verifies web is up + DB is reachable)
+app.get("/health", async (req, res) => {
+  try {
+    await db.ping();
+    res.json({ ok: true, db: "up" });
+  } catch (e) {
+    res.status(500).json({ ok: false, db: "down", error: e.message });
+  }
+});
+
+// Main route: return all users
+app.get("/users", async (req, res) => {
+  try {
+    const rows = await db.query("SELECT id, name FROM users ORDER BY id ASC");
+    res.json({ ok: true, rows });
+  } catch (e) {
+    res.status(500).json({
+      ok: false,
+      error: e.message,
+      code: e.code,
+      hint:
+        "If you just added the db-init SQL, run: docker compose down -v && docker compose up --build",
     });
+  }
 });
 
-// Create a route for /goodbye
-// Responds to a 'GET' request
-app.get("/goodbye", function(req, res) {
-    res.send("Goodbye world!");
+// Alias route: /db_test does the same thing as /users
+app.get("/db_test", async (req, res) => {
+  try {
+    const rows = await db.query("SELECT id, name FROM users ORDER BY id ASC");
+    res.json({ ok: true, rows });
+  } catch (e) {
+    res.status(500).json({
+      ok: false,
+      error: e.message,
+      code: e.code,
+      hint:
+        "If you just added the db-init SQL, run: docker compose down -v && docker compose up --build",
+    });
+  }
 });
 
-// Create a dynamic route for /hello/<name>, where name is any value provided by user
-// At the end of the URL
-// Responds to a 'GET' request
-app.get("/hello/:name", function(req, res) {
-    // req.params contains any parameters in the request
-    // We can examine it in the console for debugging purposes
-    console.log(req.params);
-    //  Retrieve the 'name' parameter and use it in a dynamically generated page
-    res.send("Hello " + req.params.name);
+// Goodbye route
+app.get("/goodbye", (req, res) => {
+  res.send("Goodbye world!");
 });
 
-// Start server on port 3000
-app.listen(3000,function(){
-    console.log(`Server running at http://127.0.0.1:3000/`);
+// Dynamic route
+app.get("/hello/:name", (req, res) => {
+  res.send(`Hello ${req.params.name}`);
 });
+
+// Use PORT env var if set, fallback to 3000
+const PORT = Number(process.env.PORT || 3000);
+app.listen(PORT, () => {
+  console.log(`Server running at http://127.0.0.1:${PORT}/`);
+});
+
+module.exports = app;
