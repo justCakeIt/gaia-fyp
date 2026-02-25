@@ -50,8 +50,19 @@ app.get("/hello/:name", (req, res) => {
 });
 
 const PORT = Number(process.env.PORT || 3000);
-app.listen(PORT, () => {
+
+const server = app.listen(PORT, () => {
   console.log(`Server running at http://127.0.0.1:${PORT}/`);
 });
 
+server.on("error", (err) => {
+  if (err.code === "EADDRINUSE") {
+    console.error(`Port ${PORT} already in use.`);
+    process.exit(1);
+  } else {
+    throw err;
+  }
+});
+
 module.exports = app;
+
