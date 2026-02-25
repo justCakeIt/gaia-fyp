@@ -1,11 +1,11 @@
 MYSQL_ROOT_PASSWORD=your_root_password
-MYSQL_DATABASE=sd2-db
+MYSQL_DATABASE=gaia_db
 MYSQL_USER=admin
 MYSQL_PASSWORD=your_password
 
-DB_HOST=db
-DB_PORT=3306
-DB_NAME=sd2-db
+DB_HOST=127.0.0.1
+DB_PORT=3308
+DB_NAME=gaia_db
 DB_USER=admin
 DB_PASSWORD=your_password
 
