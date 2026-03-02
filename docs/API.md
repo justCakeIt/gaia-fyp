@@ -2,20 +2,20 @@
 
 ## Overview
 
-**G.a.i.A. — Green AI Alchemy** is a non-diagnostic wellness support system.
+**G.a.i.A. — Green AI Alchemy** is a non-diagnostic wellness support system designed to assist users in building supportive lifestyle routines based on known health conditions.
 
-This API supports the MVP workflow:
+This API powers the MVP workflow:
 
-Search → Match → Recommendations → Create Plan → Schedule Reminders
+**Search → Match → Recommendations → Create Plan → Schedule Reminders**
 
-The backend is built using:
+### Backend Stack
 
 - Node.js (Express)
 - MySQL 8
 - Docker Compose
-- REST architecture
+- REST architectural principles
 
-This API is designed for frontend SPA integration.
+The API is designed for integration with a Single Page Application (SPA) frontend.
 
 ---
 
@@ -29,39 +29,52 @@ http://localhost:3000/api
 
 ## Standard Response Format
 
-All endpoints return JSON in a consistent format.
+All endpoints return JSON using a consistent structure.
 
 ### Success Response
 
+```json
 {
   "ok": true,
   "data": {}
 }
+```
 
 ### Error Response
 
+```json
 {
   "ok": false,
   "error": "Human readable message"
 }
+```
 
-Client errors return HTTP 400–404.  
-Server errors return HTTP 500.
+### HTTP Status Codes
+
+| Code | Description |
+|------|------------|
+| 200  | Request successful |
+| 201  | Resource created |
+| 400  | Client validation error |
+| 404  | Resource not found |
+| 500  | Internal server error |
 
 ---
 
-# Health
+# Health Endpoints
 
 ## GET /api
 
 Checks API availability.
 
-Response:
+### Response
 
+```json
 {
   "ok": true,
   "api": "up"
 }
+```
 
 ---
 
@@ -69,12 +82,14 @@ Response:
 
 Checks database connectivity.
 
-Response:
+### Response
 
+```json
 {
   "ok": true,
   "db": "up"
 }
+```
 
 ---
 
@@ -82,16 +97,23 @@ Response:
 
 ## Search Conditions
 
+Searches conditions by name or category.
+
+### Endpoint
+
 GET /api/conditions?query=liver
 
-Query Parameters:
+### Query Parameters
 
-- query (optional) — text search term
+| Parameter | Required | Description |
+|-----------|----------|-------------|
+| query | No | Search phrase |
 
-If query is empty, returns a default limited list.
+If `query` is empty, a default limited list is returned.
 
-Response:
+### Example Response
 
+```json
 {
   "ok": true,
   "data": [
@@ -103,20 +125,26 @@ Response:
     }
   ]
 }
+```
 
 ---
 
 ## Match Condition
 
+Attempts to identify a condition based on user input.
+
+### Endpoint
+
 GET /api/conditions/match?query=nafld
 
-Matching strategy:
+### Matching Strategy
 
-1. Exact synonym match
-2. Condition name similarity fallback
+1. Exact synonym match  
+2. Condition name similarity fallback  
 
-Response:
+### Example Response
 
+```json
 {
   "ok": true,
   "matched": {
@@ -126,12 +154,17 @@ Response:
     "matchedOn": "nafld"
   }
 }
+```
 
-The "matched" field may be null if nothing is found.
+The `matched` field may be `null` if no condition is found.
 
 ---
 
 ## Condition Recommendations
+
+Returns wellness guidance associated with a condition.
+
+### Endpoint
 
 GET /api/conditions/:id/recommendations
 
@@ -139,16 +172,17 @@ Example:
 
 GET /api/conditions/1/recommendations
 
-Returns:
+### Returned Data
 
-- condition metadata
-- linked herbs
-- linked recipes
-- linked mixtures
-- aggregated safety notes
+- Condition metadata
+- Linked herbs
+- Linked recipes
+- Derived mixtures
+- Aggregated safety notes
 
-Response structure:
+### Response Structure
 
+```json
 {
   "ok": true,
   "data": {
@@ -159,29 +193,33 @@ Response structure:
     "safetyNotes": []
   }
 }
+```
 
 ---
 
 # Plans
 
-Plans represent a personalised wellness routine.
+Plans represent personalised wellness routines.
 
-Each plan may contain:
+Each plan may include:
 
-- herbs
-- recipes
-- mixtures
+- Herbs
+- Recipes
+- Mixtures
 
-Each item must reference exactly one entity.
+Each plan item must reference **exactly one** entity.
 
 ---
 
 ## Create Plan
 
+### Endpoint
+
 POST /api/plans
 
-Body:
+### Request Body
 
+```json
 {
   "userID": 1,
   "conditionID": 1,
@@ -194,56 +232,64 @@ Body:
     }
   ]
 }
+```
 
-Validation rules:
+### Validation Rules
 
-- userID is required
-- title is required
-- itemType must be herb | recipe | mixture
-- exactly one ID must be provided per item
-- referenced entities must exist
+- `userID` is required
+- `title` is required
+- `itemType` must be `herb | recipe | mixture`
+- Exactly one entity ID must be provided per item
+- Referenced entities must exist
 
-Response:
+### Response
 
+```json
 {
   "ok": true,
-  "data": { "planID": 5 }
+  "data": {
+    "planID": 5
+  }
 }
+```
 
 ---
 
 ## List Plans
 
-GET /api/plans?userID=1
-
 Returns all plans belonging to a user.
+
+### Endpoint
+
+GET /api/plans?userID=1
 
 ---
 
 ## Get Plan Details
 
+Returns full plan structure including aggregated safety notes.
+
+### Endpoint
+
 GET /api/plans/:planID
-
-Returns:
-
-- plan metadata
-- plan items
-- aggregated safety notes
 
 ---
 
 # Reminders
 
-Reminders schedule notifications linked to plans.
+Reminders schedule routine notifications linked to plans.
 
 ---
 
 ## Create Reminder
 
+### Endpoint
+
 POST /api/reminders
 
-Body:
+### Request Body
 
+```json
 {
   "userID": 1,
   "planID": 5,
@@ -252,21 +298,28 @@ Body:
   "dayOfWeek": "Daily",
   "enabled": true
 }
+```
 
-Response:
+### Response
 
+```json
 {
   "ok": true,
-  "data": { "reminderID": 3 }
+  "data": {
+    "reminderID": 3
+  }
 }
+```
 
 ---
 
 ## List Reminders
 
-GET /api/reminders?userID=1
-
 Returns reminders with associated plan titles.
+
+### Endpoint
+
+GET /api/reminders?userID=1
 
 ---
 
@@ -274,28 +327,33 @@ Returns reminders with associated plan titles.
 
 A centralized middleware handles API errors.
 
-Client errors include:
+### Client Errors Include
 
-- invalid IDs
-- missing required fields
-- invalid item types
-- non-existing referenced entities
+- Invalid IDs
+- Missing required fields
+- Invalid item types
+- Non-existing referenced entities
 
-Server errors are masked to prevent internal leakage.
+### Server Errors
+
+Internal errors are masked to prevent exposure of implementation details.
 
 ---
 
 # Development
 
-Start environment:
+Start the environment:
 
+```bash
 docker compose up --build
+```
 
-Example test commands (PowerShell):
+Example PowerShell test commands:
 
+```powershell
 Invoke-RestMethod "http://localhost:3000/api/health"
-
 Invoke-RestMethod "http://localhost:3000/api/conditions?query=liver"
+```
 
 ---
 
@@ -303,6 +361,6 @@ Invoke-RestMethod "http://localhost:3000/api/conditions?query=liver"
 
 This system:
 
-- Does NOT provide medical diagnosis
+- Does **not** provide medical diagnosis
 - Provides wellness support guidance only
-- Is structured for frontend SPA integration
+- Is structured for SPA frontend integration
