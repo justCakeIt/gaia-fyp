@@ -25,5 +25,17 @@ services:
     depends_on:
       - db
 
+  web:
+    build: .
+    restart: always
+    env_file:
+      - ./.env
+    ports:
+      - "3000:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+    command: ["node", "index.js"]
+
 volumes:
   mysql_data:
