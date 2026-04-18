@@ -10,10 +10,11 @@ services:
       - mysql_data:/var/lib/mysql
       - ./db-init:/docker-entrypoint-initdb.d:ro
     healthcheck:
-      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u$$MYSQL_USER -p$$MYSQL_PASSWORD --silent"]
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -u$$MYSQL_USER -p$$MYSQL_PASSWORD --silent"]
       interval: 5s
       timeout: 5s
       retries: 30
+      start_period: 20s
 
   phpmyadmin:
     image: phpmyadmin/phpmyadmin:latest
@@ -23,7 +24,8 @@ services:
     ports:
       - "8081:80"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
 
   web:
     build: .

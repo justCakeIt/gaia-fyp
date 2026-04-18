@@ -11,3 +11,20 @@ DB_PASSWORD=your_password
 
 PMA_HOST=db
 PMA_PORT=3306
+
+# Dev demo login account (auto-created/updated at backend startup)
+AUTH_DEMO_USER_ENABLED=true
+AUTH_DEMO_USER_EMAIL=demo@gaia.local
+AUTH_DEMO_USER_PASSWORD=GaiaDemo123!
+AUTH_DEMO_USER_NAME=Gaia Demo User
+
+# Frontend + NextAuth
+NEXTAUTH_URL=http://localhost:3001
+NEXTAUTH_SECRET=replace-with-a-long-random-secret
+NEXT_PUBLIC_API_BASE=http://localhost:3000/api
+API_BASE=http://localhost:3000/api
+
+# Optional Google OAuth for NextAuth
+# Local callback: http://localhost:3001/api/auth/callback/google
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=

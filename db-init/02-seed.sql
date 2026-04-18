@@ -6,9 +6,9 @@ START TRANSACTION;
 -- USERS
 -- ------------------------------------------------------------
 INSERT INTO Users (userID, email, passwordHash, userName) VALUES
-(1, 'michal@example.com',  '$2b$10$demo.hash.only', 'Michal'),
-(2, 'adam@example.com', '$2b$10$demo.hash.only', 'Adam'),
-(3, 'alex@example.com',  '$2b$10$demo.hash.only', 'Alex');
+(1, 'michal@example.com',  '$2b$12$wAYleghTP9z3jVfOSMGpQuElFVHKc6ZCRJ2FIuaT2DRv660BiNBjm', 'Michal'),
+(2, 'adam@example.com', '$2b$12$wAYleghTP9z3jVfOSMGpQuElFVHKc6ZCRJ2FIuaT2DRv660BiNBjm', 'Adam'),
+(3, 'alex@example.com',  '$2b$12$wAYleghTP9z3jVfOSMGpQuElFVHKc6ZCRJ2FIuaT2DRv660BiNBjm', 'Alex');
 
 -- ------------------------------------------------------------
 -- USER PREFERENCES (1:1 unique on userID)
