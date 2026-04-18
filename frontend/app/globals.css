@@ -1,26 +1,1229 @@
 @import "tailwindcss";
 
+/* ============================================================
+   G.A.I.A. — BOTANICAL PREMIUM DESIGN SYSTEM
+   ============================================================ */
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --gaia-ink-950: #091710;
+  --gaia-ink-900: #122618;
+  --gaia-ink-800: #1a3626;
+  --gaia-ink-700: #244836;
+  --gaia-sage-700: #2e5840;
+  --gaia-sage-600: #386450;
+  --gaia-sage-500: #4a7a64;
+  --gaia-sage-400: #649878;
+  --gaia-sage-300: #8cb49c;
+  --gaia-mint-200: #c8e8d4;
+  --gaia-mint-100: #daeee3;
+  --gaia-moss: #1a3526;
+  --gaia-earth-700: #6a4e28;
+  --gaia-earth-600: #7a5c33;
+  --gaia-earth-500: #967244;
+  --gaia-earth-400: #b08854;
+  --gaia-earth-300: #c8a46e;
+  --gaia-glow: #b8e090;
+  --gaia-danger: #8a3835;
+  --gaia-success-fg: #1f5434;
+  --gaia-forest: #060e09;
+  --gaia-border: rgba(22, 58, 40, 0.13);
+  --gaia-border-strong: rgba(22, 58, 40, 0.22);
+  --gaia-border-gold: rgba(162, 124, 60, 0.2);
+  --gaia-shadow-xs: 0 2px 12px rgba(8, 28, 18, 0.09);
+  --gaia-shadow-soft: 0 8px 32px rgba(8, 28, 18, 0.12);
+  --gaia-shadow-medium: 0 18px 48px rgba(8, 28, 18, 0.16);
+  --gaia-shadow-strong: 0 32px 72px rgba(8, 28, 18, 0.2);
+  --gaia-shadow-deep: 0 44px 96px rgba(6, 18, 12, 0.26);
+  --gaia-radius: 24px;
+  --gaia-radius-sm: 16px;
+  --gaia-font-body: "DM Sans", "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  --gaia-font-heading: "Playfair Display", "Palatino Linotype", "Book Antiqua", Palatino, Georgia, serif;
+  --gaia-font-display: "Cormorant Garamond", "Playfair Display", "Palatino Linotype", Georgia, serif;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+html, body { margin: 0; padding: 0; min-height: 100%; }
+
+body {
+  color: var(--gaia-ink-800);
+  font-family: var(--gaia-font-body);
+  font-size: 1rem;
+  line-height: 1.68;
+  -webkit-font-smoothing: antialiased;
+  background:
+    radial-gradient(ellipse 60% 50% at  3%  -2%, rgba(32,72,48,0.42) 0%, transparent 38%),
+    radial-gradient(ellipse 50% 44% at 97%  -4%, rgba(40,84,58,0.32) 0%, transparent 36%),
+    radial-gradient(ellipse 58% 44% at 12% 106%, rgba(36,78,52,0.28) 0%, transparent 44%),
+    radial-gradient(ellipse 50% 40% at 88% 108%, rgba(130,104,58,0.18) 0%, transparent 40%),
+    radial-gradient(ellipse 80% 60% at 50%  52%, rgba(20,52,36,0.07) 0%, transparent 66%),
+    linear-gradient(162deg, #eaf4ef 0%, #e2ede8 30%, #ece5d4 68%, #f0ead8 100%);
+  background-attachment: fixed;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+::selection { color: #fff; background: var(--gaia-sage-500); }
+
+h1, h2 {
+  margin: 0;
+  color: var(--gaia-ink-800);
+  font-family: var(--gaia-font-display);
+  font-weight: 500;
+  line-height: 1.08;
+  letter-spacing: 0.015em;
+}
+
+h3, h4 {
+  margin: 0;
+  color: var(--gaia-ink-800);
+  font-family: var(--gaia-font-heading);
+  line-height: 1.15;
+  letter-spacing: 0.01em;
+}
+
+p  { margin: 0; line-height: 1.76; }
+a  { color: inherit; text-decoration: none; }
+ul, ol { margin: 0; padding-left: 1.35rem; line-height: 1.88; }
+li + li { margin-top: 0.3rem; }
+
+/* PAGE */
+
+.gaia-page {
+  position: relative;
+  min-height: 100vh;
+  padding: 3rem 1.4rem 4rem;
+}
+
+.gaia-page::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image: radial-gradient(rgba(24,62,42,0.09) 1px, transparent 1px);
+  background-size: 26px 26px;
+  opacity: 0.55;
+}
+
+.gaia-page::after {
+  content: "";
+  position: fixed;
+  bottom: -100px; right: -100px;
+  width: 680px; height: 680px;
+  border-radius: 50%;
+  pointer-events: none;
+  background: radial-gradient(circle,
+    rgba(48,102,72,0.13) 0%,
+    rgba(36,84,58,0.07) 44%,
+    transparent 68%);
+}
+
+.gaia-shell {
+  position: relative;
+  z-index: 1;
+  max-width: 1100px;
+  margin: 0 auto;
+  display: grid;
+  gap: 1.4rem;
+}
+
+.gaia-shell > * { animation: gaiaFadeUp 480ms ease both; }
+.gaia-shell > *:nth-child(2)  { animation-delay:  60ms; }
+.gaia-shell > *:nth-child(3)  { animation-delay: 110ms; }
+.gaia-shell > *:nth-child(4)  { animation-delay: 152ms; }
+.gaia-shell > *:nth-child(5)  { animation-delay: 188ms; }
+.gaia-shell > *:nth-child(6)  { animation-delay: 220ms; }
+.gaia-shell > *:nth-child(7)  { animation-delay: 248ms; }
+.gaia-shell > *:nth-child(8)  { animation-delay: 272ms; }
+.gaia-shell > *:nth-child(9)  { animation-delay: 292ms; }
+.gaia-shell > *:nth-child(10) { animation-delay: 310ms; }
+
+.gaia-results-shell { gap: 1.4rem; }
+
+/* HEADER CARD */
+
+.gaia-header-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: calc(var(--gaia-radius) + 12px);
+  padding: 3.2rem 2.8rem;
+  border: 1px solid rgba(162,220,155,0.16);
+  background:
+    radial-gradient(ellipse at  6% 18%, rgba(185,238,138,0.18), transparent 32%),
+    radial-gradient(ellipse at 90%  8%, rgba(218,178,108,0.26), transparent 30%),
+    radial-gradient(ellipse at 52% 98%, rgba(130,196,152,0.14), transparent 38%),
+    radial-gradient(ellipse at 24% 78%, rgba(155,205,128,0.1),  transparent 28%),
+    radial-gradient(ellipse at 74% 44%, rgba(32,72,50,0.18),    transparent 36%),
+    linear-gradient(148deg, #080f0a 0%, #101e14 22%, #1c3226 44%, #2c4c3c 64%, #3a6050 82%, #48705e 100%);
+  color: #edf9f3;
+  box-shadow:
+    0 1px 0 rgba(188,245,162,0.1) inset,
+    0 -2px 0 rgba(0,0,0,0.14) inset,
+    var(--gaia-shadow-deep);
+}
+
+/* Sunlight-through-leaves gold orb */
+.gaia-header-card::before {
+  content: "";
+  position: absolute;
+  right: -100px; bottom: -110px;
+  width: 560px; height: 560px;
+  border-radius: 50%;
+  background: radial-gradient(circle,
+    rgba(198,164,88,0.32) 0%,
+    rgba(172,138,66,0.15) 38%,
+    rgba(148,116,52,0.06) 58%,
+    transparent 68%);
+  pointer-events: none;
+}
+
+/* Top glass highlight + left vine haze */
+.gaia-header-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.11) 0%, transparent 26%),
+    linear-gradient(270deg, transparent 50%, rgba(148,224,138,0.06) 100%);
+  pointer-events: none;
+}
+
+.gaia-header-card h1 {
+  color: #ecf8f2;
+  font-family: var(--gaia-font-display);
+  font-size: clamp(2.6rem, 5.4vw, 4.6rem);
+  font-weight: 500;
+  margin-bottom: 0.8rem;
+  line-height: 1.04;
+  text-shadow:
+    0 2px 22px rgba(0,0,0,0.28),
+    0 0 64px rgba(88,176,118,0.18);
+  letter-spacing: 0.02em;
+}
+
+.gaia-header-card p {
+  max-width: 62ch;
+  color: rgba(228,250,236,0.86);
+  font-size: 1.06rem;
+  line-height: 1.76;
+}
+
+/* KICKER */
+
+.gaia-kicker {
+  display: inline-flex;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding: 0.34rem 1rem;
+  border-radius: 999px;
+  border: 1px solid rgba(198,244,178,0.3);
+  background: rgba(162,228,148,0.13);
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: #cef4be;
+  box-shadow:
+    0 0 18px rgba(128,216,108,0.2),
+    0 1px 0 rgba(188,244,162,0.12) inset;
+}
+
+/* CARD */
+
+.gaia-card {
+  border-radius: var(--gaia-radius);
+  border: 1px solid var(--gaia-border);
+  padding: 1.9rem 1.75rem;
+  display: grid;
+  gap: 1.05rem;
+  background:
+    radial-gradient(ellipse at 96% 4%, rgba(72,152,100,0.07), transparent 36%),
+    linear-gradient(165deg,
+      rgba(242,252,247,0.99) 0%,
+      rgba(236,249,243,0.97) 52%,
+      rgba(246,241,230,0.96) 100%);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.96) inset,
+    0 -1px 0 rgba(20,56,36,0.05) inset,
+    var(--gaia-shadow-soft);
+  transition: transform 240ms ease, box-shadow 240ms ease, border-color 240ms ease;
+}
+
+.gaia-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(32,78,54,0.2);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.96) inset,
+    0 -1px 0 rgba(20,56,36,0.05) inset,
+    var(--gaia-shadow-medium);
+}
+
+.gaia-surface-muted {
+  background:
+    radial-gradient(ellipse at 4% 96%, rgba(56,112,76,0.09), transparent 38%),
+    linear-gradient(158deg,
+      rgba(222,245,232,0.99) 0%,
+      rgba(230,247,236,0.97) 46%,
+      rgba(244,239,224,0.96) 100%);
+}
+
+.gaia-card h2 {
+  font-family: var(--gaia-font-display);
+  font-size: clamp(1.5rem, 2.9vw, 2.1rem);
+  font-weight: 500;
+  color: var(--gaia-ink-800);
+  letter-spacing: 0.015em;
+  line-height: 1.1;
+}
+.gaia-card h3 {
+  font-size: 1.06rem;
+  font-weight: 600;
+  color: var(--gaia-ink-700);
+  letter-spacing: 0.015em;
+  line-height: 1.3;
+}
+
+/* SECTION HEADER */
+
+.gaia-section-title {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.6rem;
+  margin-bottom: 0.4rem;
+}
+
+.gaia-section-kicker {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0.66rem;
+  border-radius: 999px;
+  background:
+    linear-gradient(148deg, rgba(78,140,100,0.12), rgba(64,120,86,0.09));
+  border: 1px solid rgba(60,110,80,0.18);
+  color: var(--gaia-sage-500);
+  font-size: 0.6rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-weight: 700;
+  white-space: nowrap;
+  flex-shrink: 0;
+  box-shadow: 0 1px 0 rgba(255,255,255,0.7) inset;
+}
+
+.gaia-divider {
+  height: 1px;
+  border: 0;
+  background: linear-gradient(90deg, rgba(48,96,70,0.2), rgba(48,96,70,0.06) 60%, transparent);
+  margin: 0.3rem 0;
+}
+
+.gaia-list-card {
+  border: 1px solid rgba(44,90,64,0.16);
+  border-radius: var(--gaia-radius-sm);
+  padding: 1.1rem 1.25rem;
+  background:
+    linear-gradient(152deg,
+      rgba(232,249,240,0.99) 0%,
+      rgba(224,246,234,0.97) 52%,
+      rgba(242,246,230,0.95) 100%);
+  box-shadow: var(--gaia-shadow-xs);
+}
+
+.gaia-note {
+  color: var(--gaia-sage-600);
+  font-size: 0.9rem;
+  line-height: 1.68;
+  font-style: italic;
+}
+
+/* CHIPS */
+
+.gaia-chip-row { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; margin-top: 1rem; }
+
+.gaia-chip {
+  appearance: none;
+  border: 1px solid rgba(44,90,62,0.18);
+  background:
+    linear-gradient(148deg,
+      rgba(234,252,242,0.97) 0%,
+      rgba(224,246,234,0.94) 100%);
+  color: var(--gaia-sage-600);
+  border-radius: 999px;
+  padding: 0.34rem 0.96rem;
+  font-size: 0.75rem;
+  font-family: var(--gaia-font-body);
+  font-weight: 600;
+  letter-spacing: 0.025em;
+  cursor: default;
+  box-shadow: 0 1px 0 rgba(255,255,255,0.8) inset;
+  transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+}
+
+button.gaia-chip { cursor: pointer; }
+button.gaia-chip:hover {
+  transform: translateY(-2px);
+  border-color: rgba(44,90,62,0.3);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.8) inset,
+    0 5px 14px rgba(18,54,34,0.12);
+  background: linear-gradient(148deg, rgba(224,250,236,0.99), rgba(212,244,226,0.97));
+}
+
+/* Chips inside the dark header card */
+.gaia-header-card .gaia-chip {
+  border-color: rgba(172,238,154,0.28);
+  background: rgba(140,216,122,0.13);
+  color: rgba(210,250,198,0.92);
+  box-shadow: none;
+}
+
+.gaia-header-card button.gaia-chip:hover {
+  background: rgba(140,216,122,0.22);
+  border-color: rgba(172,238,154,0.42);
+  box-shadow: 0 4px 14px rgba(6,22,12,0.24);
+}
+
+/* MEAL CARD */
+
+.gaia-meal {
+  border: 1px solid rgba(44,90,64,0.16);
+  border-radius: var(--gaia-radius-sm);
+  padding: 1.25rem 1.3rem;
+  background:
+    linear-gradient(148deg,
+      rgba(238,252,244,0.99) 0%,
+      rgba(230,248,238,0.97) 58%,
+      rgba(244,246,230,0.95) 100%);
+  box-shadow: var(--gaia-shadow-xs);
+  transition: border-color 220ms ease, transform 220ms ease, box-shadow 220ms ease;
+}
+
+.gaia-meal:hover {
+  border-color: rgba(44,90,64,0.28);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(14,46,28,0.13);
+}
+
+/* GRID / ACTIONS */
+
+.gaia-grid { display: grid; gap: 1rem; }
+.gaia-grid-3 { grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); }
+.gaia-grid-2 { grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); }
+.gaia-actions { display: flex; flex-wrap: wrap; gap: 0.9rem; }
+
+/* AUTH */
+
+.gaia-auth-shell { max-width: 780px; }
+.gaia-auth-stack { display: grid; gap: 0.9rem; }
+
+/* FORMS */
+
+.gaia-form-card { display: grid; gap: 0.88rem; }
+
+.gaia-form-card label {
+  color: var(--gaia-sage-600);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.gaia-input {
+  border: 1px solid rgba(26,66,44,0.18);
+  border-radius: var(--gaia-radius-sm);
+  background:
+    linear-gradient(162deg, rgba(240,252,246,0.99), rgba(234,248,242,0.97));
+  color: var(--gaia-ink-900);
+  font-family: var(--gaia-font-body);
+  font-size: 1rem;
+  padding: 0.96rem 1.1rem;
+  outline: none;
+  width: 100%;
+  box-shadow: 0 1px 0 rgba(255,255,255,0.8) inset, var(--gaia-shadow-xs);
+  transition:
+    border-color 200ms ease,
+    box-shadow 200ms ease,
+    background 200ms ease;
+}
+
+.gaia-input::placeholder { color: rgba(32,72,48,0.38); font-style: italic; }
+
+.gaia-input:focus,
+.gaia-input:focus-visible {
+  border-color: var(--gaia-sage-500);
+  box-shadow:
+    0 0 0 4px rgba(58,112,82,0.15),
+    0 2px 10px rgba(24,64,42,0.1),
+    0 1px 0 rgba(255,255,255,0.8) inset;
+  background: rgba(248,254,251,0.99);
+}
+
+/* BUTTONS */
+
+.gaia-btn {
+  appearance: none;
+  border: 1px solid transparent;
+  border-radius: var(--gaia-radius-sm);
+  padding: 0.94rem 1.5rem;
+  font-family: var(--gaia-font-body);
+  font-size: 0.94rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  transition:
+    transform 200ms ease,
+    box-shadow 200ms ease,
+    filter 200ms ease,
+    border-color 200ms ease,
+    background 200ms ease;
+}
+
+.gaia-btn:hover         { transform: translateY(-2.5px); }
+.gaia-btn:active        { transform: translateY(0.5px); }
+.gaia-btn:focus-visible { outline: none; box-shadow: 0 0 0 4px rgba(64,120,90,0.26); }
+.gaia-btn:disabled      { opacity: 0.48; transform: none; cursor: not-allowed; }
+
+.gaia-btn-primary {
+  color: #eafaf2;
+  border-color: rgba(6,20,12,0.65);
+  background:
+    linear-gradient(142deg,
+      #080e0a 0%,
+      #142418 28%,
+      #223c2e 54%,
+      #325248 76%,
+      #426460 100%);
+  box-shadow:
+    0 1px 0 rgba(168,244,152,0.14) inset,
+    0 -2px 0 rgba(0,0,0,0.22) inset,
+    0 14px 36px rgba(6,20,12,0.38),
+    0 4px 12px rgba(6,20,12,0.24);
+  text-shadow: 0 1px 5px rgba(0,0,0,0.32);
+}
+
+.gaia-btn-primary:hover {
+  filter: brightness(1.12);
+  box-shadow:
+    0 1px 0 rgba(168,244,152,0.14) inset,
+    0 -2px 0 rgba(0,0,0,0.22) inset,
+    0 20px 48px rgba(6,20,12,0.46),
+    0 6px 18px rgba(6,20,12,0.3);
+}
+
+.gaia-btn-secondary {
+  color: var(--gaia-ink-800);
+  border-color: rgba(32,76,52,0.22);
+  background:
+    linear-gradient(148deg,
+      rgba(236,251,243,0.99) 0%,
+      rgba(224,246,234,0.97) 100%);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.9) inset,
+    var(--gaia-shadow-xs);
+}
+
+.gaia-btn-secondary:hover {
+  background: linear-gradient(148deg, rgba(226,248,237,1) 0%, rgba(212,240,224,1) 100%);
+  border-color: rgba(32,76,52,0.32);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.9) inset,
+    0 8px 22px rgba(14,50,30,0.14);
+}
+
+.gaia-btn-google {
+  color: var(--gaia-ink-800);
+  border-color: rgba(44,82,60,0.2);
+  background: linear-gradient(148deg, #e8f2ee 0%, #f2e8da 100%);
+  box-shadow: var(--gaia-shadow-xs);
+}
+
+.gaia-btn-google:hover {
+  background: linear-gradient(148deg, #ddeae4 0%, #ece0cc 100%);
+  border-color: rgba(44,82,60,0.3);
+  box-shadow: 0 6px 18px rgba(14,44,26,0.12);
+}
+
+.gaia-btn-ghost {
+  color: var(--gaia-ink-700);
+  border-color: rgba(36,76,54,0.18);
+  background:
+    linear-gradient(148deg,
+      rgba(224,244,232,0.72) 0%,
+      rgba(216,240,226,0.66) 100%);
+}
+
+.gaia-btn-ghost:hover {
+  background:
+    linear-gradient(148deg,
+      rgba(212,240,224,0.88) 0%,
+      rgba(202,234,216,0.84) 100%);
+  border-color: rgba(36,76,54,0.26);
+  box-shadow: 0 4px 14px rgba(14,44,26,0.1);
+}
+
+/* DISCLAIMER / ALERTS */
+
+.gaia-disclaimer {
+  border-left: 3px solid var(--gaia-earth-400);
+  background:
+    linear-gradient(160deg,
+      rgba(255,252,240,0.99) 0%,
+      rgba(252,244,224,0.97) 100%);
+  padding: 1.25rem 1.4rem;
+  border-radius: 0 var(--gaia-radius-sm) var(--gaia-radius-sm) 0;
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.88) inset,
+    var(--gaia-shadow-xs);
+}
+
+.gaia-error {
+  color: #7e3230;
+  font-size: 0.87rem;
+  font-weight: 600;
+  padding: 0.58rem 0.82rem;
+  background: rgba(138,55,52,0.07);
+  border-radius: var(--gaia-radius-sm);
+  border-left: 3px solid rgba(138,55,52,0.38);
+  line-height: 1.5;
+}
+
+.gaia-success {
+  color: #1f5435;
+  font-size: 0.87rem;
+  font-weight: 600;
+  padding: 0.58rem 0.82rem;
+  background: rgba(31,84,53,0.07);
+  border-radius: var(--gaia-radius-sm);
+  border-left: 3px solid rgba(31,84,53,0.38);
+  line-height: 1.5;
+}
+
+/* GOOGLE SETUP NOTICE */
+
+.gaia-google-setup {
+  border: 1px solid rgba(72,112,86,0.2);
+  border-radius: var(--gaia-radius-sm);
+  padding: 0.84rem 0.94rem;
+  background: linear-gradient(162deg, rgba(236,248,240,0.92), rgba(252,244,232,0.88));
+  color: var(--gaia-ink-800);
+  font-size: 0.9rem;
+}
+
+.gaia-google-setup-title { margin-bottom: 0.38rem; font-weight: 700; color: var(--gaia-ink-700); }
+.gaia-google-setup ul { display: grid; gap: 0.22rem; font-size: 0.85rem; line-height: 1.6; padding-left: 1.1rem; }
+
+.gaia-footnote { text-align: center; font-size: 0.85rem; color: var(--gaia-ink-700); opacity: 0.78; }
+
+
+/* ============================================================
+   ENTRY PAGE — Auth polish
+   ============================================================ */
+
+.gaia-auth-stack { gap: 1rem; }
+
+/* "— or —" visual separator between primary and secondary auth options */
+.gaia-auth-or {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  color: rgba(56,96,72,0.5);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.gaia-auth-or::before,
+.gaia-auth-or::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(52,96,70,0.18), transparent);
+}
+
+/* Welcoming footnote at bottom of entry */
+.gaia-footnote {
+  text-align: center;
+  font-size: 0.82rem;
+  color: var(--gaia-ink-700);
+  opacity: 0.7;
+  font-style: italic;
+}
+
+/* ============================================================
+   OVERVIEW PAGE — Section polish
+   ============================================================ */
+
+/* Pillar cards with botanical top accent */
+.gaia-pillar-card {
+  border-top: 4px solid var(--gaia-sage-500);
+  transition: border-top-color 240ms ease, transform 240ms ease, box-shadow 240ms ease;
+}
+
+/* Accent spectrum across the three pillars */
+.gaia-pillar-card:nth-child(2) { border-top-color: rgba(128, 190, 88, 0.78); }
+.gaia-pillar-card:nth-child(3) { border-top-color: rgba(184, 152, 68, 0.72); }
+
+/* Preserve the top accent on hover (`.gaia-card:hover` shorthand would kill it) */
+.gaia-pillar-card:hover { border-top-color: var(--gaia-sage-500); }
+.gaia-pillar-card:nth-child(2):hover { border-top-color: rgba(128, 190, 88, 0.96); }
+.gaia-pillar-card:nth-child(3):hover { border-top-color: rgba(184, 152, 68, 0.92); }
+
+/* Member comparison card — distinct deep botanical green */
+.gaia-member-card {
+  border-color: rgba(38,88,60,0.24);
+  background:
+    radial-gradient(ellipse at 92% 6%, rgba(56,148,92,0.14), transparent 42%),
+    linear-gradient(155deg,
+      rgba(220,248,234,0.99) 0%,
+      rgba(210,244,228,0.97) 50%,
+      rgba(232,244,220,0.96) 100%);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.92) inset,
+    0 -1px 0 rgba(20,56,36,0.06) inset,
+    var(--gaia-shadow-soft);
+}
+
+/* ============================================================
+   PROFILE PAGE — Quick actions
+   ============================================================ */
+
+/* Primary action card (Search) */
+.gaia-action-primary {
+  border-top: 4px solid var(--gaia-sage-500);
+  transition: border-top-color 240ms ease, transform 240ms ease, box-shadow 240ms ease;
+}
+.gaia-action-primary:hover { border-top-color: var(--gaia-sage-400); }
+
+/* Secondary action card (Quick link — warm gold) */
+.gaia-action-secondary {
+  border-top: 4px solid rgba(184,148,62,0.62);
+  transition: border-top-color 240ms ease, transform 240ms ease, box-shadow 240ms ease;
+}
+.gaia-action-secondary:hover { border-top-color: rgba(184,148,62,0.88); }
+
+/* ============================================================
+   RESULTS PAGE — Chapter sections & Sanctuary feel
+   ============================================================ */
+
+/* Section number badge */
+.gaia-section-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 29px;
+  height: 29px;
+  border-radius: 50%;
+  background: linear-gradient(140deg, var(--gaia-sage-700), var(--gaia-sage-500));
+  color: rgba(232,255,240,0.97);
+  font-size: 0.64rem;
+  font-weight: 700;
+  flex-shrink: 0;
+  letter-spacing: 0;
+  box-shadow:
+    0 1px 0 rgba(188,244,168,0.22) inset,
+    0 3px 10px rgba(18,56,34,0.28);
+}
+
+/* Elixir section badge uses earth/amber tones */
+.gaia-elixir-badge {
+  background: linear-gradient(140deg, var(--gaia-earth-700), var(--gaia-earth-400));
+  box-shadow:
+    0 1px 0 rgba(232,204,148,0.22) inset,
+    0 3px 10px rgba(80,50,18,0.28);
+}
+
+/* Elixir card — warm apothecary amber treatment */
+.gaia-elixir-card {
+  border-color: rgba(148,112,48,0.22);
+  background:
+    radial-gradient(ellipse at 94% 8%,  rgba(214,174,88,0.26), transparent 36%),
+    radial-gradient(ellipse at  6% 90%, rgba(118,192,118,0.13), transparent 32%),
+    linear-gradient(155deg,
+      rgba(255,250,234,0.99) 0%,
+      rgba(250,244,222,0.97) 46%,
+      rgba(236,250,236,0.95) 100%);
+  box-shadow:
+    0 1px 0 rgba(255,248,210,0.88) inset,
+    var(--gaia-shadow-soft);
+}
+
+/* Precautions card — warm safety tone */
+.gaia-precautions-card {
+  border-color: rgba(132,102,54,0.2);
+  background:
+    linear-gradient(150deg,
+      rgba(255,251,242,0.99) 0%,
+      rgba(250,243,226,0.97) 54%,
+      rgba(246,242,232,0.96) 100%);
+  box-shadow:
+    0 1px 0 rgba(255,250,230,0.9) inset,
+    var(--gaia-shadow-soft);
+}
+
+/* Results section header — badge + title in a row */
+.gaia-results-heading {
+  display: flex;
+  align-items: center;
+  gap: 0.78rem;
+  margin-bottom: 0.1rem;
+}
+
+.gaia-results-heading h2 {
+  margin: 0;
+  line-height: 1.1;
+}
+
+/* The section-title inside a results-heading already has margin-bottom;
+   prevent double-spacing when nested */
+.gaia-results-heading .gaia-section-title {
+  margin-bottom: 0;
+}
+
+/* Elixir two-column sub-grid */
+.gaia-elixir-grid {
+  display: grid;
+  gap: 1.2rem;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+/* Meal plan — 3 columns on desktop, stacks on mobile */
+.gaia-meals-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(3, 1fr);
+}
+
+/* Results bottom navigation */
+.gaia-results-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.9rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 760px) {
+  .gaia-meals-grid { grid-template-columns: 1fr; }
+}
+
+/* ============================================================
+   SPLASH — GAIA IMMERSIVE OPENING
+   ============================================================ */
+
+.gs-screen {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 2.5rem 0 6rem;
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse 78% 62% at 50% 43%, rgba(24,58,40,0.96) 0%, rgba(8,20,14,0.72) 52%, transparent 70%),
+    radial-gradient(ellipse at 14% 88%, rgba(10,26,18,0.6) 0%, transparent 44%),
+    radial-gradient(ellipse at 90% 10%, rgba(16,38,26,0.5) 0%, transparent 40%),
+    linear-gradient(160deg, #060d08 0%, #091410 30%, #0d1c10 58%, #101e0f 84%, #0a1509 100%);
+}
+
+/* Central life-force orb — glow center matches globe center at top: 43% */
+.gs-bg-orb {
+  position: absolute;
+  top: 43%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(820px, 130vw);
+  height: min(820px, 130vw);
+  border-radius: 50%;
+  pointer-events: none;
+  background: radial-gradient(circle,
+    rgba(72, 145, 90, 0.46) 0%,
+    rgba(52, 108, 70, 0.28) 26%,
+    rgba(32, 76, 50, 0.14) 52%,
+    transparent 68%
+  );
+  animation: gsOrbBreath 5.5s ease-in-out infinite;
+}
+
+/* Warm gold haze — radiates from globe center */
+.gs-bg-gold {
+  position: absolute;
+  top: 43%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(440px, 80vw);
+  height: min(440px, 80vw);
+  border-radius: 50%;
+  pointer-events: none;
+  background: radial-gradient(circle,
+    rgba(200, 164, 72, 0.20) 0%,
+    rgba(182, 148, 58, 0.10) 42%,
+    transparent 64%
+  );
+}
+
+/* FIREFLIES — 18 glowing particles rising from the forest floor */
+.gs-firefly {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  animation-name: gsFirefly;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+}
+
+.gs-ff-1  { width:4px; height:4px; left:17%; bottom:14%; background:rgba(182,238,162,0.92); box-shadow:0 0 7px 3px rgba(155,228,115,0.68); animation-duration:6.4s;  animation-delay:0s;    --drift:18px;  }
+.gs-ff-2  { width:3px; height:3px; left:31%; bottom:10%; background:rgba(204,244,176,0.82); box-shadow:0 0 5px 2px rgba(172,234,122,0.52); animation-duration:7.9s;  animation-delay:1.1s;  --drift:-24px; }
+.gs-ff-3  { width:5px; height:5px; left:67%; bottom:20%; background:rgba(178,232,150,0.9);  box-shadow:0 0 9px 4px rgba(150,218,110,0.64); animation-duration:6.8s;  animation-delay:2.3s;  --drift:-16px; }
+.gs-ff-4  { width:3px; height:3px; left:80%; bottom:15%; background:rgba(214,248,184,0.74); box-shadow:0 0 5px 2px rgba(186,238,142,0.46); animation-duration:8.6s;  animation-delay:0.6s;  --drift:22px;  }
+.gs-ff-5  { width:4px; height:4px; left:11%; bottom:30%; background:rgba(183,238,156,0.84); box-shadow:0 0 7px 3px rgba(154,222,110,0.54); animation-duration:7.2s;  animation-delay:3.2s;  --drift:14px;  }
+.gs-ff-6  { width:3px; height:3px; left:51%; bottom:8%;  background:rgba(222,250,187,0.78); box-shadow:0 0 5px 2px rgba(194,240,148,0.48); animation-duration:9.1s;  animation-delay:1.8s;  --drift:-20px; }
+.gs-ff-7  { width:5px; height:5px; left:73%; bottom:34%; background:rgba(172,232,144,0.9);  box-shadow:0 0 10px 4px rgba(144,215,108,0.68); animation-duration:6.6s;  animation-delay:4.1s;  --drift:28px;  }
+.gs-ff-8  { width:3px; height:3px; left:41%; bottom:6%;  background:rgba(207,245,175,0.74); box-shadow:0 0 5px 2px rgba(179,235,138,0.44); animation-duration:8.9s;  animation-delay:0.4s;  --drift:-12px; }
+.gs-ff-9  { width:4px; height:4px; left:27%; bottom:38%; background:rgba(187,240,160,0.84); box-shadow:0 0 7px 3px rgba(158,226,118,0.6);  animation-duration:7.5s;  animation-delay:2.7s;  --drift:18px;  }
+.gs-ff-10 { width:3px; height:3px; left:89%; bottom:26%; background:rgba(218,250,185,0.66); box-shadow:0 0 5px 2px rgba(188,240,145,0.4);  animation-duration:8.3s;  animation-delay:1.5s;  --drift:-28px; }
+.gs-ff-11 { width:4px; height:4px; left:7%;  bottom:48%; background:rgba(180,235,150,0.8);  box-shadow:0 0 7px 3px rgba(151,221,112,0.54); animation-duration:6.9s;  animation-delay:3.6s;  --drift:20px;  }
+.gs-ff-12 { width:3px; height:3px; left:61%; bottom:4%;  background:rgba(210,246,178,0.72); box-shadow:0 0 5px 2px rgba(182,236,140,0.44); animation-duration:9.6s;  animation-delay:0.9s;  --drift:-16px; }
+.gs-ff-13 { width:5px; height:5px; left:37%; bottom:53%; background:rgba(174,228,146,0.86); box-shadow:0 0 9px 4px rgba(147,214,108,0.62); animation-duration:7.7s;  animation-delay:5.0s;  --drift:32px;  }
+.gs-ff-14 { width:3px; height:3px; left:85%; bottom:42%; background:rgba(214,248,180,0.7);  box-shadow:0 0 5px 2px rgba(186,238,142,0.4);  animation-duration:8.7s;  animation-delay:2.1s;  --drift:-22px; }
+.gs-ff-15 { width:4px; height:4px; left:23%; bottom:60%; background:rgba(184,237,154,0.82); box-shadow:0 0 7px 3px rgba(154,222,114,0.56); animation-duration:7.3s;  animation-delay:4.4s;  --drift:14px;  }
+.gs-ff-16 { width:3px; height:3px; left:57%; bottom:66%; background:rgba(220,252,190,0.62); box-shadow:0 0 4px 2px rgba(192,242,152,0.36); animation-duration:10.2s; animation-delay:1.3s;  --drift:-18px; }
+.gs-ff-17 { width:4px; height:4px; left:45%; bottom:24%; background:rgba(178,230,148,0.86); box-shadow:0 0 7px 3px rgba(149,217,110,0.6);  animation-duration:7.9s;  animation-delay:6.2s;  --drift:24px;  }
+.gs-ff-18 { width:3px; height:3px; left:13%; bottom:74%; background:rgba(206,244,174,0.66); box-shadow:0 0 5px 2px rgba(177,234,136,0.4);  animation-duration:9.3s;  animation-delay:3.0s;  --drift:-20px; }
+
+/* BOTANICAL CORNER FRAME */
+.gs-botanical-frame {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  opacity: 0;
+  /* pure opacity — no translateY; the frame covers the full screen */
+  animation: gsFadeIn 2.4s ease forwards 0.5s;
+}
+
+/* GAIA CENTRAL IMAGE
+   Globe center in the 1024×1024 PNG is at ~57% from the top.
+   Anchor: top:43%, left:50% = glow center.
+   gsGaiaIn keyframe contains translate(-50%, -57%) in both states so
+   animation-fill-mode:forwards never wipes the positioning offset.
+   To fine-tune: change -57% in @keyframes gsGaiaIn (both from and to).
+*/
+.gs-gaia-wrap {
+  position: absolute;
+  top: 43%;
+  left: 50%;
+  /* NO standalone transform here — gsGaiaIn owns the transform entirely */
+  z-index: 2;
+  width: min(480px, 88vw);
+  pointer-events: none;
+  opacity: 0;
+  animation: gsGaiaIn 2.6s ease forwards 0.8s;
+}
+
+.gs-gaia-img {
+  display: block;
+  width: 100%;
+  height: auto;
+  opacity: 0.93;
+  filter: brightness(0.84) saturate(1.10)
+          drop-shadow(0 0 52px rgba(64, 148, 80, 0.52));
+  -webkit-mask-image: linear-gradient(to bottom,
+    transparent 0%,
+    black 7%,
+    black 84%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(to bottom,
+    transparent 0%,
+    black 7%,
+    black 84%,
+    transparent 100%
+  );
+  user-select: none;
+  pointer-events: none;
+}
+
+/* MAIN CONTENT — no card, text directly on atmosphere */
+.gs-content {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 0 1.5rem 0.5rem;
+  width: 100%;
+  max-width: 640px;
+}
+
+.gs-kicker {
+  font-family: var(--gaia-font-body);
+  text-transform: uppercase;
+  letter-spacing: 0.32em;
+  font-size: 0.58rem;
+  font-weight: 700;
+  color: rgba(156, 220, 146, 0.86);
+  margin: 0;
+  position: relative;
+  z-index: 4;
+  opacity: 0;
+  animation: gaiaFadeUp 0.9s ease forwards 0.28s;
+}
+
+.gs-wordmark {
+  font-family: var(--gaia-font-display);
+  font-size: clamp(4.2rem, 12.5vw, 7.8rem);
+  font-weight: 500;
+  letter-spacing: 0.15em;
+  line-height: 1;
+  color: #eef8f2;
+  text-shadow:
+    0 0 52px rgba(92, 170, 112, 0.62),
+    0 0 108px rgba(68, 136, 90, 0.3),
+    0 8px 28px rgba(0, 0, 0, 0.58);
+  margin: 0 0 0.18rem;
+}
+
+.gs-letter {
+  display: inline-block;
+  opacity: 0;
+  animation: gsLetterGlow 0.72s ease forwards;
+}
+
+.gs-dot {
+  display: inline-block;
+  color: #c9a44e;
+  opacity: 0;
+  text-shadow:
+    0 0 24px rgba(200, 162, 78, 0.95),
+    0 0 52px rgba(200, 162, 78, 0.48),
+    0 0 96px rgba(200, 162, 78, 0.22);
+  animation: gsLetterGlow 0.72s ease forwards;
+}
+
+.gs-full-name {
+  font-family: var(--gaia-font-display);
+  font-size: clamp(1.1rem, 2.9vw, 1.4rem);
+  font-style: italic;
+  font-weight: 400;
+  color: rgba(172, 228, 164, 0.92);
+  letter-spacing: 0.10em;
+  margin: 0.55rem 0 0;
+  opacity: 0;
+  animation: gaiaFadeUp 0.8s ease forwards 2.4s;
+}
+
+.gs-ornament {
+  display: flex;
+  align-items: center;
+  gap: 0.95rem;
+  margin: 1.4rem 0 0.9rem;
+  opacity: 0;
+  animation: gaiaFadeUp 0.7s ease forwards 2.65s;
+}
+
+.gs-ornament-line {
+  display: block;
+  height: 1px;
+  width: 76px;
+  background: linear-gradient(90deg, transparent, rgba(148, 218, 132, 0.44), transparent);
+}
+
+.gs-ornament-icon { flex-shrink: 0; opacity: 0.85; }
+
+.gs-tagline {
+  font-size: 0.71rem;
+  color: rgba(138, 196, 130, 0.76);
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  font-family: var(--gaia-font-body);
+  margin-top: 0.15rem;
+  opacity: 0;
+  animation: gaiaFadeUp 0.7s ease forwards 2.9s;
+}
+
+.gs-motto {
+  position: absolute;
+  bottom: 1.9rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 3;
+  padding: 0;
+  margin: 0;
+  border: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  white-space: nowrap;
+  opacity: 0;
+  animation: gsFadeIn 1.0s ease forwards 3.9s;
+}
+
+.gs-motto-rule {
+  display: block;
+  width: 52px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(148, 218, 132, 0.40), transparent);
+  margin-bottom: 0.35rem;
+}
+
+.gs-motto-quote {
+  font-family: var(--gaia-font-display);
+  font-size: clamp(1.0rem, 2.6vw, 1.28rem);
+  font-style: italic;
+  font-weight: 400;
+  color: rgba(220, 250, 204, 0.86);
+  letter-spacing: 0.02em;
+  line-height: 1.3;
+  text-shadow: 0 0 32px rgba(128, 212, 108, 0.34);
+}
+
+.gs-motto-cite {
+  font-family: var(--gaia-font-body);
+  font-size: 0.59rem;
+  font-style: normal;
+  font-weight: 600;
+  letter-spacing: 0.20em;
+  text-transform: uppercase;
+  color: rgba(148, 208, 128, 0.52);
+}
+
+.gs-progress-track {
+  margin: 1.7rem auto 0;
+  width: min(196px, 50vw);
+  height: 2px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: rgba(68, 128, 94, 0.24);
+  opacity: 0;
+  animation: gaiaFadeUp 0.5s ease forwards 3.15s;
+}
+
+.gs-progress-fill {
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  transform-origin: left;
+  transform: scaleX(0);
+  animation: gsProgressFill 3.7s linear forwards 0.7s;
+  background: linear-gradient(90deg,
+    rgba(100, 175, 118, 0.88) 0%,
+    rgba(165, 216, 96, 0.92) 55%,
+    rgba(194, 165, 76, 0.78) 100%
+  );
+}
+
+.gs-skip {
+  appearance: none;
+  border: 1px solid rgba(128, 202, 138, 0.38);
+  border-radius: 999px;
+  background:
+    linear-gradient(135deg, rgba(24, 62, 40, 0.76) 0%, rgba(16, 44, 28, 0.72) 100%);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  color: rgba(200, 242, 194, 0.96);
+  font-family: var(--gaia-font-body);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  text-shadow: 0 0 18px rgba(142, 220, 126, 0.42);
+  padding: 0.84rem 2.2rem;
+  cursor: pointer;
+  margin-top: 1.35rem;
+  opacity: 0;
+  box-shadow:
+    0 0 0 1px rgba(100, 172, 116, 0.14),
+    0 4px 20px rgba(8, 28, 18, 0.38);
+  animation: gaiaFadeUp 0.7s ease forwards 4.2s;
+  transition: background 240ms ease, border-color 240ms ease, transform 200ms ease, box-shadow 240ms ease;
+}
+
+.gs-skip:hover {
+  background:
+    linear-gradient(135deg, rgba(32, 78, 52, 0.88) 0%, rgba(22, 56, 36, 0.84) 100%);
+  border-color: rgba(154, 226, 164, 0.54);
+  transform: translateY(-2px);
+  box-shadow:
+    0 0 0 1px rgba(120, 196, 136, 0.22),
+    0 12px 32px rgba(12, 40, 24, 0.52);
+}
+
+/* KEYFRAMES */
+
+@keyframes gaiaFadeUp {
+  from { opacity: 0; transform: translateY(11px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Gaia splash keyframes */
+
+@keyframes gsOrbBreath {
+  0%, 100% { opacity: 0.74; transform: translate(-50%, -50%) scale(0.93); }
+  50%       { opacity: 1;   transform: translate(-50%, -50%) scale(1.06); }
+}
+
+@keyframes gsLetterGlow {
+  from { opacity: 0; transform: translateY(20px) scale(0.88); filter: blur(8px); }
+  to   { opacity: 1; transform: translateY(0)    scale(1);    filter: blur(0);   }
+}
+
+/* Dedicated Gaia wrapper animation — translate is baked into both keyframes so
+   animation-fill-mode: forwards can never wipe out the positioning offset.
+   The Y value (-57%) = globe center position within the 1024×1024 PNG.
+   Adjust this % if the globe needs fine-tuning after visual check. */
+@keyframes gsGaiaIn {
+  from { opacity: 0; transform: translate(-50%, -57%) scale(0.92); }
+  to   { opacity: 1; transform: translate(-50%, -57%) scale(1.00); }
+}
+
+@keyframes gsFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes gsFirefly {
+  0%   { transform: translateY(0)       translateX(0);                         opacity: 0;   }
+  10%  { opacity: 1;                                                                          }
+  48%  { transform: translateY(-62px)   translateX(calc(var(--drift) * 0.55)); opacity: 0.82;}
+  78%  { transform: translateY(-108px)  translateX(var(--drift));              opacity: 0.52;}
+  100% { transform: translateY(-145px)  translateX(calc(var(--drift) * 1.18)); opacity: 0;   }
+}
+
+@keyframes gsProgressFill {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+
+/* REDUCED MOTION */
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* RESPONSIVE */
+
+@media (max-width: 760px) {
+  .gaia-page { padding: 1.65rem 0.92rem 2.4rem; }
+  .gaia-header-card { padding: 1.4rem 1.1rem; border-radius: 20px; }
+  .gaia-header-card h1 { font-size: clamp(1.75rem, 6vw, 2.5rem); }
+  .gaia-card { padding: 1.35rem 1.2rem; border-radius: 18px; }
+  .gaia-header-card { border-radius: 22px; }
+  .gaia-actions { display: grid; grid-template-columns: 1fr; }
+  .gs-content   { padding: 0 1.1rem 0.5rem; }
+  .gs-gaia-wrap { top: 40%; width: min(380px, 84vw); }
+  .gs-bg-orb    { top: 40%; }
+  .gs-bg-gold   { top: 40%; }
+  .gs-wordmark  { font-size: clamp(3.4rem, 15vw, 5.2rem); }
+  .gs-ornament-line { width: 38px; }
 }
