@@ -2,26 +2,62 @@
 
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useEffect, useMemo } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
-import { findConditionByQuery } from "@/lib/conditions";
+import { findConditionByQuery, type ConditionContent } from "@/lib/conditions";
+import { matchCondition, type BackendConditionMatch } from "@/lib/api";
+
+type MatchState =
+  | { status: "loading" }
+  | { status: "no_match" }
+  | { status: "matched_backend"; match: BackendConditionMatch }
+  | { status: "matched_local"; match: ConditionContent }
+  | { status: "error"; message: string };
 
 function ConfirmContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { status } = useSession();
+  const { status: sessionStatus } = useSession();
   const query = searchParams.get("query")?.trim() ?? "";
 
-  const match = useMemo(() => {
-    if (!query) return null;
-    return findConditionByQuery(query);
-  }, [query]);
+  const [matchState, setMatchState] = useState<MatchState>({ status: "loading" });
 
   useEffect(() => {
-    if (status !== "unauthenticated" && !query) router.replace("/search");
-  }, [query, router, status]);
+    if (!query) {
+      router.replace("/search");
+      return;
+    }
 
-  if (status === "loading") {
+    let cancelled = false;
+
+    async function resolveMatch() {
+      setMatchState({ status: "loading" });
+
+      // Try backend first (DB-backed synonym matching)
+      const backendMatch = await matchCondition(query);
+      if (cancelled) return;
+
+      if (backendMatch) {
+        setMatchState({ status: "matched_backend", match: backendMatch });
+        return;
+      }
+
+      // Backend unavailable or no DB match — fall back to local library
+      const localMatch = findConditionByQuery(query);
+      if (cancelled) return;
+
+      if (localMatch) {
+        setMatchState({ status: "matched_local", match: localMatch });
+      } else {
+        setMatchState({ status: "no_match" });
+      }
+    }
+
+    resolveMatch();
+    return () => { cancelled = true; };
+  }, [query, router]);
+
+  if (sessionStatus === "loading") {
     return (
       <main className="gaia-page">
         <section className="gaia-shell">
@@ -34,7 +70,7 @@ function ConfirmContent() {
     );
   }
 
-  if (status === "unauthenticated") {
+  if (sessionStatus === "unauthenticated") {
     return (
       <main className="gaia-page">
         <section className="gaia-shell">
@@ -45,11 +81,14 @@ function ConfirmContent() {
               Guest mode gives you a curated overview and feature preview.
             </p>
             <div className="gaia-actions">
-              <Link href="/overview?mode=guest&preview=1#guest-preview" className="gaia-btn gaia-btn-secondary">
-                Open Guest Preview
+              <Link href="/entry?mode=login" className="gaia-btn gaia-btn-primary">
+                Log In
               </Link>
-              <Link href="/entry" className="gaia-btn gaia-btn-primary">
-                Log In for Full Access
+              <Link href="/entry?mode=register" className="gaia-btn gaia-btn-secondary">
+                Register
+              </Link>
+              <Link href="/overview?mode=guest&preview=1#guest-preview" className="gaia-btn gaia-btn-ghost">
+                Guest Preview
               </Link>
             </div>
           </article>
@@ -71,6 +110,14 @@ function ConfirmContent() {
     );
   }
 
+  function handleConfirmBackend(conditionID: number) {
+    router.push(`/results?id=${conditionID}`);
+  }
+
+  function handleConfirmLocal(id: string) {
+    router.push(`/results?id=${id}`);
+  }
+
   return (
     <main className="gaia-page">
       <section className="gaia-shell">
@@ -78,9 +125,8 @@ function ConfirmContent() {
           <p className="gaia-kicker">Condition Match</p>
           <h1>Does This Look Right?</h1>
           <p>
-            Gaia found a match for &ldquo;{query}&rdquo;. Please confirm this
-            is the condition you have already been diagnosed with before
-            continuing.
+            Gaia searched for &ldquo;{query}&rdquo;. Please confirm this is the
+            condition you have already been diagnosed with before continuing.
           </p>
           <div className="gaia-chip-row">
             <span className="gaia-chip">Clinician-first</span>
@@ -88,7 +134,14 @@ function ConfirmContent() {
           </div>
         </header>
 
-        {!match ? (
+        {matchState.status === "loading" && (
+          <article className="gaia-card">
+            <h2>Searching...</h2>
+            <p>Matching &ldquo;{query}&rdquo; against supported conditions.</p>
+          </article>
+        )}
+
+        {matchState.status === "no_match" && (
           <article className="gaia-card">
             <div className="gaia-section-title">
               <h2>Not supported yet</h2>
@@ -109,27 +162,68 @@ function ConfirmContent() {
               </Link>
             </div>
           </article>
-        ) : (
+        )}
+
+        {matchState.status === "matched_backend" && (
           <article className="gaia-card gaia-member-card">
             <div className="gaia-section-title">
-              <h2>{match.title}</h2>
+              <h2>{matchState.match.conditionName}</h2>
               <span className="gaia-section-kicker">Match found</span>
             </div>
-            <p>{match.supportiveOverview}</p>
+            <p>{matchState.match.description}</p>
             <div className="gaia-disclaimer">
               <strong>Before you continue —</strong> this guidance is supportive
-              only. Proceed only if <em>{match.title}</em> is a condition you
-              have already been diagnosed with by a clinician.
+              only. Proceed only if <em>{matchState.match.conditionName}</em> is a
+              condition you have already been diagnosed with by a clinician.
             </div>
             <div className="gaia-actions">
               <button
                 type="button"
                 className="gaia-btn gaia-btn-primary"
-                onClick={() => router.push(`/results?id=${match.id}`)}
+                onClick={() => handleConfirmBackend(matchState.match.conditionID)}
               >
                 Yes, open my path
               </button>
               <Link href="/search" className="gaia-btn gaia-btn-secondary">
+                Search again
+              </Link>
+            </div>
+          </article>
+        )}
+
+        {matchState.status === "matched_local" && (
+          <article className="gaia-card gaia-member-card">
+            <div className="gaia-section-title">
+              <h2>{matchState.match.title}</h2>
+              <span className="gaia-section-kicker">Match found</span>
+            </div>
+            <p>{matchState.match.supportiveOverview}</p>
+            <div className="gaia-disclaimer">
+              <strong>Before you continue —</strong> this guidance is supportive
+              only. Proceed only if <em>{matchState.match.title}</em> is a
+              condition you have already been diagnosed with by a clinician.
+            </div>
+            <div className="gaia-actions">
+              <button
+                type="button"
+                className="gaia-btn gaia-btn-primary"
+                onClick={() => handleConfirmLocal(matchState.match.id)}
+              >
+                Yes, open my path
+              </button>
+              <Link href="/search" className="gaia-btn gaia-btn-secondary">
+                Search again
+              </Link>
+            </div>
+          </article>
+        )}
+
+        {matchState.status === "error" && (
+          <article className="gaia-card">
+            <h2>Something went wrong</h2>
+            <p>{matchState.status}</p>
+            <div className="gaia-actions">
+              <Link href="/search" className="gaia-btn gaia-btn-primary">
                 Search again
               </Link>
             </div>

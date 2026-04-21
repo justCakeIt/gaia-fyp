@@ -5,9 +5,11 @@ import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 import { useSession } from "next-auth/react";
 
+
 export default function SearchPage() {
   const router = useRouter();
   const [query, setQuery] = useState("");
+  const [validationError, setValidationError] = useState("");
   const { status } = useSession();
 
   if (status === "loading") {
@@ -34,11 +36,14 @@ export default function SearchPage() {
               can still use the preview experience.
             </p>
             <div className="gaia-actions">
-              <Link href="/overview?mode=guest&preview=1#guest-preview" className="gaia-btn gaia-btn-secondary">
-                Open Guest Preview
+              <Link href="/entry?mode=login" className="gaia-btn gaia-btn-primary">
+                Log In
               </Link>
-              <Link href="/entry" className="gaia-btn gaia-btn-primary">
-                Log In or Register
+              <Link href="/entry?mode=register" className="gaia-btn gaia-btn-secondary">
+                Register
+              </Link>
+              <Link href="/overview?mode=guest&preview=1#guest-preview" className="gaia-btn gaia-btn-ghost">
+                Guest Preview
               </Link>
             </div>
           </article>
@@ -50,7 +55,11 @@ export default function SearchPage() {
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const trimmed = query.trim();
-    if (!trimmed) return;
+    if (!trimmed) {
+      setValidationError("Please enter a condition name before searching.");
+      return;
+    }
+    setValidationError("");
     router.push(`/confirm?query=${encodeURIComponent(trimmed)}`);
   }
 
@@ -103,6 +112,7 @@ export default function SearchPage() {
               </button>
             ))}
           </div>
+          {validationError ? <p className="gaia-error">{validationError}</p> : null}
           <div className="gaia-actions">
             <button type="submit" className="gaia-btn gaia-btn-primary">
               Find my path

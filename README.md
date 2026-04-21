@@ -65,19 +65,31 @@ The system returns structured natural support options (not medical treatment).
 ## 🧠 Technology Stack
 
 ### **Frontend**
-- **React.js** (JavaScript library for building UI)
+- **Next.js 16.1.6** with **React 19.2.3**
+- **NextAuth ^4.24.13** for authentication (local + Google OAuth)
+- TypeScript + Tailwind CSS 4
 
 ### **Backend**
-- **Node.js + Express.js** (web server + routing)
+- **Node.js + Express ^4.22.1** (web server + routing)
+- **MySQL2 ^3.17.5** driver
 - **Docker** for local containerised development
 
 ### **Database**
-- **MySQL** (herbal knowledge base, conditions, recipes)
+- **MySQL 8** (herbal knowledge base, conditions, recipes, users)
 
 ### **AI Components**
 - NLP for condition–to–recommendation mapping  
 - Template-based NLG (human-like explanations)  
 - Light personalisation logic (rule-based for MVP)
+
+### **CORS (local development)**
+
+The backend permits requests from the following origins by default:
+- `http://localhost:5173` (Vite)
+- `http://localhost:3001` (Next.js dev)
+- `http://localhost:3000` (backend)
+
+Override by setting `CORS_ORIGIN=<comma-separated URLs>` in the root `.env`.
 
 ---
 
@@ -105,7 +117,6 @@ Install backend dependencies:
 
 ```bash
 npm install
-npm install pug
 ```
 
 Start Docker containers:

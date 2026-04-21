@@ -57,22 +57,22 @@ export default function SplashPage() {
         <circle cx="500" cy="340" r="7"   fill="none" stroke="rgba(138,202,122,0.2)"  strokeWidth="0.6"/>
       </svg>
 
-      {/* ── Welcome kicker ── */}
-      <p className="gs-kicker">Welcome to Your Sanctuary</p>
+      {/* ── Composition stage — keeps Gaia and content in one coordinate system ── */}
+      <div className="gs-stage">
 
-      {/* ── Gaia central illustration ── */}
-      <div className="gs-gaia-wrap" aria-hidden>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src="/images/gaia_splash.png"
-          alt=""
-          className="gs-gaia-img"
-          draggable={false}
-        />
-      </div>
+        {/* ── Gaia central illustration ── */}
+        <div className="gs-gaia-wrap" aria-hidden>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/images/gaia_splash.png"
+            alt=""
+            className="gs-gaia-img"
+            draggable={false}
+          />
+        </div>
 
-      {/* ── Centre content ── */}
-      <section className="gs-content">
+        {/* ── Centre content ── */}
+        <section className="gs-content">
 
         <h1 className="gs-wordmark" aria-label="G.A.I.A.">
           <span className="gs-letter" style={{ animationDelay: "0.52s" }}>G</span>
@@ -99,7 +99,7 @@ export default function SplashPage() {
           <span className="gs-ornament-line" />
         </div>
 
-        <p className="gs-tagline">Supportive wellness · Never diagnosis</p>
+        <p className="gs-tagline">Supportive wellness · Natural recovery</p>
 
         <div className="gs-progress-track" aria-hidden>
           <div className="gs-progress-fill" />
@@ -113,7 +113,9 @@ export default function SplashPage() {
           Enter Gaia
         </button>
 
-      </section>
+        </section>
+
+      </div>{/* end gs-stage */}
 
       {/* ── Motto ── */}
       <blockquote className="gs-motto" aria-label="Gaia motto">

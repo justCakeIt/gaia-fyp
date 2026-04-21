@@ -51,4 +51,21 @@ async function list(req, res, next) {
   }
 }
 
-module.exports = { create, list };
+// DELETE /api/reminders/:id
+async function remove(req, res, next) {
+  try {
+    const reminderID = toInt(req.params.id);
+    if (!reminderID) {
+      return res.status(400).json({ ok: false, error: "invalid reminderID" });
+    }
+    const deleted = await remindersService.deleteReminder(reminderID);
+    if (!deleted) {
+      return res.status(404).json({ ok: false, error: "reminder not found" });
+    }
+    return res.json({ ok: true });
+  } catch (e) {
+    next(e);
+  }
+}
+
+module.exports = { create, list, remove };

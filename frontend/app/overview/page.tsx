@@ -1,198 +1,135 @@
 import Link from "next/link";
 
-type OverviewPageProps = {
-  searchParams: Promise<{ mode?: string; preview?: string }>;
-};
-
-export default async function OverviewPage({ searchParams }: OverviewPageProps) {
-  const params = await searchParams;
-  const isGuest = params.mode === "guest";
-  const showPreview = isGuest || params.preview === "1";
-
+export default async function OverviewPage() {
   return (
     <main className="gaia-page">
       <section className="gaia-shell">
 
-        {/* Hero */}
+        {/* 1. Hero */}
         <header className="gaia-header-card">
-          <p className="gaia-kicker">Your Wellness Sanctuary</p>
-          <h1>Welcome to G.A.I.A.</h1>
+          <p className="gaia-kicker">Guest Preview</p>
+          <h1>Explore G.A.I.A. as a Guest</h1>
           <p>
-            Green AI Alchemy offers calm, condition-aware wellness guidance built
-            around botanical wisdom, practical nutrition, and daily lifestyle
-            structure — always as a complement to professional medical care.
+            Preview the guidance experience before committing to an account.
+            Register when you are ready to save your plan, set reminders, and
+            return to your personal wellness sanctuary.
           </p>
-          <div className="gaia-chip-row">
-            <span className="gaia-chip">Botanical support</span>
-            <span className="gaia-chip">Nutrition-first</span>
-            <span className="gaia-chip">Safety-forward</span>
-            <span className="gaia-chip">Never diagnostic</span>
+          <div className="gaia-actions" style={{ marginTop: "1rem" }}>
+            <Link href="#guest-preview" className="gaia-btn gaia-btn-primary">
+              Explore as Guest
+            </Link>
           </div>
+          <p className="gaia-note" style={{ marginTop: "0.85rem" }}>
+            Ready to commit?{" "}
+            <Link href="/entry?mode=register" style={{ textDecoration: "underline" }}>
+              Create an account
+            </Link>
+            {" "}or{" "}
+            <Link href="/entry?mode=login" style={{ textDecoration: "underline" }}>
+              log in
+            </Link>
+            .
+          </p>
         </header>
 
-        {/* Guest mode notice */}
-        {isGuest ? (
-          <article className="gaia-card gaia-surface-muted">
-            <div className="gaia-section-title">
-              <h2>Browsing as a guest</h2>
-              <span className="gaia-section-kicker">No account needed</span>
+        {/* 2. Comparison */}
+        <article className="gaia-card">
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr",
+              gap: "2rem",
+            }}
+          >
+            <div>
+              <p className="gaia-section-kicker" style={{ marginBottom: "0.65rem" }}>
+                As a guest
+              </p>
+              <ul>
+                <li>Preview the guidance experience</li>
+                <li>See the wellness plan structure</li>
+                <li>Understand the safety-first approach</li>
+              </ul>
             </div>
-            <p>
-              You can explore the Gaia experience right now. Create a free
-              account whenever you are ready to unlock full condition journeys
-              and save your wellness path.
-            </p>
-            <div className="gaia-actions">
-              <Link href="/entry" className="gaia-btn gaia-btn-primary">
-                Create Account
-              </Link>
-              <Link href="/entry" className="gaia-btn gaia-btn-ghost">
-                Log In
-              </Link>
+            <div>
+              <p className="gaia-section-kicker" style={{ marginBottom: "0.65rem" }}>
+                As a member
+              </p>
+              <ul>
+                <li>Save your condition wellness plan</li>
+                <li>Set and manage daily reminders</li>
+                <li>Access your personal dashboard</li>
+                <li>Return to your path anytime</li>
+              </ul>
             </div>
-          </article>
-        ) : null}
-
-        {/* Three pillars */}
-        <section className="gaia-grid gaia-grid-3" aria-label="Core purpose">
-          <article className="gaia-card gaia-pillar-card">
-            <div className="gaia-section-title">
-              <h2>What G.A.I.A. Does</h2>
-              <span className="gaia-section-kicker">Purpose</span>
-            </div>
-            <p>
-              Translates condition-focused wellness support into practical, calm
-              steps you can integrate into your daily rhythm.
-            </p>
-          </article>
-          <article className="gaia-card gaia-surface-muted gaia-pillar-card">
-            <div className="gaia-section-title">
-              <h2>How It Feels</h2>
-              <span className="gaia-section-kicker">Human-centered</span>
-            </div>
-            <p>
-              Thoughtful, non-judgmental guidance with botanical context, food
-              ideas, and safety framing — all gathered in one calm space.
-            </p>
-          </article>
-          <article className="gaia-card gaia-pillar-card">
-            <div className="gaia-section-title">
-              <h2>Why It Matters</h2>
-              <span className="gaia-section-kicker">Daily clarity</span>
-            </div>
-            <p>
-              Small, consistent habits become easier when guidance is organized,
-              personalized, and quick to revisit whenever you need it.
-            </p>
-          </article>
-        </section>
-
-        {/* Guest vs Member comparison */}
-        <section className="gaia-grid gaia-grid-2" aria-label="Access levels">
-          <article className="gaia-card">
-            <div className="gaia-section-title">
-              <h2>Guest Experience</h2>
-              <span className="gaia-section-kicker">Available now</span>
-            </div>
-            <ul>
-              <li>Browse the Gaia approach and wellness tone.</li>
-              <li>Preview the safety-first recommendation style.</li>
-              <li>Explore the high-level planning structure.</li>
-              <li>Experience the interface before committing to an account.</li>
-            </ul>
-            <div className="gaia-actions" style={{ marginTop: "0.5rem" }}>
-              <Link
-                href="/overview?mode=guest&preview=1#guest-preview"
-                className="gaia-btn gaia-btn-secondary"
-              >
-                Open Guest Preview
-              </Link>
-            </div>
-          </article>
-
-          <article className="gaia-card gaia-member-card">
-            <div className="gaia-section-title">
-              <h2>Registered Members</h2>
-              <span className="gaia-section-kicker">Full access</span>
-            </div>
-            <ul>
-              <li>Complete condition support journeys with full detail.</li>
-              <li>Personalized profile experience tied to your account.</li>
-              <li>Botanical elixir recipes, meal plans, and lifestyle tips.</li>
-              <li>Quicker return access to guidance you use often.</li>
-              <li>Growing feature set as G.A.I.A. expands.</li>
-            </ul>
-            <div className="gaia-actions" style={{ marginTop: "0.5rem" }}>
-              <Link href="/entry" className="gaia-btn gaia-btn-primary">
-                Create or Log In
-              </Link>
-            </div>
-          </article>
-        </section>
-
-        {/* CTA */}
-        <article className="gaia-card gaia-surface-muted">
-          <div className="gaia-section-title">
-            <h2>Start as Guest · Upgrade Anytime</h2>
-            <span className="gaia-section-kicker">Flexible path</span>
           </div>
-          <p>
-            Begin exploring immediately. Create your account when you are ready
-            to save progress and build a more personalized Gaia journey.
+        </article>
+
+        {/* 3. Journey */}
+        <article className="gaia-card gaia-surface-muted">
+          <p className="gaia-section-kicker" style={{ marginBottom: "0.85rem" }}>
+            How it works
+          </p>
+          <ol
+            style={{
+              padding: "0 0 0 1.1rem",
+              margin: 0,
+              display: "flex",
+              flexDirection: "column",
+              gap: "0.6rem",
+            }}
+          >
+            <li><strong>Search your diagnosed condition</strong></li>
+            <li><strong>Confirm the matched support path</strong></li>
+            <li><strong>View your guidance — register to save it</strong></li>
+          </ol>
+        </article>
+
+        {/* 4. Preview panel */}
+        <article id="guest-preview" className="gaia-card">
+          <p className="gaia-section-kicker" style={{ marginBottom: "0.75rem" }}>
+            What a wellness path includes
+          </p>
+          <ul style={{ marginBottom: "1.25rem" }}>
+            <li>Botanical elixir — curated herbal blend with method and safety notes</li>
+            <li>Diet approach — nutrition principles matched to your condition</li>
+            <li>One-day meal plan — breakfast, lunch, and dinner examples</li>
+            <li>Lifestyle tips — daily habits to support your wellness rhythm</li>
+            <li>Precautions — when to pause, and when to see your clinician</li>
+          </ul>
+          <p className="gaia-note" style={{ marginBottom: "1rem" }}>
+            Full detail — complete recipes, herb profiles, and personalised
+            reminders — is available to registered members.
           </p>
           <div className="gaia-actions">
-            <Link href="/entry" className="gaia-btn gaia-btn-primary">
-              Register for Full Experience
-            </Link>
-            <Link
-              href="/overview?mode=guest&preview=1#guest-preview"
-              className="gaia-btn gaia-btn-secondary"
-            >
-              Explore as Guest
+            <Link href="/entry?mode=register" className="gaia-btn gaia-btn-primary">
+              Create Account to Access Full Plan
             </Link>
           </div>
         </article>
 
-        {/* Guest preview section */}
-        {showPreview ? (
-          <article id="guest-preview" className="gaia-card">
-            <div className="gaia-section-title">
-              <h2>Guest Preview</h2>
-              <span className="gaia-section-kicker">Limited access</span>
-            </div>
-            <p>
-              As a guest you can see the Gaia approach and guidance style. Full
-              condition journeys — including detailed plans, botanical recipes,
-              and complete recommendation paths — unlock after sign-in.
-            </p>
-            <div className="gaia-list-card">
-              <p className="gaia-section-kicker" style={{ marginBottom: "0.45rem" }}>What you can see in guest mode</p>
-              <ul>
-                <li>Sample condition support tone and structure.</li>
-                <li>Preview of safety-first recommendation formatting.</li>
-                <li>High-level examples of structured wellness planning.</li>
-              </ul>
-            </div>
-            <p className="gaia-note">
-              Full condition detail pages, botanical elixir recipes, and meal
-              plans are available to registered members only.
-            </p>
-            <div className="gaia-actions">
-              <Link href="/entry" className="gaia-btn gaia-btn-primary">
-                Log In for Full Access
-              </Link>
-              <Link href="/entry" className="gaia-btn gaia-btn-secondary">
-                Create Account
-              </Link>
-            </div>
-          </article>
-        ) : null}
+        {/* 5. Final CTA */}
+        <article className="gaia-card gaia-member-card">
+          <h2 style={{ marginBottom: "0.5rem" }}>Your own sanctuary awaits.</h2>
+          <p>
+            A free account gives you saved plans, daily reminders, and a
+            personal dashboard — all in one calm place.
+          </p>
+          <div className="gaia-actions" style={{ marginTop: "1rem" }}>
+            <Link href="/entry?mode=register" className="gaia-btn gaia-btn-primary">
+              Create Account
+            </Link>
+            <Link href="/entry?mode=login" className="gaia-btn gaia-btn-ghost">
+              Log In
+            </Link>
+          </div>
+        </article>
 
-        {/* Disclaimer */}
+        {/* 6. Safety note */}
         <article className="gaia-card gaia-disclaimer">
-          <strong>Supportive guidance only —</strong> G.A.I.A. is designed to
-          complement professional care. It does not diagnose, treat, or replace
-          your clinician&apos;s advice.
+          <strong>Supportive guidance only —</strong> G.A.I.A. does not
+          diagnose, treat, cure, or replace professional medical care. Always
+          follow your clinician&apos;s advice.
         </article>
 
       </section>

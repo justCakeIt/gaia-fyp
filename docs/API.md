@@ -10,7 +10,7 @@ This API powers the MVP workflow:
 
 ### Backend Stack
 
-- Node.js (Express)
+- Node.js + Express ^4.22.1
 - MySQL 8
 - Docker Compose
 - REST architectural principles
@@ -56,8 +56,143 @@ All endpoints return JSON using a consistent structure.
 | 200  | Request successful |
 | 201  | Resource created |
 | 400  | Client validation error |
+| 401  | Unauthorised (invalid credentials) |
 | 404  | Resource not found |
 | 500  | Internal server error |
+| 503  | Database temporarily unreachable |
+
+---
+
+# Authentication
+
+---
+
+## Login
+
+Authenticates an existing local account and returns the user record.
+
+### Endpoint
+
+POST /api/auth/login
+
+### Request Body
+
+```json
+{
+  "email": "user@example.com",
+  "password": "Secret123"
+}
+```
+
+### Response
+
+```json
+{
+  "ok": true,
+  "data": {
+    "userID": 1,
+    "email": "user@example.com",
+    "userName": "Alice"
+  }
+}
+```
+
+### Error Responses
+
+| Status | Condition |
+|--------|-----------|
+| 400    | Missing or malformed email / password |
+| 401    | `{ "ok": false, "error": "Invalid credentials" }` |
+| 503    | Database unreachable |
+
+---
+
+## Register
+
+Creates a new local account.
+
+### Endpoint
+
+POST /api/auth/register
+
+### Request Body
+
+```json
+{
+  "email": "user@example.com",
+  "password": "Secret123",
+  "name": "Alice"
+}
+```
+
+#### Password Rules
+
+- 8 – 72 characters
+- Must include at least one uppercase letter, one lowercase letter, and one digit
+
+### Response
+
+```json
+{
+  "ok": true,
+  "data": {
+    "userID": 2,
+    "email": "user@example.com",
+    "userName": "Alice"
+  }
+}
+```
+
+HTTP status `201 Created` on success.
+
+### Error Responses
+
+| Status | Condition |
+|--------|-----------|
+| 400    | Validation failure (missing fields, weak password, duplicate email) |
+| 503    | Database unreachable |
+
+---
+
+## Google Sync
+
+Upserts a Google-authenticated user. Creates the account on first call; returns the existing record on subsequent calls.
+
+### Endpoint
+
+POST /api/auth/google-sync
+
+### Request Body
+
+```json
+{
+  "email": "user@gmail.com",
+  "name": "Alice"
+}
+```
+
+### Response
+
+```json
+{
+  "ok": true,
+  "data": {
+    "userID": 3,
+    "email": "user@gmail.com",
+    "userName": "Alice",
+    "created": false
+  }
+}
+```
+
+`created` is `true` when a new account was created, `false` when an existing account was matched.
+
+### Error Responses
+
+| Status | Condition |
+|--------|-----------|
+| 400    | Missing or invalid email |
+| 503    | Database unreachable |
 
 ---
 
@@ -323,6 +458,35 @@ GET /api/reminders?userID=1
 
 ---
 
+## Delete Reminder
+
+Permanently removes a reminder by ID.
+
+### Endpoint
+
+DELETE /api/reminders/:id
+
+Example:
+
+DELETE /api/reminders/3
+
+### Response
+
+```json
+{
+  "ok": true
+}
+```
+
+### Error Responses
+
+| Status | Condition |
+|--------|-----------|
+| 400    | `id` is not a valid positive integer |
+| 404    | Reminder not found |
+
+---
+
 # Error Handling
 
 A centralized middleware handles API errors.
@@ -346,6 +510,20 @@ Start the environment:
 
 ```bash
 docker compose up --build
+```
+
+### CORS
+
+The backend allows cross-origin requests from the following origins by default:
+
+- `http://localhost:5173` (Vite dev server)
+- `http://localhost:3001` (Next.js dev server)
+- `http://localhost:3000` (backend / static build)
+
+To override, set a comma-separated `CORS_ORIGIN` environment variable before starting the server:
+
+```
+CORS_ORIGIN=http://localhost:3001,http://localhost:5173
 ```
 
 Example PowerShell test commands:

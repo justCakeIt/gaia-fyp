@@ -27,4 +27,12 @@ async function listReminders(userID) {
   );
 }
 
-module.exports = { createReminder, listReminders }; 
+async function deleteReminder(reminderID) {
+  const result = await db.query(
+    `DELETE FROM Reminders WHERE reminderID = ?`,
+    [reminderID]
+  );
+  return result.affectedRows > 0;
+}
+
+module.exports = { createReminder, listReminders, deleteReminder };

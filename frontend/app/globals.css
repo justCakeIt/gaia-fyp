@@ -818,52 +818,43 @@ button.gaia-chip:hover {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: space-between;
-  padding: 2.5rem 0 6rem;
+  justify-content: flex-start;
+  padding: 2.2rem 0 5rem;
   position: relative;
   overflow: hidden;
   background:
-    radial-gradient(ellipse 78% 62% at 50% 43%, rgba(24,58,40,0.96) 0%, rgba(8,20,14,0.72) 52%, transparent 70%),
+    radial-gradient(ellipse 140% 58% at 50% 46%, rgba(18,48,32,0.90) 0%, rgba(8,18,12,0.60) 50%, transparent 74%),
     radial-gradient(ellipse at 14% 88%, rgba(10,26,18,0.6) 0%, transparent 44%),
     radial-gradient(ellipse at 90% 10%, rgba(16,38,26,0.5) 0%, transparent 40%),
     linear-gradient(160deg, #060d08 0%, #091410 30%, #0d1c10 58%, #101e0f 84%, #0a1509 100%);
 }
 
-/* Central life-force orb — glow center matches globe center at top: 43% */
+/* Single unified glow — wide flat atmospheric aura centred on Gaia/Earth.
+   Width > height creates a horizontal ellipse; the gradient follows that shape
+   so it spreads further across the page than it does vertically.
+   No hard edge: transparent stop at 76% means the boundary is always offscreen. */
 .gs-bg-orb {
   position: absolute;
-  top: 43%;
+  top: 46%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: min(820px, 130vw);
-  height: min(820px, 130vw);
+  width: min(1440px, 210vw);
+  height: min(620px, 88vh);
   border-radius: 50%;
   pointer-events: none;
-  background: radial-gradient(circle,
-    rgba(72, 145, 90, 0.46) 0%,
-    rgba(52, 108, 70, 0.28) 26%,
-    rgba(32, 76, 50, 0.14) 52%,
-    transparent 68%
+  background: radial-gradient(ellipse at center,
+    rgba(208, 168, 72, 0.15) 0%,
+    rgba(148, 200, 108, 0.24) 14%,
+    rgba(72, 148, 92, 0.28) 28%,
+    rgba(48, 108, 68, 0.14) 48%,
+    rgba(28, 72, 48, 0.06) 64%,
+    transparent 76%
   );
   animation: gsOrbBreath 5.5s ease-in-out infinite;
 }
 
-/* Warm gold haze — radiates from globe center */
-.gs-bg-gold {
-  position: absolute;
-  top: 43%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: min(440px, 80vw);
-  height: min(440px, 80vw);
-  border-radius: 50%;
-  pointer-events: none;
-  background: radial-gradient(circle,
-    rgba(200, 164, 72, 0.20) 0%,
-    rgba(182, 148, 58, 0.10) 42%,
-    transparent 64%
-  );
-}
+/* gs-bg-gold absorbed into gs-bg-orb gradient above */
+.gs-bg-gold { display: none; }
 
 /* FIREFLIES — 18 glowing particles rising from the forest floor */
 .gs-firefly {
@@ -907,22 +898,20 @@ button.gaia-chip:hover {
 }
 
 /* GAIA CENTRAL IMAGE
-   Globe center in the 1024×1024 PNG is at ~57% from the top.
-   Anchor: top:43%, left:50% = glow center.
-   gsGaiaIn keyframe contains translate(-50%, -57%) in both states so
-   animation-fill-mode:forwards never wipes the positioning offset.
-   To fine-tune: change -57% in @keyframes gsGaiaIn (both from and to).
+   Image is square (1024×1024). Globe center sits at ~57% from the top.
+   In-flow within .gs-stage; negative margin-bottom pulls gs-content up
+   so the text/button overlays the lower body of the figure at globe-center height.
+   Both elements live in the same coordinate system — no zoom drift.
 */
 .gs-gaia-wrap {
-  position: absolute;
-  top: 43%;
-  left: 50%;
-  /* NO standalone transform here — gsGaiaIn owns the transform entirely */
+  position: relative;
   z-index: 2;
   width: min(480px, 88vw);
   pointer-events: none;
   opacity: 0;
   animation: gsGaiaIn 2.6s ease forwards 0.8s;
+  /* Pull content up to just below globe centre — 0.30 places title ~1 line lower again */
+  margin-bottom: calc(min(480px, 88vw) * -0.30);
 }
 
 .gs-gaia-img {
@@ -930,8 +919,7 @@ button.gaia-chip:hover {
   width: 100%;
   height: auto;
   opacity: 0.93;
-  filter: brightness(0.84) saturate(1.10)
-          drop-shadow(0 0 52px rgba(64, 148, 80, 0.52));
+  filter: brightness(0.84) saturate(1.10);
   -webkit-mask-image: linear-gradient(to bottom,
     transparent 0%,
     black 7%,
@@ -961,18 +949,20 @@ button.gaia-chip:hover {
   max-width: 640px;
 }
 
-.gs-kicker {
-  font-family: var(--gaia-font-body);
-  text-transform: uppercase;
-  letter-spacing: 0.32em;
-  font-size: 0.58rem;
-  font-weight: 700;
-  color: rgba(156, 220, 146, 0.86);
-  margin: 0;
+
+/* Composition stage — Gaia image and content share one coordinate system,
+   so they scale and zoom as a single unit instead of drifting independently. */
+.gs-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+  width: 100%;
+  max-width: 640px;
+  justify-content: center;
+  padding-bottom: 2rem;
   position: relative;
-  z-index: 4;
-  opacity: 0;
-  animation: gaiaFadeUp 0.9s ease forwards 0.28s;
+  z-index: 2;
 }
 
 .gs-wordmark {
@@ -1174,13 +1164,11 @@ button.gaia-chip:hover {
   to   { opacity: 1; transform: translateY(0)    scale(1);    filter: blur(0);   }
 }
 
-/* Dedicated Gaia wrapper animation — translate is baked into both keyframes so
-   animation-fill-mode: forwards can never wipe out the positioning offset.
-   The Y value (-57%) = globe center position within the 1024×1024 PNG.
-   Adjust this % if the globe needs fine-tuning after visual check. */
+/* Gaia wrapper entrance — simple scale fade; positioning is handled
+   by the normal-flow .gs-stage layout, no translation needed. */
 @keyframes gsGaiaIn {
-  from { opacity: 0; transform: translate(-50%, -57%) scale(0.92); }
-  to   { opacity: 1; transform: translate(-50%, -57%) scale(1.00); }
+  from { opacity: 0; transform: scale(0.92); }
+  to   { opacity: 1; transform: scale(1.00); }
 }
 
 @keyframes gsFadeIn {
@@ -1221,9 +1209,8 @@ button.gaia-chip:hover {
   .gaia-header-card { border-radius: 22px; }
   .gaia-actions { display: grid; grid-template-columns: 1fr; }
   .gs-content   { padding: 0 1.1rem 0.5rem; }
-  .gs-gaia-wrap { top: 40%; width: min(380px, 84vw); }
-  .gs-bg-orb    { top: 40%; }
-  .gs-bg-gold   { top: 40%; }
+  .gs-gaia-wrap { width: min(380px, 84vw); margin-bottom: calc(min(380px, 84vw) * -0.30); }
+  .gs-bg-orb    { top: 46%; }
   .gs-wordmark  { font-size: clamp(3.4rem, 15vw, 5.2rem); }
   .gs-ornament-line { width: 38px; }
 }

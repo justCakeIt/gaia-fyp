@@ -16,7 +16,10 @@ function EntryContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const [mode, setMode] = useState<Mode>("choice");
+  const initialMode = searchParams.get("mode");
+  const [mode, setMode] = useState<Mode>(
+    initialMode === "login" || initialMode === "register" ? initialMode : "choice"
+  );
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
