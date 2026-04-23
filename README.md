@@ -164,6 +164,30 @@ Tests are integration tests — they connect to the real database and clean up a
 
 ---
 
+## ⚙️ Continuous Integration
+
+Every push and pull request runs two parallel GitHub Actions jobs:
+
+| Job | What it checks |
+|-----|----------------|
+| **Backend – integration tests** | Spins up a MySQL 8 service, applies schema and seed data, then runs `npm test` (Jest + Supertest, 38 tests) |
+| **Frontend – lint & build** | Runs `npm run lint` (ESLint / Next.js rules) then `npm run build` (Next.js production build, 13 routes) |
+
+**Run the same checks locally:**
+
+```bash
+# Backend tests — requires Docker MySQL container running
+docker compose up -d
+npm test
+
+# Frontend lint + build
+cd frontend
+npm run lint
+npm run build
+```
+
+---
+
 ## 🤝 Contributing
 
 By contributing to this project, you agree to follow the  
