@@ -144,6 +144,26 @@ Then open:
 
 ---
 
+## 🧪 Testing
+
+The backend has an integration test suite built with **Jest** and **Supertest**.
+
+> **Requirement:** The MySQL Docker container must be running before tests are executed.
+>
+> ```bash
+> docker compose up -d
+> ```
+
+Run all tests:
+
+```bash
+npm test
+```
+
+Tests are integration tests — they connect to the real database and clean up all created rows (test user, plan, plan items, reminders) after each run.
+
+---
+
 ## 🤝 Contributing
 
 By contributing to this project, you agree to follow the  

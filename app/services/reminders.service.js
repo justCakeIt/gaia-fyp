@@ -27,6 +27,14 @@ async function listReminders(userID) {
   );
 }
 
+async function getReminderOwner(reminderID) {
+  const rows = await db.query(
+    `SELECT userID FROM Reminders WHERE reminderID = ? LIMIT 1`,
+    [reminderID]
+  );
+  return rows[0]?.userID ?? null;
+}
+
 async function deleteReminder(reminderID) {
   const result = await db.query(
     `DELETE FROM Reminders WHERE reminderID = ?`,
@@ -35,4 +43,4 @@ async function deleteReminder(reminderID) {
   return result.affectedRows > 0;
 }
 
-module.exports = { createReminder, listReminders, deleteReminder };
+module.exports = { createReminder, listReminders, deleteReminder, getReminderOwner };

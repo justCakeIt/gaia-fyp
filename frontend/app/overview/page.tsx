@@ -1,6 +1,12 @@
-import Link from "next/link";
+"use client";
 
-export default async function OverviewPage() {
+import Link from "next/link";
+import { useSession } from "next-auth/react";
+
+export default function OverviewPage() {
+  const { status } = useSession();
+  const isAuthenticated = status === "authenticated";
+
   return (
     <main className="gaia-page">
       <section className="gaia-shell">
@@ -8,31 +14,34 @@ export default async function OverviewPage() {
         {/* 1. Hero */}
         <header className="gaia-header-card">
           <p className="gaia-kicker">Guest Preview</p>
-          <h1>Explore G.A.I.A. as a Guest</h1>
+          <h1>Explore G.A.I.A.</h1>
           <p>
             Preview the guidance experience before committing to an account.
             Register when you are ready to save your plan, set reminders, and
-            return to your personal wellness sanctuary.
+            return to your personal wellness path.
           </p>
           <div className="gaia-actions" style={{ marginTop: "1rem" }}>
-            <Link href="#guest-preview" className="gaia-btn gaia-btn-primary">
-              Explore as Guest
+            <Link href="/about" className="gaia-btn gaia-btn-primary">
+              About G.A.I.A.
             </Link>
+            {!isAuthenticated && (
+              <Link href="/entry?mode=register" className="gaia-btn gaia-btn-secondary">
+                Create Account
+              </Link>
+            )}
           </div>
-          <p className="gaia-note" style={{ marginTop: "0.85rem" }}>
-            Ready to commit?{" "}
-            <Link href="/entry?mode=register" style={{ textDecoration: "underline" }}>
-              Create an account
-            </Link>
-            {" "}or{" "}
-            <Link href="/entry?mode=login" style={{ textDecoration: "underline" }}>
-              log in
-            </Link>
-            .
-          </p>
+          {!isAuthenticated && (
+            <p className="gaia-note" style={{ marginTop: "0.85rem" }}>
+              Already have an account?{" "}
+              <Link href="/entry?mode=login" style={{ textDecoration: "underline" }}>
+                Log in
+              </Link>
+              .
+            </p>
+          )}
         </header>
 
-        {/* 2. Comparison */}
+        {/* 2. Guest vs Member comparison */}
         <article className="gaia-card">
           <div
             style={{
@@ -65,7 +74,7 @@ export default async function OverviewPage() {
           </div>
         </article>
 
-        {/* 3. Journey */}
+        {/* 3. How it works */}
         <article className="gaia-card gaia-surface-muted">
           <p className="gaia-section-kicker" style={{ marginBottom: "0.85rem" }}>
             How it works
@@ -101,28 +110,63 @@ export default async function OverviewPage() {
             Full detail — complete recipes, herb profiles, and personalised
             reminders — is available to registered members.
           </p>
-          <div className="gaia-actions">
-            <Link href="/entry?mode=register" className="gaia-btn gaia-btn-primary">
-              Create Account to Access Full Plan
-            </Link>
-          </div>
+          {!isAuthenticated && (
+            <div className="gaia-actions">
+              <Link href="/entry?mode=register" className="gaia-btn gaia-btn-primary">
+                Create Account to Access Full Plan
+              </Link>
+            </div>
+          )}
+          {isAuthenticated && (
+            <div className="gaia-actions">
+              <Link href="/search" className="gaia-btn gaia-btn-primary">
+                Start Search
+              </Link>
+            </div>
+          )}
         </article>
 
         {/* 5. Final CTA */}
         <article className="gaia-card gaia-member-card">
-          <h2 style={{ marginBottom: "0.5rem" }}>Your own sanctuary awaits.</h2>
-          <p>
-            A free account gives you saved plans, daily reminders, and a
-            personal dashboard — all in one calm place.
-          </p>
-          <div className="gaia-actions" style={{ marginTop: "1rem" }}>
-            <Link href="/entry?mode=register" className="gaia-btn gaia-btn-primary">
-              Create Account
-            </Link>
-            <Link href="/entry?mode=login" className="gaia-btn gaia-btn-ghost">
-              Log In
-            </Link>
-          </div>
+          {isAuthenticated ? (
+            <>
+              <h2 style={{ marginBottom: "0.5rem" }}>Your path is waiting.</h2>
+              <p>
+                Head to search to find your condition pathway, or return to your
+                dashboard to view saved plans and reminders.
+              </p>
+              <div className="gaia-actions" style={{ marginTop: "1rem" }}>
+                <Link href="/search" className="gaia-btn gaia-btn-primary">
+                  Start Search
+                </Link>
+                <Link href="/profile" className="gaia-btn gaia-btn-secondary">
+                  View Profile
+                </Link>
+                <Link href="/about" className="gaia-btn gaia-btn-ghost">
+                  About G.A.I.A.
+                </Link>
+              </div>
+            </>
+          ) : (
+            <>
+              <h2 style={{ marginBottom: "0.5rem" }}>Your own sanctuary awaits.</h2>
+              <p>
+                A free account gives you saved plans, daily reminders, and a
+                personal dashboard — all in one calm place.
+              </p>
+              <div className="gaia-actions" style={{ marginTop: "1rem" }}>
+                <Link href="/entry?mode=register" className="gaia-btn gaia-btn-primary">
+                  Create Account
+                </Link>
+                <Link href="/entry?mode=login" className="gaia-btn gaia-btn-secondary">
+                  Log In
+                </Link>
+                <Link href="/about" className="gaia-btn gaia-btn-ghost">
+                  About G.A.I.A.
+                </Link>
+              </div>
+            </>
+          )}
         </article>
 
         {/* 6. Safety note */}

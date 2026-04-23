@@ -14,4 +14,7 @@ router.get("/", plansController.list);
 // GET /api/plans/:planID
 router.get("/:planID", plansController.getOne);
 
+// DELETE /api/plans/:planID
+router.delete("/:planID", plansController.remove);
+
 module.exports = router;

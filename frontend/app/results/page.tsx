@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { findConditionById, findConditionByQuery, type ConditionContent } from "@/lib/conditions";
-import { getRecommendations, type BackendRecommendations } from "@/lib/api";
+import { getRecommendations, fetchUserPlans, type BackendRecommendations, type UserPlan } from "@/lib/api";
 import PlanSaveSection from "@/components/PlanSaveSection";
 
 type PageState =
@@ -18,6 +18,7 @@ function ResultsContent() {
   const searchParams = useSearchParams();
   const { data: session, status: sessionStatus } = useSession();
   const rawId = searchParams.get("id") ?? "";
+  const isSavedView = searchParams.get("saved") === "1";
 
   const userID = (() => {
     const id = (session?.user as { id?: string } | null)?.id;
@@ -26,6 +27,7 @@ function ResultsContent() {
   })();
 
   const [pageState, setPageState] = useState<PageState>({ status: "loading" });
+  const [userPlans, setUserPlans] = useState<UserPlan[]>([]);
 
   useEffect(() => {
     if (!rawId) {
@@ -67,6 +69,11 @@ function ResultsContent() {
     load();
     return () => { cancelled = true; };
   }, [rawId, router]);
+
+  useEffect(() => {
+    if (!userID) return;
+    fetchUserPlans(userID).then(setUserPlans);
+  }, [userID]);
 
   if (sessionStatus === "loading") {
     return (
@@ -146,11 +153,11 @@ function ResultsContent() {
 
   // Determine display values — backend wins for title/overview if no local
   const conditionTitle =
-    local?.title ?? backend?.condition.conditionName ?? "Condition Support Plan";
+    local?.title ?? backend?.condition.conditionName ?? "Wellness Support";
   const conditionOverview =
     local?.supportiveOverview ?? backend?.condition.description ?? "";
   const disclaimer = local?.disclaimer ??
-    "This content is supportive wellness guidance only. It does not diagnose, treat, or cure disease, and it does not replace your clinician\u2019s plan.";
+    "This content is supportive wellness guidance only. It does not diagnose, treat, or cure disease, and it does not replace your clinician’s plan. Do not stop or change medication, supplements, or treatment without consulting a qualified healthcare professional.";
 
   // Backend recommended herbs (exclude "avoid")
   const recommendedHerbs = backend?.herbs.filter(
@@ -380,12 +387,15 @@ function ResultsContent() {
         </article>
 
         {/* ── Save Plan / Reminder ── */}
-        <PlanSaveSection
-          sessionStatus={sessionStatus}
-          userID={userID}
-          backend={backend}
-          conditionTitle={conditionTitle}
-        />
+        {!isSavedView && (
+          <PlanSaveSection
+            sessionStatus={sessionStatus}
+            userID={userID}
+            backend={backend}
+            conditionTitle={conditionTitle}
+            userPlans={userPlans}
+          />
+        )}
 
         {/* ── Navigation ── */}
         <div className="gaia-results-nav">

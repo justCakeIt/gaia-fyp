@@ -5,7 +5,13 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "dev": "supervisor index.js"
+    "dev": "supervisor index.js",
+    "test": "jest --runInBand",
+    "test:watch": "jest --runInBand --watch"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "testTimeout": 30000
   },
   "dependencies": {
     "bcryptjs": "^3.0.2",
@@ -15,6 +21,8 @@
     "mysql2": "^3.17.5"
   },
   "devDependencies": {
+    "jest": "^29.7.0",
+    "supertest": "^7.0.0",
     "supervisor": "^0.12.0"
   }
 }

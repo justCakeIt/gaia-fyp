@@ -8,6 +8,7 @@ import {
   fetchUserPlans,
   fetchUserReminders,
   deleteReminder,
+  deletePlan,
   createReminder,
   type UserPlan,
   type UserReminder,
@@ -56,6 +57,10 @@ export default function ProfilePage() {
   });
   const [form, setForm] = useState<ReminderForm>({ open: false });
 
+  // Inline confirmation states — hold the ID being confirmed, or null
+  const [confirmDeletePlan, setConfirmDeletePlan] = useState<number | null>(null);
+  const [confirmDeleteReminder, setConfirmDeleteReminder] = useState<number | null>(null);
+
   const user = session?.user as SessionUser | undefined;
   const userID = (() => {
     const n = user?.id ? parseInt(user.id, 10) : NaN;
@@ -69,20 +74,23 @@ export default function ProfilePage() {
 
   useEffect(() => {
     if (!userID) return;
-    setDash((d) => ({ ...d, loading: true, error: null }));
+    let cancelled = false;
 
     Promise.all([fetchUserPlans(userID), fetchUserReminders(userID)])
       .then(([plans, reminders]) => {
-        setDash({ plans, reminders, loading: false, error: null });
+        if (!cancelled) setDash({ plans, reminders, loading: false, error: null });
       })
       .catch(() => {
-        setDash((d) => ({
-          ...d,
-          loading: false,
-          error:
-            "Could not load dashboard data. Make sure the backend is running.",
-        }));
+        if (!cancelled)
+          setDash((d) => ({
+            ...d,
+            loading: false,
+            error:
+              "Could not load dashboard data. Make sure the backend is running.",
+          }));
       });
+
+    return () => { cancelled = true; };
   }, [userID]);
 
   if (status === "loading") {
@@ -100,19 +108,34 @@ export default function ProfilePage() {
 
   if (!session?.user) return null;
 
+  // Most recent plan — used for quick actions and reminder form
   const activePlan: UserPlan | null = dash.plans[0] ?? null;
 
   async function handleLogout() {
     await signOut({ callbackUrl: "/entry" });
   }
 
+  async function handleDeletePlan(planID: number) {
+    if (!userID) return;
+    const result = await deletePlan(planID, userID);
+    if (result.ok) {
+      setDash((d) => ({
+        ...d,
+        plans: d.plans.filter((p) => p.planID !== planID),
+      }));
+      setConfirmDeletePlan(null);
+    }
+  }
+
   async function handleDeleteReminder(reminderID: number) {
-    const result = await deleteReminder(reminderID);
+    if (!userID) return;
+    const result = await deleteReminder(reminderID, userID);
     if (result.ok) {
       setDash((d) => ({
         ...d,
         reminders: d.reminders.filter((r) => r.reminderID !== reminderID),
       }));
+      setConfirmDeleteReminder(null);
     }
   }
 
@@ -159,6 +182,23 @@ export default function ProfilePage() {
 
   const hasActivity = dash.plans.length > 0 || dash.reminders.length > 0;
 
+  // Shared inline styles for plan/reminder list items
+  const listItemStyle: React.CSSProperties = {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+    gap: "1rem",
+    padding: "0.7rem 0.85rem",
+    borderRadius: "0.5rem",
+    background: "var(--gaia-surface, rgba(0,0,0,0.03))",
+    border: "1px solid var(--gaia-border, rgba(0,0,0,0.07))",
+  };
+
+  const smallBtnStyle: React.CSSProperties = {
+    fontSize: "0.78rem",
+    padding: "0.25rem 0.6rem",
+  };
+
   return (
     <main className="gaia-page">
       <section className="gaia-shell">
@@ -194,8 +234,8 @@ export default function ProfilePage() {
             </button>
           </div>
           <p style={{ marginTop: "0.75rem" }}>
-            Your personal wellness dashboard. View your saved condition path,
-            manage reminders, and search for new guidance whenever you need it.
+            Your personal wellness dashboard. View your saved paths, manage
+            reminders, and search for new guidance whenever you need it.
           </p>
           <div className="gaia-chip-row">
             <span className="gaia-chip">Botanical support</span>
@@ -207,7 +247,7 @@ export default function ProfilePage() {
         {/* ── Data loading / error ── */}
         {dash.loading && (
           <article className="gaia-card gaia-surface-muted">
-            <p>Loading your plans and reminders...</p>
+            <p>Loading your saved paths and reminders...</p>
           </article>
         )}
 
@@ -215,76 +255,113 @@ export default function ProfilePage() {
           <article className="gaia-card">
             <p className="gaia-error">{dash.error}</p>
             <p className="gaia-note">
-              Plans and reminders require the backend to be running.
+              Saved paths and reminders require the backend to be running.
             </p>
           </article>
         )}
 
         {!dash.loading && (
           <>
-            {/* ── Your Wellness Path ── */}
+            {/* ── Your Saved Wellness Paths ── */}
             <article className="gaia-card">
               <div className="gaia-section-title">
-                <h2>Your Wellness Path</h2>
-                <span className="gaia-section-kicker">
-                  {activePlan ? "Active" : "Not started"}
+                <h2>Your Saved Wellness Paths</h2>
+                <span className={`gaia-section-kicker${dash.plans.length > 0 ? " status-badge--active" : " status-badge--empty"}`}>
+                  {dash.plans.length > 0 ? `${dash.plans.length} saved` : "None saved"}
                 </span>
               </div>
 
-              {activePlan ? (
-                <>
-                  <p>
-                    <strong>{activePlan.title}</strong>
-                  </p>
-                  {dash.plans.length > 1 && (
-                    <p className="gaia-note">
-                      {dash.plans.length} saved plans total.
-                    </p>
-                  )}
-                  <div className="gaia-actions">
-                    {activePlan.conditionID ? (
-                      <Link
-                        href={`/results?id=${activePlan.conditionID}`}
-                        className="gaia-btn gaia-btn-primary"
+              {dash.plans.length > 0 ? (
+                <ul
+                  style={{
+                    listStyle: "none",
+                    padding: 0,
+                    margin: 0,
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "0.6rem",
+                  }}
+                >
+                  {dash.plans.map((plan) => (
+                    <li key={plan.planID} style={listItemStyle}>
+                      <div style={{ minWidth: 0 }}>
+                        <p style={{ margin: 0, fontWeight: 500 }}>{plan.title}</p>
+                      </div>
+                      <div
+                        style={{
+                          display: "flex",
+                          gap: "0.4rem",
+                          flexShrink: 0,
+                          flexWrap: "wrap",
+                          justifyContent: "flex-end",
+                          alignItems: "center",
+                        }}
                       >
-                        View full plan
-                      </Link>
-                    ) : (
-                      <Link
-                        href="/search"
-                        className="gaia-btn gaia-btn-primary"
-                      >
-                        View full plan
-                      </Link>
-                    )}
-                    <Link
-                      href="/search"
-                      className="gaia-btn gaia-btn-secondary"
-                    >
-                      Search another condition
-                    </Link>
-                  </div>
-                </>
+                        {plan.conditionID ? (
+                          <Link
+                            href={`/results?id=${plan.conditionID}&saved=1`}
+                            className="gaia-btn gaia-btn-secondary"
+                            style={smallBtnStyle}
+                          >
+                            View
+                          </Link>
+                        ) : null}
+
+                        {confirmDeletePlan === plan.planID ? (
+                          <>
+                            <span
+                              className="gaia-note"
+                              style={{ fontSize: "0.8rem", fontStyle: "normal", alignSelf: "center" }}
+                            >
+                              Remove this path?
+                            </span>
+                            <button
+                              type="button"
+                              className="gaia-btn gaia-btn-primary"
+                              style={smallBtnStyle}
+                              onClick={() => handleDeletePlan(plan.planID)}
+                            >
+                              Yes, remove
+                            </button>
+                            <button
+                              type="button"
+                              className="gaia-btn gaia-btn-ghost"
+                              style={smallBtnStyle}
+                              onClick={() => setConfirmDeletePlan(null)}
+                            >
+                              Cancel
+                            </button>
+                          </>
+                        ) : (
+                          <button
+                            type="button"
+                            className="gaia-btn gaia-btn-ghost"
+                            style={smallBtnStyle}
+                            onClick={() => setConfirmDeletePlan(plan.planID)}
+                          >
+                            Remove
+                          </button>
+                        )}
+                      </div>
+                    </li>
+                  ))}
+                </ul>
               ) : (
-                <>
-                  <p>You do not have a saved wellness path yet.</p>
-                  <p className="gaia-note">
-                    Search for your diagnosed condition to get started.
-                  </p>
-                  <div className="gaia-actions">
-                    <Link href="/search" className="gaia-btn gaia-btn-primary">
-                      Search for a condition
-                    </Link>
-                  </div>
-                </>
+                <p className="gaia-note">No saved wellness paths yet.</p>
               )}
+
+              <div className="gaia-actions" style={{ marginTop: "0.75rem" }}>
+                <Link href="/search" className={`gaia-btn ${dash.plans.length > 0 ? "gaia-btn-secondary" : "gaia-btn-primary"}`}>
+                  {dash.plans.length > 0 ? "Search another condition" : "Search for a condition"}
+                </Link>
+              </div>
             </article>
 
             {/* ── Reminders ── */}
             <article className="gaia-card">
               <div className="gaia-section-title">
                 <h2>Your Reminders</h2>
-                <span className="gaia-section-kicker">
+                <span className={`gaia-section-kicker${dash.reminders.length > 0 ? " status-badge--active" : " status-badge--empty"}`}>
                   {dash.reminders.length > 0
                     ? `${dash.reminders.length} set`
                     : "None set"}
@@ -303,19 +380,7 @@ export default function ProfilePage() {
                   }}
                 >
                   {dash.reminders.map((rem) => (
-                    <li
-                      key={rem.reminderID}
-                      style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "flex-start",
-                        gap: "1rem",
-                        padding: "0.7rem 0.85rem",
-                        borderRadius: "0.5rem",
-                        background: "var(--gaia-surface, rgba(0,0,0,0.03))",
-                        border: "1px solid var(--gaia-border, rgba(0,0,0,0.07))",
-                      }}
-                    >
+                    <li key={rem.reminderID} style={listItemStyle}>
                       <div>
                         <p style={{ margin: 0, fontWeight: 500 }}>
                           {rem.label}
@@ -337,14 +402,53 @@ export default function ProfilePage() {
                           </span>
                         )}
                       </div>
-                      <button
-                        type="button"
-                        className="gaia-btn gaia-btn-ghost"
-                        style={{ fontSize: "0.78rem", padding: "0.25rem 0.6rem", flexShrink: 0 }}
-                        onClick={() => handleDeleteReminder(rem.reminderID)}
+
+                      <div
+                        style={{
+                          display: "flex",
+                          gap: "0.4rem",
+                          flexShrink: 0,
+                          flexWrap: "wrap",
+                          justifyContent: "flex-end",
+                          alignItems: "center",
+                        }}
                       >
-                        Remove
-                      </button>
+                        {confirmDeleteReminder === rem.reminderID ? (
+                          <>
+                            <span
+                              className="gaia-note"
+                              style={{ fontSize: "0.8rem", fontStyle: "normal", alignSelf: "center" }}
+                            >
+                              Remove?
+                            </span>
+                            <button
+                              type="button"
+                              className="gaia-btn gaia-btn-primary"
+                              style={smallBtnStyle}
+                              onClick={() => handleDeleteReminder(rem.reminderID)}
+                            >
+                              Yes
+                            </button>
+                            <button
+                              type="button"
+                              className="gaia-btn gaia-btn-ghost"
+                              style={smallBtnStyle}
+                              onClick={() => setConfirmDeleteReminder(null)}
+                            >
+                              Cancel
+                            </button>
+                          </>
+                        ) : (
+                          <button
+                            type="button"
+                            className="gaia-btn gaia-btn-ghost"
+                            style={smallBtnStyle}
+                            onClick={() => setConfirmDeleteReminder(rem.reminderID)}
+                          >
+                            Remove
+                          </button>
+                        )}
+                      </div>
                     </li>
                   ))}
                 </ul>
@@ -369,7 +473,7 @@ export default function ProfilePage() {
 
               {!form.open && !activePlan && (
                 <p className="gaia-note">
-                  Save a wellness plan first to add reminders.{" "}
+                  Save a wellness path first to add reminders.{" "}
                   <Link href="/search">Search for a condition →</Link>
                 </p>
               )}
@@ -475,7 +579,7 @@ export default function ProfilePage() {
                   ))}
                   {dash.plans.map((plan) => (
                     <li key={`plan-${plan.planID}`} className="gaia-note">
-                      Wellness plan saved: <strong>{plan.title}</strong>
+                      Wellness path saved: <strong>{plan.title}</strong>
                     </li>
                   ))}
                 </ul>
@@ -505,22 +609,22 @@ export default function ProfilePage() {
           <article className="gaia-card">
             <div className="gaia-section-title">
               <h2>Your Wellness Path</h2>
-              <span className="gaia-section-kicker">
+              <span className={`gaia-section-kicker${activePlan ? " status-badge--active" : " status-badge--empty"}`}>
                 {activePlan ? "Saved" : "Not saved"}
               </span>
             </div>
             <p>
               {activePlan
                 ? `Currently: ${activePlan.title}`
-                : "No saved plan yet. Search to find your path."}
+                : "No saved path yet. Search to find your path."}
             </p>
             <div className="gaia-actions">
               {activePlan?.conditionID ? (
                 <Link
-                  href={`/results?id=${activePlan.conditionID}`}
+                  href={`/results?id=${activePlan.conditionID}&saved=1`}
                   className="gaia-btn gaia-btn-secondary"
                 >
-                  View plan
+                  View path
                 </Link>
               ) : (
                 <Link href="/search" className="gaia-btn gaia-btn-secondary">

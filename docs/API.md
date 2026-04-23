@@ -410,6 +410,38 @@ GET /api/plans/:planID
 
 ---
 
+## Delete Plan
+
+Permanently removes a saved plan. Related `PlanItems` are removed via cascade. Related `Reminders` have their `planID` set to `NULL` but are not deleted.
+
+### Endpoint
+
+DELETE /api/plans/:planID?userID=1
+
+### Query Parameters
+
+| Parameter | Required | Description |
+|-----------|----------|-------------|
+| userID | Yes | Must match the plan owner |
+
+### Response
+
+```json
+{
+  "ok": true
+}
+```
+
+### Error Responses
+
+| Status | Condition |
+|--------|-----------|
+| 400 | `planID` is invalid or `userID` is missing |
+| 403 | `userID` does not own this plan |
+| 404 | Plan not found |
+
+---
+
 # Reminders
 
 Reminders schedule routine notifications linked to plans.

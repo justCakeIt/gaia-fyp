@@ -33,23 +33,32 @@ function ConfirmContent() {
     async function resolveMatch() {
       setMatchState({ status: "loading" });
 
-      // Try backend first (DB-backed synonym matching)
-      const backendMatch = await matchCondition(query);
-      if (cancelled) return;
+      try {
+        // Try backend first (DB-backed synonym matching)
+        const backendMatch = await matchCondition(query);
+        if (cancelled) return;
 
-      if (backendMatch) {
-        setMatchState({ status: "matched_backend", match: backendMatch });
-        return;
-      }
+        if (backendMatch) {
+          setMatchState({ status: "matched_backend", match: backendMatch });
+          return;
+        }
 
-      // Backend unavailable or no DB match — fall back to local library
-      const localMatch = findConditionByQuery(query);
-      if (cancelled) return;
+        // Backend unavailable or no DB match — fall back to local library
+        const localMatch = findConditionByQuery(query);
+        if (cancelled) return;
 
-      if (localMatch) {
-        setMatchState({ status: "matched_local", match: localMatch });
-      } else {
-        setMatchState({ status: "no_match" });
+        if (localMatch) {
+          setMatchState({ status: "matched_local", match: localMatch });
+        } else {
+          setMatchState({ status: "no_match" });
+        }
+      } catch {
+        if (!cancelled) {
+          setMatchState({
+            status: "error",
+            message: "Could not reach the condition service. Please check your connection and try again.",
+          });
+        }
       }
     }
 
@@ -135,7 +144,7 @@ function ConfirmContent() {
         </header>
 
         {matchState.status === "loading" && (
-          <article className="gaia-card">
+          <article className="gaia-card" aria-live="polite" aria-busy="true">
             <h2>Searching...</h2>
             <p>Matching &ldquo;{query}&rdquo; against supported conditions.</p>
           </article>
@@ -144,21 +153,29 @@ function ConfirmContent() {
         {matchState.status === "no_match" && (
           <article className="gaia-card">
             <div className="gaia-section-title">
-              <h2>Not supported yet</h2>
-              <span className="gaia-section-kicker">Coming soon</span>
+              <h2>No match found</h2>
+              <span className="gaia-section-kicker">Fatty Liver / MASLD focus</span>
             </div>
             <p>
-              Gaia currently has a complete path for fatty liver / MASLD / NAFLD.
-              Return to search and try one of those terms.
+              Gaia&rsquo;s current complete guidance path is for <strong>Fatty Liver
+              (MASLD / NAFLD)</strong>. Try one of the terms below, or return to
+              search to rephrase your query.
             </p>
             <div className="gaia-chip-row" style={{ marginTop: "0.2rem" }}>
               {["fatty liver", "MASLD", "NAFLD"].map((t) => (
-                <span key={t} className="gaia-chip">{t}</span>
+                <button
+                  key={t}
+                  type="button"
+                  className="gaia-chip"
+                  onClick={() => router.push(`/confirm?query=${encodeURIComponent(t)}`)}
+                >
+                  {t}
+                </button>
               ))}
             </div>
             <div className="gaia-actions">
               <Link href="/search" className="gaia-btn gaia-btn-primary">
-                Search again
+                Try a different search
               </Link>
             </div>
           </article>
@@ -220,11 +237,21 @@ function ConfirmContent() {
 
         {matchState.status === "error" && (
           <article className="gaia-card">
-            <h2>Something went wrong</h2>
-            <p>{matchState.status}</p>
+            <div className="gaia-section-title">
+              <h2>Something went wrong</h2>
+              <span className="gaia-section-kicker">Connection issue</span>
+            </div>
+            <p className="gaia-error">{matchState.message}</p>
             <div className="gaia-actions">
-              <Link href="/search" className="gaia-btn gaia-btn-primary">
-                Search again
+              <button
+                type="button"
+                className="gaia-btn gaia-btn-primary"
+                onClick={() => router.push(`/confirm?query=${encodeURIComponent(query)}`)}
+              >
+                Try again
+              </button>
+              <Link href="/search" className="gaia-btn gaia-btn-ghost">
+                Back to search
               </Link>
             </div>
           </article>

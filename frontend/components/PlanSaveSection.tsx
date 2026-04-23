@@ -1,16 +1,19 @@
 "use client";
 
 import Link from "next/link";
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   savePlan,
   createReminder,
   type BackendRecommendations,
   type PlanItem,
+  type UserPlan,
 } from "@/lib/api";
 
 type Phase =
   | { name: "idle" }
+  | { name: "duplicate_confirm" }
   | { name: "saving" }
   | { name: "saved"; planID: number }
   | { name: "reminder_form"; planID: number }
@@ -23,6 +26,7 @@ type Props = {
   userID: number | null;
   backend: BackendRecommendations | null;
   conditionTitle: string;
+  userPlans: UserPlan[];
 };
 
 export default function PlanSaveSection({
@@ -30,8 +34,18 @@ export default function PlanSaveSection({
   userID,
   backend,
   conditionTitle,
+  userPlans,
 }: Props) {
+  const router = useRouter();
   const [phase, setPhase] = useState<Phase>({ name: "idle" });
+
+  useEffect(() => {
+    if (phase.name === "reminder_done") {
+      const t = setTimeout(() => router.push("/profile"), 1400);
+      return () => clearTimeout(t);
+    }
+  }, [phase.name, router]);
+
   const [reminderLabel, setReminderLabel] = useState(
     `${conditionTitle} — daily check-in`
   );
@@ -83,7 +97,8 @@ export default function PlanSaveSection({
     );
   }
 
-  async function handleSave() {
+  // Core save logic — called directly once duplicates are handled
+  async function executeSave() {
     if (!userID || !backend) return;
     setPhase({ name: "saving" });
 
@@ -110,7 +125,7 @@ export default function PlanSaveSection({
     const result = await savePlan({
       userID,
       conditionID: backend.condition.conditionID,
-      title: `${conditionTitle} Support Plan`,
+      title: `${conditionTitle} Plan`,
       items,
     });
 
@@ -120,6 +135,21 @@ export default function PlanSaveSection({
     }
 
     setPhase({ name: "saved", planID: result.planID });
+  }
+
+  async function handleSave() {
+    if (!userID || !backend) return;
+
+    // Check for an existing saved plan with the same conditionID
+    const hasDuplicate = userPlans.some(
+      (p) => p.conditionID !== null && p.conditionID === backend.condition.conditionID
+    );
+    if (hasDuplicate) {
+      setPhase({ name: "duplicate_confirm" });
+      return;
+    }
+
+    await executeSave();
   }
 
   async function handleSetReminder(
@@ -176,6 +206,37 @@ export default function PlanSaveSection({
     );
   }
 
+  if (phase.name === "duplicate_confirm") {
+    return (
+      <article className="gaia-card gaia-surface-muted">
+        <div className="gaia-section-title">
+          <h2>Already Saved</h2>
+          <span className="gaia-section-kicker">Duplicate detected</span>
+        </div>
+        <p>
+          You already have this wellness path saved. Would you like to save
+          another copy anyway?
+        </p>
+        <div className="gaia-actions">
+          <button
+            type="button"
+            className="gaia-btn gaia-btn-primary"
+            onClick={executeSave}
+          >
+            Yes, save another copy
+          </button>
+          <button
+            type="button"
+            className="gaia-btn gaia-btn-ghost"
+            onClick={() => setPhase({ name: "idle" })}
+          >
+            No, cancel
+          </button>
+        </div>
+      </article>
+    );
+  }
+
   if (phase.name === "saving") {
     return (
       <article className="gaia-card gaia-surface-muted">
@@ -190,7 +251,7 @@ export default function PlanSaveSection({
       <article className="gaia-card">
         <div className="gaia-section-title">
           <h2>Plan Saved</h2>
-          <span className="gaia-section-kicker">Plan #{phase.planID}</span>
+          <span className="gaia-section-kicker">Your account</span>
         </div>
         <p>
           Your wellness plan has been saved. Would you like to add a daily
@@ -221,7 +282,7 @@ export default function PlanSaveSection({
       <article className="gaia-card">
         <div className="gaia-section-title">
           <h2>Set a Reminder</h2>
-          <span className="gaia-section-kicker">Plan #{phase.planID}</span>
+          <span className="gaia-section-kicker">Optional</span>
         </div>
         <form
           className="gaia-form-card"
@@ -299,24 +360,16 @@ export default function PlanSaveSection({
       <article className="gaia-card">
         <div className="gaia-section-title">
           <h2>{phase.reminderID ? "All set!" : "Plan saved"}</h2>
-          <span className="gaia-section-kicker">
-            Plan #{phase.planID}
-            {phase.reminderID ? ` · Reminder #${phase.reminderID}` : ""}
-          </span>
+          <span className="gaia-section-kicker">Redirecting…</span>
         </div>
         <p>
           {phase.reminderID
             ? "Your wellness plan is saved and your reminder is active."
             : "Your wellness plan has been saved to your account."}
         </p>
-        <div className="gaia-actions">
-          <Link href="/profile" className="gaia-btn gaia-btn-secondary">
-            Back to profile
-          </Link>
-          <Link href="/search" className="gaia-btn gaia-btn-ghost">
-            Search another condition
-          </Link>
-        </div>
+        <p className="gaia-note" style={{ marginTop: "0.5rem" }}>
+          Taking you to your profile…
+        </p>
       </article>
     );
   }

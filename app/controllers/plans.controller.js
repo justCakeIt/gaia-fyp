@@ -65,10 +65,36 @@ async function getOne(req, res, next) {
     const data = await plansService.getPlan(planID);
     if (!data) return res.status(404).json({ ok: false, error: "plan not found" });
 
+    // If the caller supplies a userID, cross-check ownership
+    const requestedUserID = toInt(req.query.userID);
+    if (requestedUserID && data.plan.userID !== requestedUserID) {
+      return res.status(403).json({ ok: false, error: "access denied" });
+    }
+
     return res.json({ ok: true, data });
   } catch (e) {
     next(e);
   }
 }
 
-module.exports = { create, list, getOne };
+// DELETE /api/plans/:planID
+async function remove(req, res, next) {
+  try {
+    const planID = toInt(req.params.planID);
+    if (!planID) return res.status(400).json({ ok: false, error: "invalid planID" });
+
+    const userID = toInt(req.query.userID);
+    if (!userID) return res.status(400).json({ ok: false, error: "userID is required" });
+
+    const ownerUserID = await plansService.getPlanOwner(planID);
+    if (ownerUserID === null) return res.status(404).json({ ok: false, error: "plan not found" });
+    if (ownerUserID !== userID) return res.status(403).json({ ok: false, error: "access denied" });
+
+    await plansService.deletePlan(planID);
+    return res.json({ ok: true });
+  } catch (e) {
+    next(e);
+  }
+}
+
+module.exports = { create, list, getOne, remove };

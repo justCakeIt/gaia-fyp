@@ -1,6 +1,7 @@
 "use strict";
 
 const remindersService = require("../services/reminders.service");
+const plansService = require("../services/plans.service");
 
 function toInt(value) {
   const n = Number(value);
@@ -22,6 +23,15 @@ async function create(req, res, next) {
     if (!userID) return res.status(400).json({ ok: false, error: "userID is required" });
     if (!planID) return res.status(400).json({ ok: false, error: "planID is required" });
     if (!label) return res.status(400).json({ ok: false, error: "label is required" });
+
+    // Verify the plan exists and belongs to this user
+    const planOwnerID = await plansService.getPlanOwner(planID);
+    if (planOwnerID === null) {
+      return res.status(404).json({ ok: false, error: "plan not found" });
+    }
+    if (planOwnerID !== userID) {
+      return res.status(403).json({ ok: false, error: "access denied" });
+    }
 
     const created = await remindersService.createReminder({
       userID,
@@ -51,17 +61,28 @@ async function list(req, res, next) {
   }
 }
 
-// DELETE /api/reminders/:id
+// DELETE /api/reminders/:id?userID=...
 async function remove(req, res, next) {
   try {
     const reminderID = toInt(req.params.id);
     if (!reminderID) {
       return res.status(400).json({ ok: false, error: "invalid reminderID" });
     }
-    const deleted = await remindersService.deleteReminder(reminderID);
-    if (!deleted) {
+
+    const userID = toInt(req.query.userID);
+    if (!userID) {
+      return res.status(400).json({ ok: false, error: "userID is required" });
+    }
+
+    const ownerUserID = await remindersService.getReminderOwner(reminderID);
+    if (ownerUserID === null) {
       return res.status(404).json({ ok: false, error: "reminder not found" });
     }
+    if (ownerUserID !== userID) {
+      return res.status(403).json({ ok: false, error: "access denied" });
+    }
+
+    await remindersService.deleteReminder(reminderID);
     return res.json({ ok: true });
   } catch (e) {
     next(e);

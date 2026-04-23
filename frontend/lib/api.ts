@@ -134,13 +134,34 @@ export async function fetchUserReminders(userID: number): Promise<UserReminder[]
   }
 }
 
-export async function deleteReminder(
-  reminderID: number
+export async function deletePlan(
+  planID: number,
+  userID: number
 ): Promise<{ ok: boolean; error?: string }> {
   try {
-    const res = await fetch(`${API_BASE}/reminders/${reminderID}`, {
-      method: "DELETE",
-    });
+    const res = await fetch(
+      `${API_BASE}/plans/${planID}?userID=${userID}`,
+      { method: "DELETE" }
+    );
+    const payload = await res.json();
+    if (!res.ok || !payload.ok) {
+      return { ok: false, error: payload.error ?? "Failed to delete plan." };
+    }
+    return { ok: true };
+  } catch {
+    return { ok: false, error: "Could not reach the server." };
+  }
+}
+
+export async function deleteReminder(
+  reminderID: number,
+  userID: number
+): Promise<{ ok: boolean; error?: string }> {
+  try {
+    const res = await fetch(
+      `${API_BASE}/reminders/${reminderID}?userID=${userID}`,
+      { method: "DELETE" }
+    );
     const payload = await res.json();
     if (!res.ok || !payload.ok) {
       return { ok: false, error: payload.error ?? "Failed to delete reminder." };

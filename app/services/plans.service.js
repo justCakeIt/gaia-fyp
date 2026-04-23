@@ -38,9 +38,8 @@ async function createPlan({ userID, conditionID, title, items }) {
     throw new Error("Invalid plan: items must be a non-empty array");
   }
 
-  // (Optional) uncomment if you want strict validation:
-  // await assertExists("Users", "userID", userID, "User");
-  // if (conditionID !== null) await assertExists("Conditions", "conditionID", conditionID, "Condition");
+  await assertExists("Users", "userID", userID, "User");
+  if (conditionID !== null) await assertExists("Conditions", "conditionID", conditionID, "Condition");
 
   for (const it of items) {
     const v = validatePlanItem(it);
@@ -153,4 +152,21 @@ async function getPlan(planID) {
   return { plan: planRows[0], items, safetyNotes };
 }
 
-module.exports = { createPlan, listPlans, getPlan };
+async function getPlanOwner(planID) {
+  const rows = await db.query(
+    `SELECT userID FROM Plans WHERE planID = ? LIMIT 1`,
+    [planID]
+  );
+  return rows[0]?.userID ?? null;
+}
+
+// PlanItems cascade-delete via FK. Reminders.planID SET NULL via FK.
+async function deletePlan(planID) {
+  const result = await db.query(
+    `DELETE FROM Plans WHERE planID = ?`,
+    [planID]
+  );
+  return result.affectedRows > 0;
+}
+
+module.exports = { createPlan, listPlans, getPlan, getPlanOwner, deletePlan };
