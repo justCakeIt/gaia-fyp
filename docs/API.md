@@ -402,11 +402,18 @@ GET /api/plans?userID=1
 
 ## Get Plan Details
 
-Returns full plan structure including aggregated safety notes.
+Returns full plan structure including items and aggregated safety notes. Requires the owning user's ID for an ownership check.
 
 ### Endpoint
 
-GET /api/plans/:planID
+GET /api/plans/:planID?userID=1
+
+### Error Responses
+
+| Status | Condition |
+|--------|-----------|
+| 403 | `userID` does not own this plan |
+| 404 | Plan not found |
 
 ---
 
@@ -492,15 +499,17 @@ GET /api/reminders?userID=1
 
 ## Delete Reminder
 
-Permanently removes a reminder by ID.
+Permanently removes a reminder by ID. The caller must supply the owning user's ID to prevent cross-user deletion.
 
 ### Endpoint
 
-DELETE /api/reminders/:id
+DELETE /api/reminders/:id?userID=1
 
-Example:
+### Query Parameters
 
-DELETE /api/reminders/3
+| Parameter | Required | Description |
+|-----------|----------|-------------|
+| userID | Yes | Must match the reminder owner |
 
 ### Response
 
@@ -514,8 +523,9 @@ DELETE /api/reminders/3
 
 | Status | Condition |
 |--------|-----------|
-| 400    | `id` is not a valid positive integer |
-| 404    | Reminder not found |
+| 400 | `id` is not a valid positive integer, or `userID` is missing |
+| 403 | `userID` does not own this reminder |
+| 404 | Reminder not found |
 
 ---
 

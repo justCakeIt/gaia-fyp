@@ -1,186 +1,232 @@
-# G.a.i.A. — Green AI Alchemy 🌿🤖  
-*A Natural Health Guidance Platform Powered by Artificial Intelligence*
+# G.A.I.A. — Green AI Alchemy
+
+*A supportive wellness guidance platform for post-diagnosis lifestyle management.*
 
 ---
 
-## 📘 Project Overview
+## Project Overview
 
-**G.a.i.A. (Green AI Alchemy)** is a wellness-focused web application designed to help users support their recovery naturally after receiving a confirmed medical diagnosis.  
-Instead of giving medical diagnoses, the system provides **safe, research-based herbal blends, nutrition plans, lifestyle suggestions, and natural recovery routines**.
+**G.A.I.A. (Green AI Alchemy)** is a full-stack wellness support application that helps users explore structured, supportive lifestyle guidance after receiving a health diagnosis.
 
-Using a curated herbal knowledge base combined with AI-driven personalisation, G.a.i.A. bridges the gap between traditional botanical wisdom and modern computer science.
+Users search for a diagnosed condition, receive a curated pathway of herbs, recipes, herbal mixtures, and safety notes, and can save that pathway as a personal wellness plan with optional daily reminders.
 
----
-
-## 🌿 Key Features
-
-### 🔍 Condition Search (Post-Diagnosis Support)
-Users enter the name of a medically confirmed condition (e.g., *fatty liver*, *mild inflammation*).  
-The system returns structured natural support options (not medical treatment).
-
-### 🌱 Herbal Mixtures & Preparation Guides
-- Evidence-based herbs for each condition  
-- Recipes for teas, decoctions, tinctures, and blends  
-- Doses & safety guidance  
-- Interactions & contraindications where applicable  
-
-### 🍽️ Nutrition & Meal Plans
-- Condition-aligned meal recommendations  
-- Recipes that support recovery (e.g., high-fibre for fatty liver)  
-- AI-generated weekly meal ideas  
-- Optional shopping list creation  
-
-### 📅 Daily Routine Builder
-- AI-generated routine templates (e.g., “Morning Liver Support Routine”)  
-- Reminders (take blend, prepare meal, drink infusion)  
-- Progress tracking  
-
-### 🤖 AI Personalisation Engine
-- Tailors suggestions based on user habits  
-- Learns user preferences over time  
-- Generates recipe explanations with NLG templates  
-- **Never** provides diagnoses — only supportive information  
-
-### 📚 Herbal Knowledge Base (KB)
-- Scientific references  
-- Herbal actions, safety, and preparation methods  
-- Structured MySQL database for fast retrieval  
-
-### 🧩 Future Extensions (not part of MVP)
-- Smartphone herbal recognition (image classifier)  
-- Audio assistant for routines  
-- User community features  
+G.A.I.A. is **not a diagnostic tool** and does not replace professional medical advice. It organises the lifestyle-supportive side of care — habits, routines, and reminders — in one calm, structured place.
 
 ---
 
-## 🎯 Target Audience
+## MVP Scope
 
-- Adults interested in **natural wellness support**  
-- People who want **structured guidance** after a confirmed diagnosis  
-- Anyone wanting **easy herbal recipes** and lifestyle routines  
-- Users exploring **AI-driven health personalisation**  
+The submitted MVP demonstrates one complete, polished end-to-end pathway: **Fatty Liver / MASLD (Metabolic dysfunction-associated steatotic liver disease)**.
 
----
+The architecture is designed to support additional conditions, but the current submission focuses on the MASLD pathway as the primary demonstration of the full feature set.
 
-## 🧠 Technology Stack
-
-### **Frontend**
-- **Next.js 16.1.6** with **React 19.2.3**
-- **NextAuth ^4.24.13** for authentication (local + Google OAuth)
-- TypeScript + Tailwind CSS 4
-
-### **Backend**
-- **Node.js + Express ^4.22.1** (web server + routing)
-- **MySQL2 ^3.17.5** driver
-- **Docker** for local containerised development
-
-### **Database**
-- **MySQL 8** (herbal knowledge base, conditions, recipes, users)
-
-### **AI Components**
-- NLP for condition–to–recommendation mapping  
-- Template-based NLG (human-like explanations)  
-- Light personalisation logic (rule-based for MVP)
-
-### **CORS (local development)**
-
-The backend permits requests from the following origins by default:
-- `http://localhost:5173` (Vite)
-- `http://localhost:3001` (Next.js dev)
-- `http://localhost:3000` (backend)
-
-Override by setting `CORS_ORIGIN=<comma-separated URLs>` in the root `.env`.
+Recommendation matching in the MVP is **data-driven and rule-based** — the system retrieves curated content from a structured MySQL knowledge base. There is no machine-learning model integrated at this stage.
 
 ---
 
-## 🚀 Getting Started
+## Architecture
 
-### ✔️ Prerequisites  
-Ensure you have installed:
+```
+Browser
+  └── Next.js 16 (App Router, port 3001)
+        ├── NextAuth v4 — session management (JWT)
+        └── fetch() → Express REST API (port 3000)
+                          └── MySQL 8 — knowledge base + user data
+```
 
-- **Node.js** → https://nodejs.org  
-- **npm** or **yarn**  
-- **Docker Desktop** → https://docs.docker.com/desktop/setup/install/windows-install/  
+| Layer | Technology |
+|-------|-----------|
+| Frontend | Next.js 16.1.6 · React 19.2.3 · TypeScript · Tailwind CSS 4 |
+| Auth/session | NextAuth v4.24.13 — local credentials + Google OAuth |
+| Backend | Node.js + Express 4 · CommonJS · MySQL2 3.17.5 connection pool |
+| Database | MySQL 8 — schema + seed via `db-init/` SQL files |
+| Dev infrastructure | Docker Compose — MySQL 8 + phpMyAdmin |
+| Testing | Jest 29 + Supertest 7 — 38 integration tests |
+| CI | GitHub Actions — 2 parallel jobs (backend tests + frontend build) |
 
 ---
 
-## 📦 Installation
+## Main User Flow
 
-Clone the repository:
+```
+Splash / Entry
+  → Register or log in (local credentials or Google OAuth)
+  → Search: enter a diagnosed condition (e.g. "fatty liver")
+  → Confirm: review the matched pathway
+  → Results: view herbs, recipes, mixtures, and safety notes
+  → Save plan (authenticated users only)
+  → Optional: set a daily reminder
+  → Profile dashboard: view plans, manage reminders, delete entries
+```
+
+Unauthenticated users can browse the overview and about pages and preview the condition search flow, but cannot save plans or reminders.
+
+---
+
+## Technology Stack
+
+### Frontend — `frontend/`
+- **Next.js 16.1.6** with App Router (`"use client"` components)
+- **React 19.2.3** + **TypeScript 5**
+- **Tailwind CSS 4** (PostCSS plugin build)
+- **NextAuth v4.24.13** — JWT session strategy, local + Google OAuth providers
+
+### Backend — root
+- **Node.js** + **Express 4.22** — REST API, CommonJS (`"use strict"`)
+- **MySQL2 3.17.5** — promise-based connection pool
+- **bcryptjs 3** — password hashing
+- **dotenv 16** — environment configuration
+
+### Database
+- **MySQL 8** — relational knowledge base
+- Schema: `db-init/01-schema.sql`
+- Seed data: `db-init/02-seed.sql`
+
+### Dev / CI
+- **Docker Compose** — MySQL 8 container (port 3308) + phpMyAdmin (port 8081)
+- **Jest 29** + **Supertest 7** — backend integration tests
+- **GitHub Actions** — CI on push and pull request
+
+---
+
+## Local Setup
+
+### Prerequisites
+
+- **Node.js 18+** — https://nodejs.org
+- **Docker Desktop** — https://docs.docker.com/desktop
+
+### 1. Clone and install
 
 ```bash
 git clone https://github.com/yourusername/gaia-fyp
 cd gaia-fyp
-```
 
-Install backend dependencies:
-
-```bash
+# Backend dependencies
 npm install
+
+# Frontend dependencies
+cd frontend
+npm install
+cd ..
 ```
 
-Start Docker containers:
+### 2. Configure environment
+
+Copy the example and fill in your values:
 
 ```bash
-docker-compose up
+# Root — database + server config
+cp .env.example .env          # if example exists, otherwise create from the table below
+
+# Frontend — NextAuth + API URLs
+cp frontend/.env.local.example frontend/.env.local
 ```
+
+See the **Environment Variables** section below for required keys.
+
+### 3. Start the database
+
+```bash
+docker compose up -d
+```
+
+This starts MySQL 8 (port 3308) and phpMyAdmin (port 8081). On first run, Docker applies `db-init/01-schema.sql` and `db-init/02-seed.sql` automatically.
+
+### 4. Start the backend
+
+```bash
+npm start          # production
+# or
+npm run dev        # hot-reload via supervisor
+```
+
+Backend available at: http://localhost:3000
+
+### 5. Start the frontend
+
+```bash
+cd frontend
+npm run dev
+```
+
+Frontend available at: http://localhost:3001
+
+### 6. Access phpMyAdmin
+
+http://localhost:8081 — credentials from your `.env` file.
 
 ---
 
-## ▶️ Running the App
+## Environment Variables
 
-Start the backend:
+### Root `.env`
 
-```bash
-npm start
-```
+| Variable | Example | Purpose |
+|----------|---------|---------|
+| `DB_HOST` | `127.0.0.1` | MySQL host (local) |
+| `DB_PORT` | `3308` | MySQL external port (Docker maps 3308→3306) |
+| `DB_USER` | `admin` | MySQL user |
+| `DB_PASSWORD` | `password` | MySQL password |
+| `DB_NAME` | `gaia_db` | Database name |
+| `PORT` | `3000` | Express server port |
+| `MYSQL_ROOT_PASSWORD` | `password` | Docker MySQL root password |
+| `MYSQL_DATABASE` | `gaia_db` | Docker MySQL database name |
+| `MYSQL_USER` | `admin` | Docker MySQL user |
+| `MYSQL_PASSWORD` | `password` | Docker MySQL user password |
+| `AUTH_DEMO_USER_ENABLED` | `true` | Seed a demo login account on startup |
+| `AUTH_DEMO_USER_EMAIL` | `demo@gaia.local` | Demo account email |
+| `AUTH_DEMO_USER_PASSWORD` | `GaiaDemo123!` | Demo account password |
 
-Then open:
+### `frontend/.env.local`
 
-- **App / Frontend:** http://localhost:3000  
-- **phpMyAdmin:** http://localhost:8081  
+| Variable | Example | Purpose |
+|----------|---------|---------|
+| `NEXTAUTH_URL` | `http://localhost:3001` | NextAuth canonical URL |
+| `NEXTAUTH_SECRET` | `<long-random-string>` | JWT signing secret |
+| `GOOGLE_CLIENT_ID` | `<from Google Console>` | Google OAuth (optional) |
+| `GOOGLE_CLIENT_SECRET` | `<from Google Console>` | Google OAuth (optional) |
+| `API_BASE` | `http://localhost:3000/api` | Server-side API base URL |
+| `NEXT_PUBLIC_API_BASE` | `http://localhost:3000/api` | Client-side API base URL |
 
-(Use the credentials stored in your `.env` file.)
+Google OAuth is optional — local credential login works without it.
 
 ---
 
-## 🧪 Testing
+## Testing
 
-The backend has an integration test suite built with **Jest** and **Supertest**.
+The backend has a full integration test suite (Jest 29 + Supertest 7).
 
-> **Requirement:** The MySQL Docker container must be running before tests are executed.
->
-> ```bash
-> docker compose up -d
-> ```
-
-Run all tests:
+**Requirement:** the MySQL Docker container must be running first.
 
 ```bash
+docker compose up -d
 npm test
 ```
 
-Tests are integration tests — they connect to the real database and clean up all created rows (test user, plan, plan items, reminders) after each run.
+Tests run sequentially (`--runInBand`) because later suites depend on state (userID → planID → reminderID) created by earlier ones. The `afterAll` block cleans up all test-created rows in FK-safe order.
+
+**Coverage:** 38 tests across 6 suites — health, conditions, auth, plans, reminders, plan deletion.
 
 ---
 
-## ⚙️ Continuous Integration
+## Continuous Integration
 
 Every push and pull request runs two parallel GitHub Actions jobs:
 
 | Job | What it checks |
 |-----|----------------|
-| **Backend – integration tests** | Spins up a MySQL 8 service, applies schema and seed data, then runs `npm test` (Jest + Supertest, 38 tests) |
-| **Frontend – lint & build** | Runs `npm run lint` (ESLint / Next.js rules) then `npm run build` (Next.js production build, 13 routes) |
+| **Backend – integration tests** | Spins up MySQL 8, applies schema + seed, runs `npm test` (38 tests) |
+| **Frontend – lint & build** | Runs `npm run lint` (ESLint / Next.js rules) then `npm run build` (13 routes) |
 
-**Run the same checks locally:**
+Run the same checks locally:
 
 ```bash
-# Backend tests — requires Docker MySQL container running
+# Backend
 docker compose up -d
 npm test
 
-# Frontend lint + build
+# Frontend
 cd frontend
 npm run lint
 npm run build
@@ -188,39 +234,68 @@ npm run build
 
 ---
 
-## 🤝 Contributing
+## Limitations
 
-By contributing to this project, you agree to follow the  
-**[Code of Conduct](CODE_OF_CONDUCT.md)**.
+The following are honest limitations of the current MVP submission:
 
-### 🧪 How to Contribute
-
-1. **Fork the repository**  
-2. Create a feature branch  
-   ```bash
-   git checkout -b feature-name
-   ```
-3. Make meaningful commits  
-   ```bash
-   git commit -m "Add: meaningful description"
-   ```
-4. Push your branch  
-   ```bash
-   git push origin feature-name
-   ```
-5. Open a **Pull Request**  
+| Limitation | Detail |
+|------------|--------|
+| **Single polished pathway** | The MASLD / Fatty Liver pathway is the fully curated and tested pathway. Other conditions may be present in the database in varying states of completeness. |
+| **Rule-based matching** | Condition-to-recommendation mapping is data-driven, not ML-based. There is no trained model; the system queries curated relational data. |
+| **Reminders are stored, not delivered** | Reminder labels, times, and days are saved to the database, but there is no push notification, email, or OS alert delivery mechanism. |
+| **Backend ownership via query param** | The backend verifies plan/reminder ownership using a `userID` passed as a query parameter from the client session. There is no JWT bearer token validation on the Express layer — this is appropriate for an MVP but would require hardening in production. |
+| **No production deployment** | The repository is configured for local development. No cloud hosting, reverse proxy, or production Docker Compose is included. |
+| **Not medical advice** | G.A.I.A. is a supportive wellness tool. It does not diagnose, treat, or replace professional medical care. All content is educational and lifestyle-supportive only. |
 
 ---
 
-## 📄 License
+## Future Work
 
-This project is licensed under the **MIT License**.  
-See the **[LICENSE](LICENSE)** file for details.
+Realistic next steps beyond the MVP:
+
+- **Broader condition library** — extend the knowledge base and curated seed data to cover additional conditions (e.g. Type 2 Diabetes, Hypertension) with the same polish applied to MASLD.
+- **Reminder delivery** — integrate a notification service (e.g. email via SendGrid, web push via a service worker) to actually deliver scheduled reminders.
+- **Server-side token validation** — add Bearer token or cookie-based authentication verification on the Express API layer so the backend can independently validate requests without trusting client-supplied userIDs.
+- **User preference personalisation** — incorporate dietary preferences, known allergies, and medication flags (already scaffolded in the `UserPreferences` schema table) into the recommendation filtering logic.
+- **Progress and history tracking** — record when users view or interact with their plan so the dashboard can show meaningful activity over time.
+- **Admin knowledge base management** — a simple admin interface to add, edit, and publish conditions, herbs, recipes, and mixtures without direct database access.
+- **Production deployment** — Dockerfile for the backend, environment-specific Next.js config, and a deployment guide (e.g. Railway, Render, or self-hosted VPS).
+- **Accessibility and mobile review** — formal accessibility audit and responsive layout testing across device sizes.
 
 ---
 
-## 📬 Contact
+## Demo Evidence Checklist
 
-For questions or suggestions, please open an **Issue** or contact:
+The following features can be demonstrated for the submission report and viva:
 
-📧 stadlerm@roehampton.ac.uk  
+- [ ] Splash screen and animated entry
+- [ ] Registration (local credentials)
+- [ ] Login (local credentials)
+- [ ] Google OAuth sign-in (requires `GOOGLE_CLIENT_ID` configured)
+- [ ] Condition search — "fatty liver", "MASLD", "nafld"
+- [ ] Confirm pathway page
+- [ ] Results page — herbs, recipes, mixtures, safety notes
+- [ ] Save plan (authenticated user)
+- [ ] Duplicate save warning
+- [ ] Reminder creation on plan save flow
+- [ ] Profile dashboard — saved plans list, reminders list
+- [ ] Delete plan (inline confirmation)
+- [ ] Delete reminder (inline confirmation)
+- [ ] View saved plan (`?saved=1` hides re-save section)
+- [ ] Guest / overview page (unauthenticated)
+- [ ] About page
+- [ ] Backend: `docker compose up`, phpMyAdmin at :8081
+- [ ] Backend: `npm test` — 38/38 passing
+- [ ] CI: GitHub Actions — backend + frontend jobs green
+
+---
+
+## License
+
+This project is licensed under the **MIT License**. See [LICENSE](LICENSE) for details.
+
+---
+
+## Contact
+
+📧 stadlerm@roehampton.ac.uk
