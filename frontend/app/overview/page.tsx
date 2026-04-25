@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useSession } from "next-auth/react";
+import NavArrows from "@/components/NavArrows";
 
 export default function OverviewPage() {
   const { status } = useSession();
@@ -13,32 +14,19 @@ export default function OverviewPage() {
 
         {/* 1. Hero */}
         <header className="gaia-header-card">
-          <p className="gaia-kicker">Guest Preview</p>
+          <NavArrows />
+          <p className="gaia-kicker">G.A.I.A. Overview</p>
           <h1>Explore G.A.I.A.</h1>
           <p>
-            Preview the guidance experience before committing to an account.
-            Register when you are ready to save your plan, set reminders, and
-            return to your personal wellness path.
+            Green AI Alchemy — nature-led wellness guidance for people living
+            with diagnosed conditions. Discover how G.A.I.A. works, what a full
+            support path includes, and where to begin your journey.
           </p>
-          <div className="gaia-actions" style={{ marginTop: "1rem" }}>
-            <Link href="/about" className="gaia-btn gaia-btn-primary">
-              About G.A.I.A.
-            </Link>
-            {!isAuthenticated && (
-              <Link href="/entry?mode=register" className="gaia-btn gaia-btn-secondary">
-                Create Account
-              </Link>
-            )}
+          <div className="gaia-chip-row">
+            <span className="gaia-chip">Botanical</span>
+            <span className="gaia-chip">Safety-forward</span>
+            <span className="gaia-chip">Condition-matched</span>
           </div>
-          {!isAuthenticated && (
-            <p className="gaia-note" style={{ marginTop: "0.85rem" }}>
-              Already have an account?{" "}
-              <Link href="/entry?mode=login" style={{ textDecoration: "underline" }}>
-                Log in
-              </Link>
-              .
-            </p>
-          )}
         </header>
 
         {/* 2. Guest vs Member comparison */}
@@ -94,7 +82,25 @@ export default function OverviewPage() {
           </ol>
         </article>
 
-        {/* 4. Preview panel */}
+        {/* 4. About G.A.I.A. — dedicated section */}
+        <article className="gaia-card gaia-surface-muted">
+          <div className="gaia-section-title">
+            <h2 style={{ fontSize: "clamp(1.25rem, 2.4vw, 1.7rem)" }}>About G.A.I.A.</h2>
+            <span className="gaia-section-kicker">Our mission</span>
+          </div>
+          <p>
+            Learn about the philosophy, botanical principles, and approach
+            behind G.A.I.A. — and how it is designed to complement, not
+            replace, professional care.
+          </p>
+          <div className="gaia-actions">
+            <Link href="/about" className="gaia-btn gaia-btn-secondary">
+              Read about G.A.I.A.
+            </Link>
+          </div>
+        </article>
+
+        {/* 5. Preview panel */}
         <article id="guest-preview" className="gaia-card">
           <p className="gaia-section-kicker" style={{ marginBottom: "0.75rem" }}>
             What a wellness path includes
@@ -110,23 +116,22 @@ export default function OverviewPage() {
             Full detail — complete recipes, herb profiles, and personalised
             reminders — is available to registered members.
           </p>
-          {!isAuthenticated && (
+          {isAuthenticated ? (
+            <div className="gaia-actions">
+              <Link href="/search" className="gaia-btn gaia-btn-primary">
+                Start Search
+              </Link>
+            </div>
+          ) : (
             <div className="gaia-actions">
               <Link href="/entry?mode=register" className="gaia-btn gaia-btn-primary">
                 Create Account to Access Full Plan
               </Link>
             </div>
           )}
-          {isAuthenticated && (
-            <div className="gaia-actions">
-              <Link href="/search" className="gaia-btn gaia-btn-primary">
-                Start Search
-              </Link>
-            </div>
-          )}
         </article>
 
-        {/* 5. Final CTA */}
+        {/* 6. Final CTA */}
         <article className="gaia-card gaia-member-card">
           {isAuthenticated ? (
             <>
@@ -141,9 +146,6 @@ export default function OverviewPage() {
                 </Link>
                 <Link href="/profile" className="gaia-btn gaia-btn-secondary">
                   View Profile
-                </Link>
-                <Link href="/about" className="gaia-btn gaia-btn-ghost">
-                  About G.A.I.A.
                 </Link>
               </div>
             </>
@@ -161,15 +163,12 @@ export default function OverviewPage() {
                 <Link href="/entry?mode=login" className="gaia-btn gaia-btn-secondary">
                   Log In
                 </Link>
-                <Link href="/about" className="gaia-btn gaia-btn-ghost">
-                  About G.A.I.A.
-                </Link>
               </div>
             </>
           )}
         </article>
 
-        {/* 6. Safety note */}
+        {/* 7. Safety note */}
         <article className="gaia-card gaia-disclaimer">
           <strong>Supportive guidance only —</strong> G.A.I.A. does not
           diagnose, treat, cure, or replace professional medical care. Always

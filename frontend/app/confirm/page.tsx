@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
+import NavArrows from "@/components/NavArrows";
 import { findConditionByQuery, type ConditionContent } from "@/lib/conditions";
 import { matchCondition, type BackendConditionMatch } from "@/lib/api";
 
@@ -131,6 +132,7 @@ function ConfirmContent() {
     <main className="gaia-page">
       <section className="gaia-shell">
         <header className="gaia-header-card">
+          <NavArrows />
           <p className="gaia-kicker">Condition Match</p>
           <h1>Does This Look Right?</h1>
           <p>

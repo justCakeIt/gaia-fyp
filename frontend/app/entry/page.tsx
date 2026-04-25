@@ -3,6 +3,7 @@
 import { FormEvent, Suspense, useEffect, useState } from "react";
 import { getProviders, signIn, useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
+import NavArrows from "@/components/NavArrows";
 
 type Mode = "choice" | "login" | "register";
 type LoadingState = "idle" | "login" | "register" | "google";
@@ -199,6 +200,7 @@ function EntryContent() {
     <main className="gaia-page">
       <section className="gaia-shell gaia-auth-shell">
         <header className="gaia-header-card">
+          <NavArrows />
           <p className="gaia-kicker">Gaia House</p>
           <h1>Welcome to G.A.I.A.</h1>
           <p>
@@ -271,8 +273,11 @@ function EntryContent() {
                       <code>frontend/.env.local</code>
                     </li>
                     <li>
-                      In Google Cloud Console → Credentials, set the redirect URI to{" "}
+                      In Google Cloud Console → Credentials → Authorised redirect URIs, add:{" "}
                       <code>http://localhost:3001/api/auth/callback/google</code>
+                      {" "}(laptop) and{" "}
+                      <code>http://&lt;LAN-IP&gt;:3001/api/auth/callback/google</code>
+                      {" "}(phone)
                     </li>
                     <li>Restart the frontend dev server after saving.</li>
                   </ul>

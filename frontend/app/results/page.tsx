@@ -7,6 +7,8 @@ import { useSession } from "next-auth/react";
 import { findConditionById, findConditionByQuery, type ConditionContent } from "@/lib/conditions";
 import { getRecommendations, fetchUserPlans, type BackendRecommendations, type UserPlan } from "@/lib/api";
 import PlanSaveSection from "@/components/PlanSaveSection";
+import IngredientIdentifier from "@/components/IngredientIdentifier";
+import NavArrows from "@/components/NavArrows";
 
 type PageState =
   | { status: "loading" }
@@ -176,6 +178,7 @@ function ResultsContent() {
 
         {/* Header */}
         <header className="gaia-header-card">
+          <NavArrows />
           <p className="gaia-kicker">Support Plan</p>
           <h1>{conditionTitle}</h1>
           <p>{conditionOverview}</p>
@@ -278,6 +281,11 @@ function ResultsContent() {
               </div>
             )}
           </article>
+        )}
+
+        {/* ── Ingredient Identifier (authenticated users only) ── */}
+        {sessionStatus === "authenticated" && (
+          <IngredientIdentifier />
         )}
 
         {/* ── 3. Diet Approach ── */}

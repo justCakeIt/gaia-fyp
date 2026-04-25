@@ -238,3 +238,37 @@ export async function createReminder(
     return { ok: false, error: "Could not reach the server. Check your connection." };
   }
 }
+
+export type IdentifyResultData = {
+  configured: true;
+  name: string | null;
+  latinName?: string | null;
+  confidence?: "high" | "medium" | "low";
+  description?: string | null;
+  caution?: string | null;
+};
+
+export type IdentifyResult =
+  | { ok: true; data: IdentifyResultData }
+  | { ok: false; error: string };
+
+export async function identifyIngredient(
+  _imageBase64: string,
+  _mimeType: string
+): Promise<IdentifyResult> {
+  // Demo mode — simulates analysis delay, returns a showcase botanical result.
+  await new Promise<void>((r) => setTimeout(r, 1400));
+  return {
+    ok: true,
+    data: {
+      configured: true,
+      name: "Milk Thistle",
+      latinName: "Silybum marianum",
+      confidence: "high",
+      description:
+        "A hepatoprotective herb traditionally associated with liver support. Rich in silymarin — a flavonoid complex with antioxidant properties, commonly included in MASLD wellness protocols.",
+      caution:
+        "Demo mode — this is a simulated example result. In a live deployment, G.A.I.A. would analyse your uploaded photo and return a real botanical match.",
+    },
+  };
+}

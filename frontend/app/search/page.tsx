@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 import { useSession } from "next-auth/react";
+import NavArrows from "@/components/NavArrows";
 
 
 export default function SearchPage() {
@@ -67,6 +68,7 @@ export default function SearchPage() {
     <main className="gaia-page">
       <section className="gaia-shell">
         <header className="gaia-header-card">
+          <NavArrows />
           <p className="gaia-kicker">Gaia Guidance</p>
           <h1>Find Your Path</h1>
           <p>

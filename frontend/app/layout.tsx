@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { GaiaSessionProvider } from "@/components/session-provider";
+import GaiaTopBar from "@/components/GaiaTopBar";
 
 export const metadata: Metadata = {
   title: "G.A.I.A. — Green AI Alchemy",
@@ -28,7 +29,10 @@ export default function RootLayout({
         />
       </head>
       <body>
-        <GaiaSessionProvider>{children}</GaiaSessionProvider>
+        <GaiaSessionProvider>
+          <GaiaTopBar />
+          {children}
+        </GaiaSessionProvider>
       </body>
     </html>
   );

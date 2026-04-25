@@ -28,3 +28,8 @@ API_BASE=http://localhost:3000/api
 # Local callback: http://localhost:3001/api/auth/callback/google
 GOOGLE_CLIENT_ID=
 GOOGLE_CLIENT_SECRET=
+
+# Ingredient identification: demo mode is active by default (no key needed).
+# The feature returns a simulated botanical result for showcase purposes.
+# ANTHROPIC_API_KEY is not used in the current demo build.
+ANTHROPIC_API_KEY=

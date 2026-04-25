@@ -57,11 +57,24 @@ providers.push(
   })
 );
 
-if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
+// Only initialise Google provider when real credentials are present.
+// Placeholder strings (e.g. "YOUR_GOOGLE_CLIENT_ID_HERE") are truthy but
+// invalid — passing them to GoogleProvider causes Google to return 401
+// invalid_client, so we filter them out here.
+function looksLikeReal(value: string | undefined): boolean {
+  if (!value || !value.trim()) return false;
+  const v = value.trim();
+  return !v.startsWith("YOUR_") && !v.endsWith("_HERE") && v.length > 8;
+}
+
+if (
+  looksLikeReal(process.env.GOOGLE_CLIENT_ID) &&
+  looksLikeReal(process.env.GOOGLE_CLIENT_SECRET)
+) {
   providers.push(
     GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     })
   );
 }

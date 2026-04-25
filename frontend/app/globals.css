@@ -309,20 +309,30 @@ li + li { margin-top: 0.3rem; }
   box-shadow: 0 1px 0 rgba(255,255,255,0.7) inset;
 }
 
-/* STATUS BADGES — extend .gaia-section-kicker with semantic colour modifiers */
+/* STATUS BADGES — extend .gaia-section-kicker with traffic-light colour modifiers */
 
 .status-badge--active {
-  background: linear-gradient(148deg, rgba(30,110,55,0.18), rgba(20,95,45,0.13));
-  border-color: rgba(30,110,55,0.3);
-  color: #1a6b38;
-  box-shadow: 0 1px 0 rgba(255,255,255,0.7) inset, 0 0 0 1px rgba(30,110,55,0.08);
+  background: linear-gradient(148deg, rgba(22,158,74,0.82), rgba(14,126,56,0.74));
+  border-color: rgba(50,210,106,0.68);
+  color: #d8ffea;
+  font-weight: 600;
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.22) inset,
+    0 0 0 1px rgba(40,200,92,0.40),
+    0 0 10px rgba(22,170,74,0.55),
+    0 0 22px rgba(22,170,74,0.24);
 }
 
 .status-badge--empty {
-  background: linear-gradient(148deg, rgba(180,30,30,0.13), rgba(160,20,20,0.09));
-  border-color: rgba(180,30,30,0.28);
-  color: #a01a1a;
-  box-shadow: 0 1px 0 rgba(255,255,255,0.7) inset, 0 0 0 1px rgba(180,30,30,0.07);
+  background: linear-gradient(148deg, rgba(178,28,28,0.28), rgba(155,18,18,0.18));
+  border-color: rgba(178,28,28,0.56);
+  color: #7a1212;
+  font-weight: 600;
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.80) inset,
+    0 0 0 1px rgba(178,28,28,0.24),
+    0 0 8px rgba(178,28,28,0.32),
+    0 0 16px rgba(178,28,28,0.14);
 }
 
 .gaia-divider {
@@ -633,6 +643,105 @@ button.gaia-chip:hover {
 
 .gaia-footnote { text-align: center; font-size: 0.85rem; color: var(--gaia-ink-700); opacity: 0.78; }
 
+/* ============================================================
+   GLOBAL TOP BAR — floating session pill (logout + user name)
+   ============================================================ */
+
+.gaia-topbar {
+  position: fixed;
+  top: 0.9rem;
+  right: 1.1rem;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.35rem 0.45rem 0.35rem 0.85rem;
+  border-radius: 999px;
+  background: rgba(248,253,250,0.90);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(32,80,54,0.15);
+  box-shadow:
+    0 4px 20px rgba(8,28,18,0.11),
+    0 1px 0 rgba(255,255,255,0.9) inset;
+}
+
+.gaia-topbar-name {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--gaia-sage-600);
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.gaia-topbar-btn.gaia-btn {
+  padding: 0.28rem 0.72rem;
+  font-size: 0.72rem;
+  border-radius: 999px;
+}
+
+@media (max-width: 480px) {
+  .gaia-topbar {
+    top: 0.55rem;
+    right: 0.55rem;
+    padding: 0.28rem 0.38rem 0.28rem 0.65rem;
+  }
+  .gaia-topbar-name {
+    max-width: 64px;
+    font-size: 0.72rem;
+  }
+  .gaia-topbar-btn.gaia-btn {
+    padding: 0.22rem 0.56rem;
+    font-size: 0.68rem;
+  }
+}
+
+/* ============================================================
+   NAV ARROWS — subtle back / forward controls in header cards
+   ============================================================ */
+
+.gaia-nav-arrows {
+  display: flex;
+  gap: 0.3rem;
+  margin-bottom: 0.9rem;
+}
+
+.gaia-nav-arrow {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(122,208,104,0.10);
+  border: 1px solid rgba(155,230,132,0.20);
+  color: rgba(210,248,192,0.72);
+  font-size: 0.9rem;
+  line-height: 1;
+  cursor: pointer;
+  transition:
+    background 170ms ease,
+    border-color 170ms ease,
+    color 170ms ease,
+    transform 150ms ease,
+    box-shadow 170ms ease;
+}
+
+.gaia-nav-arrow:hover {
+  background: rgba(122,208,104,0.22);
+  border-color: rgba(155,230,132,0.40);
+  color: rgba(224,252,208,0.96);
+  transform: scale(1.1);
+  box-shadow: 0 0 10px rgba(110,200,90,0.18);
+}
+
+.gaia-nav-arrow:active {
+  transform: scale(0.94);
+}
 
 /* ============================================================
    ENTRY PAGE — Auth polish

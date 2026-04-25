@@ -577,6 +577,73 @@ Invoke-RestMethod "http://localhost:3000/api/conditions?query=liver"
 
 ---
 
+# Ingredient Identification
+
+Visually identifies an herb, vegetable, fruit, or plant-based ingredient from a photo. Powered by the Anthropic Claude vision API. Results are best-effort estimates and must not be treated as definitive botanical classifications.
+
+Requires the `ANTHROPIC_API_KEY` environment variable to be set on the backend. If the key is absent the endpoint still returns `ok: true` with `configured: false` and a user-facing message.
+
+---
+
+## Identify Ingredient
+
+### Endpoint
+
+POST /api/identify-ingredient
+
+### Request Body
+
+```json
+{
+  "imageBase64": "<raw base64-encoded image data, no data-URI prefix>",
+  "mimeType": "image/jpeg"
+}
+```
+
+Supported `mimeType` values: `image/jpeg`, `image/png`, `image/webp`, `image/gif`.  
+Maximum image size: 5 MB (enforced server-side on the base64 length).
+
+### Response — provider not configured
+
+```json
+{
+  "ok": true,
+  "data": {
+    "configured": false,
+    "message": "Ingredient identification is not enabled in this deployment."
+  }
+}
+```
+
+### Response — successful identification
+
+```json
+{
+  "ok": true,
+  "data": {
+    "configured": true,
+    "name": "Milk Thistle",
+    "latinName": "Silybum marianum",
+    "confidence": "high",
+    "description": "Milk thistle is traditionally used to support liver health.",
+    "caution": "May interact with certain medications — consult your clinician."
+  }
+}
+```
+
+`confidence` is one of `high | medium | low`.  
+`name` is `null` if no plant-based ingredient was identifiable in the image.  
+`latinName` and `caution` may be `null`.
+
+### Error Responses
+
+| Status | Condition |
+|--------|-----------|
+| 400 | `imageBase64` missing or image exceeds 5 MB |
+| 500 | Upstream provider error |
+
+---
+
 # MVP Scope
 
 This system:

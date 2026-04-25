@@ -13,6 +13,7 @@ import {
   type UserPlan,
   type UserReminder,
 } from "@/lib/api";
+import NavArrows from "@/components/NavArrows";
 
 type SessionUser = {
   name?: string | null;
@@ -205,6 +206,7 @@ export default function ProfilePage() {
 
         {/* ── Header with logout ── */}
         <header className="gaia-header-card">
+          <NavArrows />
           <div
             style={{
               display: "flex",

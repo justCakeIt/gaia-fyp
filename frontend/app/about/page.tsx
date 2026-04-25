@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useSession } from "next-auth/react";
+import NavArrows from "@/components/NavArrows";
 
 const HOW_STEPS = [
   {
@@ -41,6 +42,7 @@ export default function AboutPage() {
 
         {/* ── Hero ── */}
         <header className="gaia-header-card">
+          <NavArrows />
           <p className="gaia-kicker">About G.A.I.A.</p>
           <h1>The Architecture of a Turning Point</h1>
           <p>
