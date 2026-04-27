@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { FormEvent, useEffect, useState } from "react";
-import { signOut, useSession } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import {
   fetchUserPlans,
@@ -62,6 +62,14 @@ export default function ProfilePage() {
   const [confirmDeletePlan, setConfirmDeletePlan] = useState<number | null>(null);
   const [confirmDeleteReminder, setConfirmDeleteReminder] = useState<number | null>(null);
 
+  const [notifPermission, setNotifPermission] = useState<NotificationPermission>("default");
+
+  useEffect(() => {
+    if (typeof window !== "undefined" && "Notification" in window) {
+      setNotifPermission(Notification.permission);
+    }
+  }, []);
+
   const user = session?.user as SessionUser | undefined;
   const userID = (() => {
     const n = user?.id ? parseInt(user.id, 10) : NaN;
@@ -98,7 +106,7 @@ export default function ProfilePage() {
     return (
       <main className="gaia-page">
         <section className="gaia-shell">
-          <article className="gaia-card">
+          <article className="gaia-card gaia-loading-card">
             <h2>Loading your dashboard...</h2>
             <p>Checking your session.</p>
           </article>
@@ -111,10 +119,6 @@ export default function ProfilePage() {
 
   // Most recent plan — used for quick actions and reminder form
   const activePlan: UserPlan | null = dash.plans[0] ?? null;
-
-  async function handleLogout() {
-    await signOut({ callbackUrl: "/entry" });
-  }
 
   async function handleDeletePlan(planID: number) {
     if (!userID) return;
@@ -141,6 +145,10 @@ export default function ProfilePage() {
   }
 
   function openReminderForm(plan: UserPlan) {
+    // Request permission on this user gesture so browser allows it
+    if (typeof window !== "undefined" && "Notification" in window && Notification.permission === "default") {
+      Notification.requestPermission().then(setNotifPermission);
+    }
     setForm({
       open: true,
       planID: plan.planID,
@@ -150,6 +158,21 @@ export default function ProfilePage() {
       saving: false,
       error: "",
     });
+  }
+
+  function setOneMinFromNow() {
+    if (!form.open) return;
+    const now = new Date();
+    now.setMinutes(now.getMinutes() + 1);
+    const hh = String(now.getHours()).padStart(2, "0");
+    const mm = String(now.getMinutes()).padStart(2, "0");
+    setForm({ ...form, time: `${hh}:${mm}` });
+  }
+
+  async function requestNotifPermission() {
+    if (typeof window === "undefined" || !("Notification" in window)) return;
+    const perm = await Notification.requestPermission();
+    setNotifPermission(perm);
   }
 
   async function handleAddReminder(e: FormEvent<HTMLFormElement>) {
@@ -181,8 +204,6 @@ export default function ProfilePage() {
     setForm({ open: false });
   }
 
-  const hasActivity = dash.plans.length > 0 || dash.reminders.length > 0;
-
   // Shared inline styles for plan/reminder list items
   const listItemStyle: React.CSSProperties = {
     display: "flex",
@@ -204,37 +225,18 @@ export default function ProfilePage() {
     <main className="gaia-page">
       <section className="gaia-shell">
 
-        {/* ── Header with logout ── */}
+        {/* ── Header ── */}
         <header className="gaia-header-card">
           <NavArrows />
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "flex-start",
-              gap: "1rem",
-            }}
-          >
-            <div>
-              <p className="gaia-kicker">Your Dashboard</p>
-              <h1 style={{ marginBottom: "0.2rem" }}>
-                Welcome back, {displayName}
-              </h1>
-              {user?.email && (
-                <p className="gaia-note" style={{ marginTop: 0 }}>
-                  {user.email}
-                </p>
-              )}
-            </div>
-            <button
-              type="button"
-              onClick={handleLogout}
-              className="gaia-btn gaia-btn-ghost"
-              style={{ flexShrink: 0, marginTop: "0.2rem" }}
-            >
-              Log out
-            </button>
-          </div>
+          <p className="gaia-kicker">Your Dashboard</p>
+          <h1 style={{ marginBottom: "0.2rem" }}>
+            Welcome back, {displayName}
+          </h1>
+          {user?.email && (
+            <p className="gaia-note" style={{ marginTop: 0 }}>
+              {user.email}
+            </p>
+          )}
           <p style={{ marginTop: "0.75rem" }}>
             Your personal wellness dashboard. View your saved paths, manage
             reminders, and search for new guidance whenever you need it.
@@ -248,7 +250,7 @@ export default function ProfilePage() {
 
         {/* ── Data loading / error ── */}
         {dash.loading && (
-          <article className="gaia-card gaia-surface-muted">
+          <article className="gaia-card gaia-surface-muted gaia-loading-card">
             <p>Loading your saved paths and reminders...</p>
           </article>
         )}
@@ -349,7 +351,9 @@ export default function ProfilePage() {
                   ))}
                 </ul>
               ) : (
-                <p className="gaia-note">No saved wellness paths yet.</p>
+                <p className="gaia-note">
+                  Your saved paths will appear here. Search for a condition below to get started.
+                </p>
               )}
 
               <div className="gaia-actions" style={{ marginTop: "0.75rem" }}>
@@ -455,7 +459,41 @@ export default function ProfilePage() {
                   ))}
                 </ul>
               ) : (
-                <p className="gaia-note">No reminders set yet.</p>
+                <p className="gaia-note">
+                  No reminders yet. Daily reminders help you stay consistent — save a wellness path first, then add one here.
+                </p>
+              )}
+
+              {/* Notification permission nudge — shown when reminders exist but permission not yet granted */}
+              {dash.reminders.length > 0 && notifPermission !== "granted" && notifPermission !== "denied" && (
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.6rem",
+                    padding: "0.55rem 0.8rem",
+                    borderRadius: "0.6rem",
+                    background: "rgba(74,122,100,0.08)",
+                    border: "1px solid rgba(74,122,100,0.18)",
+                  }}
+                >
+                  <span style={{ fontSize: "0.78rem", color: "var(--gaia-ink-700)", flex: 1 }}>
+                    Enable browser notifications to receive reminder alerts.
+                  </span>
+                  <button
+                    type="button"
+                    className="gaia-btn gaia-btn-secondary"
+                    style={{ fontSize: "0.74rem", padding: "0.22rem 0.65rem", flexShrink: 0 }}
+                    onClick={requestNotifPermission}
+                  >
+                    Enable
+                  </button>
+                </div>
+              )}
+              {dash.reminders.length > 0 && notifPermission === "denied" && (
+                <p className="gaia-note" style={{ fontSize: "0.76rem" }}>
+                  Browser notifications are blocked. In-app alerts will still appear when this page is open.
+                </p>
               )}
 
               <hr className="gaia-divider" style={{ margin: "1rem 0 0.75rem" }} />
@@ -475,8 +513,8 @@ export default function ProfilePage() {
 
               {!form.open && !activePlan && (
                 <p className="gaia-note">
-                  Save a wellness path first to add reminders.{" "}
-                  <Link href="/search">Search for a condition →</Link>
+                  Save a wellness path first to unlock reminders.{" "}
+                  <Link href="/search">Find your path →</Link>
                 </p>
               )}
 
@@ -507,6 +545,14 @@ export default function ProfilePage() {
                       setForm({ ...form, time: e.target.value })
                     }
                   />
+                  <button
+                    type="button"
+                    className="gaia-btn gaia-btn-ghost"
+                    style={{ fontSize: "0.76rem", padding: "0.22rem 0.65rem", justifySelf: "start" }}
+                    onClick={setOneMinFromNow}
+                  >
+                    Quick demo — 1 min from now
+                  </button>
 
                   <label htmlFor="dash-reminder-day">Repeat</label>
                   <select
@@ -551,42 +597,6 @@ export default function ProfilePage() {
               )}
             </article>
 
-            {/* ── Recent Activity ── */}
-            <article className="gaia-card gaia-surface-muted">
-              <div className="gaia-section-title">
-                <h2>Recent Activity</h2>
-                <span className="gaia-section-kicker">Your history</span>
-              </div>
-              {!hasActivity ? (
-                <p className="gaia-note">
-                  No activity yet. Start by searching for a condition.
-                </p>
-              ) : (
-                <ul
-                  style={{
-                    listStyle: "none",
-                    padding: 0,
-                    margin: 0,
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "0.4rem",
-                  }}
-                >
-                  {dash.reminders.map((rem) => (
-                    <li key={`rem-${rem.reminderID}`} className="gaia-note">
-                      Reminder set:{" "}
-                      <strong>{rem.label}</strong>
-                      {rem.planTitle ? ` (${rem.planTitle})` : ""}
-                    </li>
-                  ))}
-                  {dash.plans.map((plan) => (
-                    <li key={`plan-${plan.planID}`} className="gaia-note">
-                      Wellness path saved: <strong>{plan.title}</strong>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </article>
           </>
         )}
 
@@ -618,7 +628,7 @@ export default function ProfilePage() {
             <p>
               {activePlan
                 ? `Currently: ${activePlan.title}`
-                : "No saved path yet. Search to find your path."}
+                : "Search for a diagnosed condition to find and save your first wellness path."}
             </p>
             <div className="gaia-actions">
               {activePlan?.conditionID ? (

@@ -16,6 +16,8 @@ export default function GaiaTopBar() {
 
   return (
     <div className="gaia-topbar" role="banner" aria-label="Session controls">
+      <span className="gaia-topbar-brand">G.A.I.A.</span>
+      <span className="gaia-topbar-sep" aria-hidden>|</span>
       <span className="gaia-topbar-name">{firstName}</span>
       <button
         type="button"

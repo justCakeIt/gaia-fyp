@@ -42,13 +42,17 @@ async function recommendations(req, res, next) {
     }
 
     const data = await conditionsService.getRecommendations(conditionID);
+
     if (!data) {
       return res.status(404).json({ ok: false, error: "condition not found" });
     }
 
+    console.log(`[recommendations] condition ${conditionID} ("${data.condition.conditionName}") — herbs:${data.herbs.length} recipes:${data.recipes.length} mixtures:${data.mixtures.length} safety:${data.safetyNotes.length}`);
+
     return res.json({ ok: true, data });
-  } catch (e) {
-    next(e);
+  } catch (err) {
+    console.error("RECOMMENDATIONS ERROR:", err);
+    next(err);
   }
 }
 

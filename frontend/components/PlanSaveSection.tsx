@@ -52,6 +52,14 @@ export default function PlanSaveSection({
   const [reminderTime, setReminderTime] = useState("08:00");
   const [reminderDay, setReminderDay] = useState("Daily");
 
+  function setOneMinFromNow() {
+    const now = new Date();
+    now.setMinutes(now.getMinutes() + 1);
+    const hh = String(now.getHours()).padStart(2, "0");
+    const mm = String(now.getMinutes()).padStart(2, "0");
+    setReminderTime(`${hh}:${mm}`);
+  }
+
   // Guest: show login/register prompt
   if (sessionStatus === "unauthenticated") {
     return (
@@ -82,11 +90,10 @@ export default function PlanSaveSection({
       <article className="gaia-card gaia-surface-muted">
         <div className="gaia-section-title">
           <h2>Save This Plan</h2>
-          <span className="gaia-section-kicker">Unavailable</span>
+          <span className="gaia-section-kicker">Not yet available</span>
         </div>
         <p className="gaia-note">
-          Plan saving requires a connection to the Gaia backend. Start a search
-          from the search page to load a fully connected plan.
+          This becomes available after finding a condition through the guided search flow. Use search to load your full wellness plan.
         </p>
         <div className="gaia-actions">
           <Link href="/search" className="gaia-btn gaia-btn-secondary">
@@ -102,18 +109,17 @@ export default function PlanSaveSection({
     if (!userID || !backend) return;
     setPhase({ name: "saving" });
 
-    // Build items from backend recommendations — exclude "avoid" herbs
     const items: PlanItem[] = [];
 
-    for (const herb of backend.herbs) {
+    for (const herb of backend.herbs ?? []) {
       if (herb.recommendationLevel !== "avoid") {
         items.push({ itemType: "herb", herbID: herb.herbID });
       }
     }
-    for (const recipe of backend.recipes) {
+    for (const recipe of backend.recipes ?? []) {
       items.push({ itemType: "recipe", recipeID: recipe.recipeID });
     }
-    for (const mixture of backend.mixtures) {
+    for (const mixture of backend.mixtures ?? []) {
       items.push({ itemType: "mixture", mixtureID: mixture.mixtureID });
     }
 
@@ -239,7 +245,7 @@ export default function PlanSaveSection({
 
   if (phase.name === "saving") {
     return (
-      <article className="gaia-card gaia-surface-muted">
+      <article className="gaia-card gaia-surface-muted gaia-loading-card">
         <h2>Saving your plan...</h2>
         <p>Please wait.</p>
       </article>
@@ -270,7 +276,7 @@ export default function PlanSaveSection({
             className="gaia-btn gaia-btn-ghost"
             onClick={() => setPhase({ name: "reminder_done", planID: phase.planID, reminderID: 0 })}
           >
-            No Thanks
+            Skip for now
           </button>
         </div>
       </article>
@@ -306,6 +312,14 @@ export default function PlanSaveSection({
             value={reminderTime}
             onChange={(e) => setReminderTime(e.target.value)}
           />
+          <button
+            type="button"
+            className="gaia-btn gaia-btn-ghost"
+            style={{ fontSize: "0.76rem", padding: "0.22rem 0.65rem", justifySelf: "start" }}
+            onClick={setOneMinFromNow}
+          >
+            Quick demo — 1 min from now
+          </button>
 
           <label htmlFor="reminder-day">Repeat</label>
           <select
@@ -338,7 +352,7 @@ export default function PlanSaveSection({
                 setPhase({ name: "reminder_done", planID: phase.planID, reminderID: 0 })
               }
             >
-              Skip
+              Skip for now
             </button>
           </div>
         </form>
@@ -348,7 +362,7 @@ export default function PlanSaveSection({
 
   if (phase.name === "setting_reminder") {
     return (
-      <article className="gaia-card">
+      <article className="gaia-card gaia-loading-card">
         <h2>Setting reminder...</h2>
         <p>Please wait.</p>
       </article>

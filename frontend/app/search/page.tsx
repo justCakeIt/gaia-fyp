@@ -17,9 +17,9 @@ export default function SearchPage() {
     return (
       <main className="gaia-page">
         <section className="gaia-shell">
-          <article className="gaia-card">
-            <h2>Loading access...</h2>
-            <p>Checking your session before opening full condition search.</p>
+          <article className="gaia-card gaia-loading-card">
+            <h2>Just a moment...</h2>
+            <p>Checking your session.</p>
           </article>
         </section>
       </main>
@@ -31,20 +31,20 @@ export default function SearchPage() {
       <main className="gaia-page">
         <section className="gaia-shell">
           <article className="gaia-card gaia-surface-muted">
-            <h2>Member Access Required</h2>
+            <h2>Sign in to search</h2>
             <p>
-              Full condition search is available to registered members. Guests
-              can still use the preview experience.
+              Full condition search is available to members. Create a free
+              account or sign in to find your wellness path.
             </p>
             <div className="gaia-actions">
               <Link href="/entry?mode=login" className="gaia-btn gaia-btn-primary">
-                Log In
+                Log in
               </Link>
               <Link href="/entry?mode=register" className="gaia-btn gaia-btn-secondary">
-                Register
+                Create account
               </Link>
               <Link href="/overview?mode=guest&preview=1#guest-preview" className="gaia-btn gaia-btn-ghost">
-                Guest Preview
+                View as guest
               </Link>
             </div>
           </article>
@@ -101,20 +101,7 @@ export default function SearchPage() {
             className="gaia-input"
             autoFocus
           />
-          <div className="gaia-chip-row" aria-label="Condition suggestions">
-            <span style={{ fontSize: "0.74rem", color: "var(--gaia-sage-500)", alignSelf: "center", marginRight: "0.2rem" }}>Try:</span>
-            {["fatty liver", "MASLD", "NAFLD"].map((term) => (
-              <button
-                key={term}
-                type="button"
-                className="gaia-chip"
-                onClick={() => setQuery(term)}
-              >
-                {term}
-              </button>
-            ))}
-          </div>
-          {validationError ? <p className="gaia-error">{validationError}</p> : null}
+{validationError ? <p className="gaia-error">{validationError}</p> : null}
           <div className="gaia-actions">
             <button type="submit" className="gaia-btn gaia-btn-primary">
               Find my path

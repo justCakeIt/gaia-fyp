@@ -263,25 +263,9 @@ function EntryContent() {
                 Continue as Guest
               </button>
               {!googleEnabled ? (
-                <div className="gaia-google-setup">
-                  <p className="gaia-note gaia-google-setup-title">
-                    Google sign-in is available — OAuth credentials not yet added.
-                  </p>
-                  <ul>
-                    <li>
-                      Add <code>GOOGLE_CLIENT_ID</code> and <code>GOOGLE_CLIENT_SECRET</code> to{" "}
-                      <code>frontend/.env.local</code>
-                    </li>
-                    <li>
-                      In Google Cloud Console → Credentials → Authorised redirect URIs, add:{" "}
-                      <code>http://localhost:3001/api/auth/callback/google</code>
-                      {" "}(laptop) and{" "}
-                      <code>http://&lt;LAN-IP&gt;:3001/api/auth/callback/google</code>
-                      {" "}(phone)
-                    </li>
-                    <li>Restart the frontend dev server after saving.</li>
-                  </ul>
-                </div>
+                <p className="gaia-note" style={{ textAlign: "center", fontSize: "0.78rem" }}>
+                  Google sign-in is available once OAuth credentials are added to <code>.env.local</code>.
+                </p>
               ) : null}
               {displayError ? <p className="gaia-error">{displayError}</p> : null}
             </div>
@@ -375,7 +359,7 @@ function EntryContent() {
               <button className="gaia-btn gaia-btn-primary" disabled={isBusy}>
                 {loadingState === "register"
                   ? "Creating account..."
-                  : "Register"}
+                  : "Create account"}
               </button>
               <button
                 type="button"

@@ -8,6 +8,8 @@ const plansRoutes = require("./plans");
 const remindersRoutes = require("./reminders");
 const authRoutes = require("./auth");
 const identifyRoutes = require("./identify");
+const recipesRoutes = require("./recipes");
+const mixturesRoutes = require("./mixtures");
 
 const router = express.Router();
 
@@ -19,5 +21,7 @@ router.use("/plans", plansRoutes);
 router.use("/reminders", remindersRoutes);
 router.use("/auth", authRoutes);
 router.use("/identify-ingredient", identifyRoutes);
+router.use("/recipes", recipesRoutes);
+router.use("/mixtures", mixturesRoutes);
 
 module.exports = router;

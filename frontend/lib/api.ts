@@ -39,6 +39,29 @@ export type BackendMixture = {
   instructions: string | null;
 };
 
+export type BackendMixtureHerb = {
+  herbID: number;
+  herbName: string;
+  latinName: string | null;
+  amount: number | null;
+  unit: string | null;
+  role: "main" | "support" | "optional" | null;
+};
+
+export type BackendMixtureSafetyNote = {
+  safetyNoteID: number;
+  warningType: string;
+  severity: "low" | "medium" | "high" | "critical";
+  message: string;
+  instructions: string | null;
+};
+
+export type BackendMixtureDetail = BackendMixture & {
+  dosage: string | null;
+  herbs: BackendMixtureHerb[];
+  safetyNotes: BackendMixtureSafetyNote[];
+};
+
 export type BackendSafetyNote = {
   safetyNoteID: number;
   herbID: number | null;
@@ -60,22 +83,19 @@ export type BackendRecommendations = {
   recipes: BackendRecipe[];
   mixtures: BackendMixture[];
   safetyNotes: BackendSafetyNote[];
+  disclaimer: string;
 };
 
 export async function matchCondition(
   query: string
 ): Promise<BackendConditionMatch | null> {
-  try {
-    const res = await fetch(
-      `${API_BASE}/conditions/match?query=${encodeURIComponent(query)}`
-    );
-    if (!res.ok) return null;
-    const payload = await res.json();
-    if (!payload.ok || !payload.matched) return null;
-    return payload.matched as BackendConditionMatch;
-  } catch {
-    return null;
-  }
+  const res = await fetch(
+    `${API_BASE}/conditions/match?query=${encodeURIComponent(query)}`
+  );
+  if (!res.ok) return null;
+  const payload = await res.json();
+  if (!payload.ok || !payload.matched) return null;
+  return payload.matched as BackendConditionMatch;
 }
 
 export async function getRecommendations(
@@ -252,23 +272,46 @@ export type IdentifyResult =
   | { ok: true; data: IdentifyResultData }
   | { ok: false; error: string };
 
+export async function getRecipe(recipeID: number): Promise<BackendRecipe | null> {
+  try {
+    const res = await fetch(`${API_BASE}/recipes/${recipeID}`);
+    if (!res.ok) return null;
+    const payload = await res.json();
+    if (!payload.ok || !payload.data) return null;
+    return payload.data as BackendRecipe;
+  } catch {
+    return null;
+  }
+}
+
+export async function getMixture(mixtureID: number): Promise<BackendMixtureDetail | null> {
+  try {
+    const res = await fetch(`${API_BASE}/mixtures/${mixtureID}`);
+    if (!res.ok) return null;
+    const payload = await res.json();
+    if (!payload.ok || !payload.data) return null;
+    return payload.data as BackendMixtureDetail;
+  } catch {
+    return null;
+  }
+}
+
 export async function identifyIngredient(
-  _imageBase64: string,
-  _mimeType: string
+  imageBase64: string,
+  mimeType: string
 ): Promise<IdentifyResult> {
-  // Demo mode — simulates analysis delay, returns a showcase botanical result.
-  await new Promise<void>((r) => setTimeout(r, 1400));
-  return {
-    ok: true,
-    data: {
-      configured: true,
-      name: "Milk Thistle",
-      latinName: "Silybum marianum",
-      confidence: "high",
-      description:
-        "A hepatoprotective herb traditionally associated with liver support. Rich in silymarin — a flavonoid complex with antioxidant properties, commonly included in MASLD wellness protocols.",
-      caution:
-        "Demo mode — this is a simulated example result. In a live deployment, G.A.I.A. would analyse your uploaded photo and return a real botanical match.",
-    },
-  };
+  try {
+    const res = await fetch(`${API_BASE}/identify`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ imageBase64, mimeType }),
+    });
+    const data = await res.json();
+    if (!res.ok || !data.ok) {
+      return { ok: false, error: data.error ?? "Identification failed." };
+    }
+    return { ok: true, data: data.data as IdentifyResultData };
+  } catch {
+    return { ok: false, error: "Could not reach the server." };
+  }
 }

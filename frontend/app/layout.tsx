@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { GaiaSessionProvider } from "@/components/session-provider";
 import GaiaTopBar from "@/components/GaiaTopBar";
+import ReminderNotificationEngine from "@/components/ReminderNotificationEngine";
 
 export const metadata: Metadata = {
   title: "G.A.I.A. — Green AI Alchemy",
@@ -31,6 +32,7 @@ export default function RootLayout({
       <body>
         <GaiaSessionProvider>
           <GaiaTopBar />
+          <ReminderNotificationEngine />
           {children}
         </GaiaSessionProvider>
       </body>

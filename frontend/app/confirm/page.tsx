@@ -5,14 +5,12 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import NavArrows from "@/components/NavArrows";
-import { findConditionByQuery, type ConditionContent } from "@/lib/conditions";
 import { matchCondition, type BackendConditionMatch } from "@/lib/api";
 
 type MatchState =
   | { status: "loading" }
   | { status: "no_match" }
-  | { status: "matched_backend"; match: BackendConditionMatch }
-  | { status: "matched_local"; match: ConditionContent }
+  | { status: "matched"; match: BackendConditionMatch }
   | { status: "error"; message: string };
 
 function ConfirmContent() {
@@ -35,21 +33,11 @@ function ConfirmContent() {
       setMatchState({ status: "loading" });
 
       try {
-        // Try backend first (DB-backed synonym matching)
         const backendMatch = await matchCondition(query);
         if (cancelled) return;
 
         if (backendMatch) {
-          setMatchState({ status: "matched_backend", match: backendMatch });
-          return;
-        }
-
-        // Backend unavailable or no DB match — fall back to local library
-        const localMatch = findConditionByQuery(query);
-        if (cancelled) return;
-
-        if (localMatch) {
-          setMatchState({ status: "matched_local", match: localMatch });
+          setMatchState({ status: "matched", match: backendMatch });
         } else {
           setMatchState({ status: "no_match" });
         }
@@ -71,9 +59,9 @@ function ConfirmContent() {
     return (
       <main className="gaia-page">
         <section className="gaia-shell">
-          <article className="gaia-card">
-            <h2>Loading access...</h2>
-            <p>Checking your session before opening condition confirmation.</p>
+          <article className="gaia-card gaia-loading-card">
+            <h2>One moment...</h2>
+            <p>Checking your session.</p>
           </article>
         </section>
       </main>
@@ -85,20 +73,20 @@ function ConfirmContent() {
       <main className="gaia-page">
         <section className="gaia-shell">
           <article className="gaia-card gaia-surface-muted">
-            <h2>Guest Preview Only</h2>
+            <h2>Sign in to continue</h2>
             <p>
-              Detailed condition confirmation is reserved for registered users.
-              Guest mode gives you a curated overview and feature preview.
+              Condition confirmation is available to members. Create a free
+              account or log in to access your full wellness path.
             </p>
             <div className="gaia-actions">
               <Link href="/entry?mode=login" className="gaia-btn gaia-btn-primary">
-                Log In
+                Log in
               </Link>
               <Link href="/entry?mode=register" className="gaia-btn gaia-btn-secondary">
-                Register
+                Create account
               </Link>
-              <Link href="/overview?mode=guest&preview=1#guest-preview" className="gaia-btn gaia-btn-ghost">
-                Guest Preview
+              <Link href="/overview" className="gaia-btn gaia-btn-ghost">
+                View G.A.I.A. Overview
               </Link>
             </div>
           </article>
@@ -111,21 +99,13 @@ function ConfirmContent() {
     return (
       <main className="gaia-page">
         <section className="gaia-shell">
-          <article className="gaia-card">
+          <article className="gaia-card gaia-loading-card">
             <h2>Redirecting...</h2>
             <p>Taking you back to search.</p>
           </article>
         </section>
       </main>
     );
-  }
-
-  function handleConfirmBackend(conditionID: number) {
-    router.push(`/results?id=${conditionID}`);
-  }
-
-  function handleConfirmLocal(id: string) {
-    router.push(`/results?id=${id}`);
   }
 
   return (
@@ -146,7 +126,7 @@ function ConfirmContent() {
         </header>
 
         {matchState.status === "loading" && (
-          <article className="gaia-card" aria-live="polite" aria-busy="true">
+          <article className="gaia-card gaia-loading-card" aria-live="polite" aria-busy="true">
             <h2>Searching...</h2>
             <p>Matching &ldquo;{query}&rdquo; against supported conditions.</p>
           </article>
@@ -156,25 +136,12 @@ function ConfirmContent() {
           <article className="gaia-card">
             <div className="gaia-section-title">
               <h2>No match found</h2>
-              <span className="gaia-section-kicker">Fatty Liver / MASLD focus</span>
+              <span className="gaia-section-kicker">No results</span>
             </div>
             <p>
-              Gaia&rsquo;s current complete guidance path is for <strong>Fatty Liver
-              (MASLD / NAFLD)</strong>. Try one of the terms below, or return to
-              search to rephrase your query.
+              No condition matched &ldquo;{query}&rdquo;. Try rephrasing your
+              query or using a different term.
             </p>
-            <div className="gaia-chip-row" style={{ marginTop: "0.2rem" }}>
-              {["fatty liver", "MASLD", "NAFLD"].map((t) => (
-                <button
-                  key={t}
-                  type="button"
-                  className="gaia-chip"
-                  onClick={() => router.push(`/confirm?query=${encodeURIComponent(t)}`)}
-                >
-                  {t}
-                </button>
-              ))}
-            </div>
             <div className="gaia-actions">
               <Link href="/search" className="gaia-btn gaia-btn-primary">
                 Try a different search
@@ -183,7 +150,7 @@ function ConfirmContent() {
           </article>
         )}
 
-        {matchState.status === "matched_backend" && (
+        {matchState.status === "matched" && (
           <article className="gaia-card gaia-member-card">
             <div className="gaia-section-title">
               <h2>{matchState.match.conditionName}</h2>
@@ -199,34 +166,7 @@ function ConfirmContent() {
               <button
                 type="button"
                 className="gaia-btn gaia-btn-primary"
-                onClick={() => handleConfirmBackend(matchState.match.conditionID)}
-              >
-                Yes, open my path
-              </button>
-              <Link href="/search" className="gaia-btn gaia-btn-secondary">
-                Search again
-              </Link>
-            </div>
-          </article>
-        )}
-
-        {matchState.status === "matched_local" && (
-          <article className="gaia-card gaia-member-card">
-            <div className="gaia-section-title">
-              <h2>{matchState.match.title}</h2>
-              <span className="gaia-section-kicker">Match found</span>
-            </div>
-            <p>{matchState.match.supportiveOverview}</p>
-            <div className="gaia-disclaimer">
-              <strong>Before you continue —</strong> this guidance is supportive
-              only. Proceed only if <em>{matchState.match.title}</em> is a
-              condition you have already been diagnosed with by a clinician.
-            </div>
-            <div className="gaia-actions">
-              <button
-                type="button"
-                className="gaia-btn gaia-btn-primary"
-                onClick={() => handleConfirmLocal(matchState.match.id)}
+                onClick={() => router.push(`/results?id=${matchState.match.conditionID}`)}
               >
                 Yes, open my path
               </button>
