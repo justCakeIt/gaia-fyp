@@ -94,7 +94,7 @@ jobs:
       # ✅ Lint (will work after your package.json fix)
       - name: Lint
         working-directory: frontend
-        run: npm run lint
+        run: npx eslint .
 
       - name: Build
         working-directory: frontend
