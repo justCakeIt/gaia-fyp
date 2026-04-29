@@ -45,10 +45,6 @@ export default function PlanSaveSection({
   const router = useRouter();
   const [phase, setPhase] = useState<Phase>({ name: "idle" });
 
-  // =========================
-  // AUTH GUARD
-  // =========================
-
   if (sessionStatus === "unauthenticated") {
     return (
       <article className="gaia-card gaia-surface-muted">
@@ -84,10 +80,6 @@ export default function PlanSaveSection({
       </article>
     );
   }
-
-  // =========================
-  // SAVE LOGIC
-  // =========================
 
   async function executeSave() {
     if (!userID || !backend) return;
@@ -194,10 +186,6 @@ export default function PlanSaveSection({
 
     router.push("/profile");
   }
-
-  // =========================
-  // UI
-  // =========================
 
   if (phase.name === "idle") {
     return (
