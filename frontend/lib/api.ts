@@ -206,15 +206,20 @@ export async function getMixture(
 // RECIPE DETAIL
 // =====================================================
 
-export type BackendRecipeDetail = {
+export type BackendRecipe = {
   recipeID: number;
   recipeName: string;
   ingredients: string;
   instructions: string;
-  prepTime?: string;
+  prepTime?: number;
   dietTags?: string;
+  description?: string;
+  notes?: string;
+  linkNotes?: string;
 };
 
+// keep backward compatibility if used elsewhere
+export type BackendRecipeDetail = BackendRecipe;
 export async function getRecipe(
   recipeID: number
 ): Promise<BackendRecipeDetail | null> {

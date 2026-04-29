@@ -62,13 +62,12 @@ export default function ProfilePage() {
   const [confirmDeletePlan, setConfirmDeletePlan] = useState<number | null>(null);
   const [confirmDeleteReminder, setConfirmDeleteReminder] = useState<number | null>(null);
 
-  const [notifPermission, setNotifPermission] = useState<NotificationPermission>("default");
-
-  useEffect(() => {
-    if (typeof window !== "undefined" && "Notification" in window) {
-      setNotifPermission(Notification.permission);
-    }
-  }, []);
+  const [notifPermission, setNotifPermission] = useState<NotificationPermission>(() => {
+  if (typeof window !== "undefined" && "Notification" in window) {
+    return Notification.permission;
+  }
+  return "default";
+  });
 
   const user = session?.user as SessionUser | undefined;
   const userID = (() => {

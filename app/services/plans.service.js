@@ -85,14 +85,39 @@ async function listPlans(userID) {
 }
 
 async function getPlan(planID) {
-  const rows = await db.query(
+  // 1. Get plan
+  const planRows = await db.query(
     `SELECT * FROM Plans WHERE planID = ? LIMIT 1`,
     [planID]
   );
 
-  if (!rows.length) return null;
+  if (!planRows.length) return null;
 
-  return { plan: rows[0] };
+  const plan = planRows[0];
+
+  // 2. Get items
+  const items = await db.query(
+    `SELECT * FROM PlanItems WHERE planID = ?`,
+    [planID]
+  );
+
+  // 3. Get safety notes (based on items)
+  const safetyNotes = await db.query(
+    `
+    SELECT DISTINCT sn.*
+    FROM PlanItems pi
+    JOIN SafetyNotes sn
+      ON sn.herbID = pi.herbID
+    WHERE pi.planID = ?
+    `,
+    [planID]
+  );
+
+  return {
+    plan,
+    items: Array.isArray(items) ? items : [],
+    safetyNotes: Array.isArray(safetyNotes) ? safetyNotes : [],
+  };
 }
 
 async function getPlanOwner(planID) {

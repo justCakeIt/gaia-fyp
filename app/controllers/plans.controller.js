@@ -122,7 +122,14 @@ async function getOne(req, res, next) {
       });
     }
 
-    return res.json({ ok: true, data });
+    return res.json({
+      ok: true,
+      data: {
+        plan: data.plan,
+        items: Array.isArray(data.items) ? data.items : [],
+        safetyNotes: Array.isArray(data.safetyNotes) ? data.safetyNotes : [],
+      },
+    });
   } catch (e) {
     next(e);
   }
