@@ -10,32 +10,37 @@ const errorHandler = require("./middleware/errorHandler");
 
 const app = express();
 
-// CORS must be BEFORE routes
-const CORS_ORIGIN = process.env.CORS_ORIGIN
-  ? process.env.CORS_ORIGIN.split(",").map((s) => s.trim())
-  : ["http://localhost:5173", "http://localhost:3001", "http://localhost:3000"];
+// =====================================================
+// CORS (STRICT BUT SAFE)
+// =====================================================
 
 const corsOptions = {
-  origin: CORS_ORIGIN,
+  origin: true,
+  credentials: true,
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
-  credentials: true,
 };
 
 app.use(cors(corsOptions));
 app.options("*", cors(corsOptions));
 
-// JSON parsing + static
+// =====================================================
+// MIDDLEWARE
+// =====================================================
+
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "..", "static")));
 
-// API namespace
+// =====================================================
+// ROUTES
+// =====================================================
+
 app.use("/api", apiRouter);
 
-// Root route
-app.get("/", (req, res) => res.send("G.A.I.A. API — running"));
+app.get("/", (req, res) => {
+  res.send("G.A.I.A. API — running");
+});
 
-// Health route (inline — keeps db import local to app)
 app.get("/health", async (req, res) => {
   try {
     await db.ping();
@@ -45,7 +50,10 @@ app.get("/health", async (req, res) => {
   }
 });
 
-// Error handler MUST be last
+// =====================================================
+// ERROR HANDLER
+// =====================================================
+
 app.use(errorHandler);
 
 module.exports = app;

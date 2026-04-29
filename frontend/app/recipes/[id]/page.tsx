@@ -50,8 +50,8 @@ export default function RecipeDetailPage() {
       <main className="gaia-page">
         <section className="gaia-shell" style={{ maxWidth: 780 }}>
           <article className="gaia-card gaia-loading-card">
-            <h2>Loading recipe...</h2>
-            <p className="gaia-note">Fetching your recipe details.</p>
+            <h2>Preparing your recipe...</h2>
+            <p className="gaia-note">Gathering the details.</p>
           </article>
         </section>
       </main>
@@ -64,10 +64,10 @@ export default function RecipeDetailPage() {
         <section className="gaia-shell" style={{ maxWidth: 780 }}>
           <article className="gaia-card">
             <h2>Recipe not found</h2>
-            <p>This recipe could not be loaded. Return to your support plan to browse available options.</p>
+            <p className="gaia-note">This recipe could not be loaded. Return to your support plan to explore available options.</p>
             <div className="gaia-actions" style={{ marginTop: "0.75rem" }}>
               <button type="button" className="gaia-btn gaia-btn-primary" onClick={() => router.back()}>
-                Go back
+                Back to plan
               </button>
             </div>
           </article>
@@ -90,7 +90,7 @@ export default function RecipeDetailPage() {
         {/* Header */}
         <header className="gaia-header-card">
           <NavArrows />
-          <p className="gaia-kicker">Recipe</p>
+          <p className="gaia-kicker">Nourishing Recipe</p>
           <h1>{recipe.recipeName}</h1>
           {recipe.description && <p>{recipe.description}</p>}
           <div className="gaia-chip-row">
@@ -108,12 +108,15 @@ export default function RecipeDetailPage() {
           <article className="gaia-card">
             <div className="gaia-section-title">
               <h2>Ingredients</h2>
-              <span className="gaia-section-kicker">What you need</span>
+              <span className="gaia-section-kicker">What you'll need</span>
             </div>
             <hr className="gaia-divider" />
-            <ul>
+            <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "grid", gap: "0.45rem" }}>
               {ingredientLines.map((item, i) => (
-                <li key={i}>{item}</li>
+                <li key={i} className="gaia-ingredient-row">
+                  <span aria-hidden style={{ color: "var(--gaia-earth-400)", fontSize: "0.68rem", marginTop: "0.2rem", flexShrink: 0 }}>◆</span>
+                  <span>{item}</span>
+                </li>
               ))}
             </ul>
           </article>
@@ -124,15 +127,15 @@ export default function RecipeDetailPage() {
           <article className="gaia-card gaia-surface-muted">
             <div className="gaia-section-title">
               <h2>Method</h2>
-              <span className="gaia-section-kicker">Step by step</span>
+              <span className="gaia-section-kicker">How to prepare</span>
             </div>
             <hr className="gaia-divider" />
             {steps.length === 1 ? (
               <p>{steps[0]}</p>
             ) : (
-              <ol>
+              <ol className="gaia-steps">
                 {steps.map((step, i) => (
-                  <li key={i} style={{ marginBottom: "0.4rem" }}>{step}</li>
+                  <li key={i}>{step}</li>
                 ))}
               </ol>
             )}
@@ -141,10 +144,10 @@ export default function RecipeDetailPage() {
 
         {/* Notes */}
         {recipe.notes && (
-          <article className="gaia-card">
+          <article className="gaia-card gaia-notes-card">
             <div className="gaia-section-title">
-              <h2>Notes</h2>
-              <span className="gaia-section-kicker">Good to know</span>
+              <h2>Cook&apos;s Notes</h2>
+              <span className="gaia-section-kicker">Culinary notes</span>
             </div>
             <hr className="gaia-divider" />
             <p className="gaia-note" style={{ fontStyle: "italic" }}>{recipe.notes}</p>
@@ -165,7 +168,7 @@ export default function RecipeDetailPage() {
             className="gaia-btn gaia-btn-secondary"
             onClick={() => router.back()}
           >
-            ← Back to plan
+            Back to your plan
           </button>
           <Link href="/search" className="gaia-btn gaia-btn-ghost">
             Search conditions

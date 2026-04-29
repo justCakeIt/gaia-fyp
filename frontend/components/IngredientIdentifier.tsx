@@ -59,10 +59,8 @@ export default function IngredientIdentifier() {
   const uploadRef = useRef<HTMLInputElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  // Ref tracks the active stream so cleanup always has the current value
   const streamRef = useRef<MediaStream | null>(null);
 
-  // Attach stream to video element when webcam goes live
   useEffect(() => {
     if (webcam.status === "live" && videoRef.current) {
       videoRef.current.srcObject = webcam.stream;
@@ -70,7 +68,6 @@ export default function IngredientIdentifier() {
     }
   }, [webcam]);
 
-  // Stop stream on unmount regardless of state closure
   useEffect(() => {
     return () => {
       streamRef.current?.getTracks().forEach((t) => t.stop());
@@ -130,17 +127,18 @@ export default function IngredientIdentifier() {
   }
 
   async function handleTakePhoto() {
-    // Mobile / touch devices: use the native camera capture input
     if (isTouchDevice()) {
       cameraRef.current?.click();
       return;
     }
-    // Desktop: attempt webcam via browser API
+
     if (!navigator.mediaDevices?.getUserMedia) {
       uploadRef.current?.click();
       return;
     }
+
     setWebcam({ status: "requesting" });
+
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ video: true });
       streamRef.current = stream;
@@ -163,42 +161,36 @@ export default function IngredientIdentifier() {
     canvas.toBlob((blob) => {
       if (!blob) return;
       stopWebcam();
-      acceptFile(new File([blob], "webcam-capture.jpg", { type: "image/jpeg" }));
+      acceptFile(new File([blob], "capture.jpg", { type: "image/jpeg" }));
     }, "image/jpeg", 0.92);
   }
 
   async function handleAnalyse() {
     if (phase.name !== "selected") return;
+
     const { file } = phase;
     URL.revokeObjectURL(phase.previewUrl);
     setPhase({ name: "analyzing" });
 
-    let base64: string;
-    let mimeType: string;
     try {
-      ({ base64, mimeType } = await readFileAsBase64(file));
-    } catch {
-      setPhase({ name: "error", message: "Could not read the image file. Please try again." });
-      return;
-    }
+      const { base64, mimeType } = await readFileAsBase64(file);
+      const result = await identifyIngredient(base64, mimeType);
 
-    const result = await identifyIngredient(base64, mimeType);
-    if (!result.ok) {
-      setPhase({ name: "error", message: result.error });
-      return;
+      if (!result.ok) {
+        setPhase({ name: "error", message: result.error });
+        return;
+      }
+
+      setPhase({ name: "result", data: result.data });
+    } catch {
+      setPhase({ name: "error", message: "Failed to analyse image." });
     }
-    setPhase({ name: "result", data: result.data });
   }
 
   if (!open) {
     return (
       <div style={{ display: "flex", justifyContent: "flex-end" }}>
-        <button
-          type="button"
-          className="gaia-btn gaia-btn-ghost"
-          onClick={handleOpen}
-          style={{ fontSize: "0.85rem" }}
-        >
+        <button className="gaia-btn gaia-btn-ghost" onClick={handleOpen}>
           Identify an ingredient
         </button>
       </div>
@@ -207,242 +199,48 @@ export default function IngredientIdentifier() {
 
   return (
     <article className="gaia-card gaia-surface-muted">
-      <div className="gaia-section-title">
-        <h2>Identify an Ingredient</h2>
-        <span className="gaia-section-kicker">Visual check</span>
-      </div>
-      <p className="gaia-note">
-        Take or upload a photo of an herb, vegetable, fruit, or plant-based
-        ingredient to get a botanical identification.
-      </p>
+      <h2>Identify an Ingredient</h2>
 
-      {/* Camera input — capture="environment" opens native camera on mobile */}
-      <input
-        ref={cameraRef}
-        type="file"
-        accept="image/*"
-        capture="environment"
-        onChange={handleFileChange}
-        style={{ display: "none" }}
-      />
-      {/* Upload input — opens gallery / file picker */}
-      <input
-        ref={uploadRef}
-        type="file"
-        accept="image/*"
-        onChange={handleFileChange}
-        style={{ display: "none" }}
-      />
-      {/* Off-screen canvas used to capture webcam frames */}
-      <canvas ref={canvasRef} style={{ display: "none" }} />
+      <input ref={cameraRef} type="file" accept="image/*" capture="environment" onChange={handleFileChange} hidden />
+      <input ref={uploadRef} type="file" accept="image/*" onChange={handleFileChange} hidden />
+      <canvas ref={canvasRef} hidden />
 
-      {/* ── idle: two distinct actions ── */}
-      {phase.name === "idle" && webcam.status === "off" && (
+      {phase.name === "idle" && (
         <div className="gaia-actions">
-          <button
-            type="button"
-            className="gaia-btn gaia-btn-primary"
-            onClick={handleTakePhoto}
-          >
+          <button className="gaia-btn gaia-btn-primary" onClick={handleTakePhoto}>
             Take a photo
           </button>
-          <button
-            type="button"
-            className="gaia-btn gaia-btn-secondary"
-            onClick={() => uploadRef.current?.click()}
-          >
-            Upload image
+          <button className="gaia-btn gaia-btn-secondary" onClick={() => uploadRef.current?.click()}>
+            Upload from device
           </button>
-          <button type="button" className="gaia-btn gaia-btn-ghost" onClick={handleClose}>
+          <button className="gaia-btn gaia-btn-ghost" onClick={handleClose}>
             Cancel
           </button>
         </div>
       )}
 
-      {/* ── webcam: requesting permission ── */}
-      {phase.name === "idle" && webcam.status === "requesting" && (
-        <p className="gaia-note" style={{ fontStyle: "italic" }}>
-          Requesting camera access…
-        </p>
-      )}
-
-      {/* ── webcam: permission denied ── */}
-      {phase.name === "idle" && webcam.status === "denied" && (
+      {webcam.status === "live" && (
         <>
-          <p className="gaia-note">
-            Camera access was denied or unavailable. You can upload a photo instead.
-          </p>
-          <div className="gaia-actions">
-            <button
-              type="button"
-              className="gaia-btn gaia-btn-secondary"
-              onClick={() => {
-                setWebcam({ status: "off" });
-                uploadRef.current?.click();
-              }}
-            >
-              Upload image
-            </button>
-            <button type="button" className="gaia-btn gaia-btn-ghost" onClick={handleClose}>
-              Cancel
-            </button>
-          </div>
+          <video ref={videoRef} autoPlay muted />
+          <button onClick={handleCapture}>Capture</button>
         </>
       )}
 
-      {/* ── webcam: live preview ── */}
-      {phase.name === "idle" && webcam.status === "live" && (
-        <>
-          <div style={{ textAlign: "center" }}>
-            <video
-              ref={videoRef}
-              autoPlay
-              playsInline
-              muted
-              style={{
-                maxWidth: "100%",
-                maxHeight: "260px",
-                borderRadius: "12px",
-                border: "1px solid var(--gaia-border)",
-                background: "#000",
-              }}
-            />
-          </div>
-          <div className="gaia-actions">
-            <button
-              type="button"
-              className="gaia-btn gaia-btn-primary"
-              onClick={handleCapture}
-            >
-              Capture
-            </button>
-            <button
-              type="button"
-              className="gaia-btn gaia-btn-ghost"
-              onClick={stopWebcam}
-            >
-              Cancel camera
-            </button>
-          </div>
-        </>
-      )}
-
-      {/* ── selected: preview + confirm ── */}
       {phase.name === "selected" && (
         <>
-          <div style={{ textAlign: "center" }}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={phase.previewUrl}
-              alt="Selected ingredient preview"
-              style={{
-                maxWidth: "100%",
-                maxHeight: "260px",
-                objectFit: "contain",
-                borderRadius: "12px",
-                border: "1px solid var(--gaia-border)",
-              }}
-            />
-          </div>
-          <div className="gaia-actions">
-            <button
-              type="button"
-              className="gaia-btn gaia-btn-primary"
-              onClick={handleAnalyse}
-            >
-              Analyse
-            </button>
-            <button
-              type="button"
-              className="gaia-btn gaia-btn-secondary"
-              onClick={handleGoToIdle}
-            >
-              Choose different photo
-            </button>
-            <button type="button" className="gaia-btn gaia-btn-ghost" onClick={handleClose}>
-              Cancel
-            </button>
-          </div>
+          <img src={phase.previewUrl} alt="preview" />
+          <button onClick={handleAnalyse}>Analyse</button>
         </>
       )}
 
-      {/* ── analyzing ── */}
-      {phase.name === "analyzing" && (
-        <p className="gaia-note" style={{ fontStyle: "italic" }}>
-          Analysing your photo…
-        </p>
-      )}
-
-      {/* ── result ── */}
       {phase.name === "result" && (
-        <>
-          <div className="gaia-list-card">
-            {phase.data.name ? (
-              <>
-                <div className="gaia-section-title" style={{ marginBottom: "0.35rem" }}>
-                  <p style={{ margin: 0, fontWeight: 600, fontSize: "1.05rem", color: "var(--gaia-ink-800)" }}>
-                    {phase.data.confidence === "high" ? "Likely match: " : "Possible match: "}
-                    <strong>{phase.data.name}</strong>
-                  </p>
-                  <ConfidenceBadge confidence={phase.data.confidence} />
-                </div>
-                {phase.data.latinName && (
-                  <p className="gaia-note" style={{ fontStyle: "italic" }}>
-                    {phase.data.latinName}
-                  </p>
-                )}
-                {phase.data.description && (
-                  <p style={{ marginTop: "0.35rem" }}>{phase.data.description}</p>
-                )}
-                {phase.data.caution && (
-                  <p
-                    className="gaia-note"
-                    style={{ marginTop: "0.35rem", color: "var(--gaia-earth-600)", fontStyle: "normal" }}
-                  >
-                    {phase.data.caution}
-                  </p>
-                )}
-              </>
-            ) : (
-              <p className="gaia-note">
-                No plant-based ingredient was clearly identifiable. Try a closer
-                or better-lit photo.
-              </p>
-            )}
-          </div>
-          <div className="gaia-actions">
-            <button
-              type="button"
-              className="gaia-btn gaia-btn-secondary"
-              onClick={handleGoToIdle}
-            >
-              Identify another
-            </button>
-            <button type="button" className="gaia-btn gaia-btn-ghost" onClick={handleClose}>
-              Close
-            </button>
-          </div>
-        </>
+        <div>
+          <strong>{phase.data.name}</strong>
+          <ConfidenceBadge confidence={phase.data.confidence} />
+        </div>
       )}
 
-      {/* ── error ── */}
-      {phase.name === "error" && (
-        <>
-          <p className="gaia-error">{phase.message}</p>
-          <div className="gaia-actions">
-            <button
-              type="button"
-              className="gaia-btn gaia-btn-secondary"
-              onClick={handleGoToIdle}
-            >
-              Try again
-            </button>
-            <button type="button" className="gaia-btn gaia-btn-ghost" onClick={handleClose}>
-              Cancel
-            </button>
-          </div>
-        </>
-      )}
+      {phase.name === "error" && <p>{phase.message}</p>}
     </article>
   );
 }

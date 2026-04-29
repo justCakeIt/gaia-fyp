@@ -18,56 +18,39 @@ function validatePlanItem(item) {
     return { ok: false, error: "exactly one of herbID/recipeID/mixtureID must be set" };
   }
 
-  if (itemType === "herb" && !herbID) return { ok: false, error: "herb item requires herbID" };
-  if (itemType === "recipe" && !recipeID) return { ok: false, error: "recipe item requires recipeID" };
-  if (itemType === "mixture" && !mixtureID) return { ok: false, error: "mixture item requires mixtureID" };
-
   return { ok: true };
-}
-
-async function assertExists(table, idColumn, idValue, label) {
-  const rows = await db.query(
-    `SELECT ${idColumn} AS id FROM ${table} WHERE ${idColumn} = ? LIMIT 1`,
-    [idValue]
-  );
-  if (!rows.length) throw new Error(`${label} not found: ${idValue}`);
 }
 
 async function createPlan({ userID, conditionID, title, items }) {
   if (!Array.isArray(items) || items.length === 0) {
-    throw new Error("Invalid plan: items must be a non-empty array");
-  }
-
-  await assertExists("Users", "userID", userID, "User");
-  if (conditionID !== null) await assertExists("Conditions", "conditionID", conditionID, "Condition");
-
-  for (const it of items) {
-    const v = validatePlanItem(it);
-    if (!v.ok) throw new Error(`Invalid plan item: ${v.error}`);
-  }
-
-  // Validate referenced entities exist (nice UX; prevents FK errors)
-  for (const it of items) {
-    if (it.itemType === "herb") await assertExists("Herbs", "herbID", it.herbID, "Herb");
-    if (it.itemType === "recipe") await assertExists("Recipes", "recipeID", it.recipeID, "Recipe");
-    if (it.itemType === "mixture") await assertExists("Mixtures", "mixtureID", it.mixtureID, "Mixture");
+    throw new Error("Plan must contain at least one item");
   }
 
   const conn = await db.pool.getConnection();
+
   try {
     await conn.beginTransaction();
 
     const [planRes] = await conn.execute(
-      `INSERT INTO Plans (userID, conditionID, title) VALUES (?, ?, ?)`,
+      `INSERT INTO Plans (userID, conditionID, title)
+       VALUES (?, ?, ?)`,
       [userID, conditionID, title]
     );
+
     const planID = planRes.insertId;
 
+    if (!planID) {
+      throw new Error("Failed to create plan");
+    }
+
     for (const it of items) {
+      const v = validatePlanItem(it);
+      if (!v.ok) throw new Error(v.error);
+
       await conn.execute(
         `INSERT INTO PlanItems
-           (planID, herbID, recipeID, mixtureID, itemType, scheduleHint, instructions, notes)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+         (planID, herbID, recipeID, mixtureID, itemType, scheduleHint)
+         VALUES (?, ?, ?, ?, ?, ?)`,
         [
           planID,
           it.herbID ?? null,
@@ -75,17 +58,17 @@ async function createPlan({ userID, conditionID, title, items }) {
           it.mixtureID ?? null,
           it.itemType,
           it.scheduleHint ?? null,
-          it.instructions ?? null,
-          it.notes ?? null,
         ]
       );
     }
 
     await conn.commit();
+
     return { planID };
-  } catch (e) {
+  } catch (err) {
     await conn.rollback();
-    throw e;
+    console.error("createPlan error:", err.message);
+    throw new Error("Failed to save plan in database");
   } finally {
     conn.release();
   }
@@ -102,54 +85,14 @@ async function listPlans(userID) {
 }
 
 async function getPlan(planID) {
-  const planRows = await db.query(
-    `SELECT p.planID, p.userID, p.conditionID, p.title,
-            c.conditionName
-     FROM Plans p
-     LEFT JOIN Conditions c ON c.conditionID = p.conditionID
-     WHERE p.planID = ?
-     LIMIT 1`,
-    [planID]
-  );
-  if (!planRows.length) return null;
-
-  const items = await db.query(
-    `SELECT planItemID, planID, herbID, recipeID, mixtureID, itemType, scheduleHint, instructions, notes
-     FROM PlanItems
-     WHERE planID = ?
-     ORDER BY planItemID`,
+  const rows = await db.query(
+    `SELECT * FROM Plans WHERE planID = ? LIMIT 1`,
     [planID]
   );
 
-  const herbIDs = items.filter((i) => i.herbID).map((i) => i.herbID);
-  const mixtureIDs = items.filter((i) => i.mixtureID).map((i) => i.mixtureID);
+  if (!rows.length) return null;
 
-  let safetyNotes = [];
-  if (herbIDs.length || mixtureIDs.length) {
-    const where = [];
-    const params = [];
-
-    if (herbIDs.length) {
-      where.push(`(herbID IN (${herbIDs.map(() => "?").join(",")}))`);
-      params.push(...herbIDs);
-    }
-    if (mixtureIDs.length) {
-      where.push(`(mixtureID IN (${mixtureIDs.map(() => "?").join(",")}))`);
-      params.push(...mixtureIDs);
-    }
-
-    safetyNotes = await db.query(
-      `SELECT safetyNoteID, herbID, mixtureID, warningType, severity, message, instructions
-       FROM SafetyNotes
-       WHERE ${where.join(" OR ")}
-       ORDER BY
-         FIELD(severity,'critical','high','medium','low'),
-         safetyNoteID DESC`,
-      params
-    );
-  }
-
-  return { plan: planRows[0], items, safetyNotes };
+  return { plan: rows[0] };
 }
 
 async function getPlanOwner(planID) {
@@ -160,7 +103,6 @@ async function getPlanOwner(planID) {
   return rows[0]?.userID ?? null;
 }
 
-// PlanItems cascade-delete via FK. Reminders.planID SET NULL via FK.
 async function deletePlan(planID) {
   const result = await db.query(
     `DELETE FROM Plans WHERE planID = ?`,
@@ -169,4 +111,10 @@ async function deletePlan(planID) {
   return result.affectedRows > 0;
 }
 
-module.exports = { createPlan, listPlans, getPlan, getPlanOwner, deletePlan };
+module.exports = {
+  createPlan,
+  listPlans,
+  getPlan,
+  getPlanOwner,
+  deletePlan,
+};

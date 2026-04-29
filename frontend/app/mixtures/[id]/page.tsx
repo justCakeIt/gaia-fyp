@@ -34,8 +34,8 @@ function RoleBadge({ role }: { role: BackendMixtureHerb["role"] }) {
         borderRadius: "999px",
         marginLeft: "0.42rem",
         verticalAlign: "middle",
-        background: isOptional ? "rgba(150,114,68,0.11)" : "rgba(74,122,100,0.11)",
-        border: `1px solid ${isOptional ? "rgba(150,114,68,0.22)" : "rgba(74,122,100,0.22)"}`,
+        background: isOptional ? "rgba(217,168,90,0.12)" : "rgba(124,156,255,0.10)",
+        border: `1px solid ${isOptional ? "rgba(217,168,90,0.24)" : "rgba(124,156,255,0.22)"}`,
         color: isOptional ? "var(--gaia-earth-500)" : "var(--gaia-sage-600)",
       }}
     >
@@ -46,23 +46,26 @@ function RoleBadge({ role }: { role: BackendMixtureHerb["role"] }) {
 
 function SeverityPip({ severity }: { severity: BackendMixtureSafetyNote["severity"] }) {
   const colours: Record<string, string> = {
-    critical: "#8a3835",
-    high: "#7a5228",
-    medium: "#6a6228",
-    low: "#386450",
+    critical: "#f87171",
+    high: "#fb923c",
+    medium: "#facc15",
+    low:  "#4ade80",
   };
+  const colour = colours[severity] ?? colours.low;
   return (
     <span
       aria-hidden
       style={{
-        display: "inline-block",
-        width: "0.46rem",
-        height: "0.46rem",
+        display: "inline-flex",
+        alignItems: "center",
+        justifyContent: "center",
+        width: "0.7rem",
+        height: "0.7rem",
         borderRadius: "50%",
-        background: colours[severity] ?? colours.low,
-        marginRight: "0.45rem",
-        verticalAlign: "middle",
+        background: colour,
         flexShrink: 0,
+        marginTop: "0.34rem",
+        boxShadow: `0 0 8px ${colour}55, 0 0 3px ${colour}88`,
       }}
     />
   );
@@ -94,8 +97,8 @@ export default function MixtureDetailPage() {
       <main className="gaia-page">
         <section className="gaia-shell" style={{ maxWidth: 780 }}>
           <article className="gaia-card gaia-loading-card">
-            <h2>Loading elixir...</h2>
-            <p className="gaia-note">Fetching botanical blend details.</p>
+            <h2>Composing your elixir...</h2>
+            <p className="gaia-note">Gathering botanical blend details.</p>
           </article>
         </section>
       </main>
@@ -107,11 +110,11 @@ export default function MixtureDetailPage() {
       <main className="gaia-page">
         <section className="gaia-shell" style={{ maxWidth: 780 }}>
           <article className="gaia-card">
-            <h2>Blend not found</h2>
-            <p>This botanical blend could not be loaded. Return to your support plan.</p>
+            <h2>Elixir not found</h2>
+            <p className="gaia-note">This botanical blend could not be loaded. Return to your support plan to continue.</p>
             <div className="gaia-actions" style={{ marginTop: "0.75rem" }}>
               <button type="button" className="gaia-btn gaia-btn-primary" onClick={() => router.back()}>
-                Go back
+                Back to plan
               </button>
             </div>
           </article>
@@ -151,25 +154,14 @@ export default function MixtureDetailPage() {
         {hasHerbs && (
           <article className="gaia-card gaia-elixir-card">
             <div className="gaia-section-title">
-              <h2>Botanicals</h2>
-              <span className="gaia-section-kicker">Ingredients</span>
+              <h2>Botanical Ingredients</h2>
+              <span className="gaia-section-kicker">What goes in</span>
             </div>
             <hr className="gaia-divider" />
             <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "grid", gap: "0.6rem" }}>
               {mixture.herbs.map((herb) => (
-                <li
-                  key={herb.herbID}
-                  style={{
-                    display: "flex",
-                    alignItems: "baseline",
-                    gap: "0.5rem",
-                    padding: "0.55rem 0.7rem",
-                    borderRadius: "var(--gaia-radius-sm)",
-                    background: "rgba(72,140,96,0.06)",
-                    border: "1px solid rgba(72,140,96,0.1)",
-                  }}
-                >
-                  <span style={{ fontSize: "0.8rem", color: "var(--gaia-sage-500)", flexShrink: 0 }}>◆</span>
+                <li key={herb.herbID} className="gaia-elixir-herb-row">
+                  <span aria-hidden style={{ fontSize: "0.68rem", color: "var(--gaia-earth-400)", marginTop: "0.22rem", flexShrink: 0 }}>◆</span>
                   <span>
                     <strong>{herb.herbName}</strong>
                     {herb.latinName && (
@@ -194,15 +186,15 @@ export default function MixtureDetailPage() {
           <article className="gaia-card gaia-surface-muted">
             <div className="gaia-section-title">
               <h2>Preparation</h2>
-              <span className="gaia-section-kicker">How to make</span>
+              <span className="gaia-section-kicker">How to prepare</span>
             </div>
             <hr className="gaia-divider" />
             {steps.length === 1 ? (
               <p>{steps[0]}</p>
             ) : (
-              <ol style={{ display: "grid", gap: "0.5rem" }}>
+              <ol className="gaia-steps gaia-elixir-steps">
                 {steps.map((step, i) => (
-                  <li key={i} style={{ lineHeight: 1.72 }}>{step}</li>
+                  <li key={i}>{step}</li>
                 ))}
               </ol>
             )}
@@ -211,14 +203,9 @@ export default function MixtureDetailPage() {
 
         {/* ── Dosage ── */}
         {mixture.dosage && (
-          <article className="gaia-card" style={{
-            borderColor: "rgba(148,112,48,0.22)",
-            background: "linear-gradient(155deg, rgba(255,252,238,0.99) 0%, rgba(252,246,224,0.97) 100%)",
-            borderLeft: "4px solid var(--gaia-earth-400)",
-            borderRadius: "0 var(--gaia-radius) var(--gaia-radius) 0",
-          }}>
+          <article className="gaia-card gaia-dosage-card">
             <div className="gaia-section-title">
-              <h2>Dosage</h2>
+              <h2>Recommended Dosage</h2>
               <span className="gaia-section-kicker">How to use</span>
             </div>
             <p style={{ fontSize: "1.05rem", color: "var(--gaia-ink-800)", fontWeight: 500 }}>
@@ -232,17 +219,17 @@ export default function MixtureDetailPage() {
           <article className="gaia-card gaia-precautions-card">
             <div className="gaia-section-title">
               <h2>Safety &amp; Precautions</h2>
-              <span className="gaia-section-kicker">Before you start</span>
+              <span className="gaia-section-kicker">Before you begin</span>
             </div>
             <hr className="gaia-divider" />
-            <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "grid", gap: "0.75rem" }}>
+            <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "grid", gap: "0.6rem" }}>
               {mixture.safetyNotes.map((note) => (
-                <li key={note.safetyNoteID} style={{ display: "flex", alignItems: "flex-start", gap: "0.1rem" }}>
+                <li key={note.safetyNoteID} className={`gaia-safety-row gaia-safety-row--${note.severity}`}>
                   <SeverityPip severity={note.severity} />
                   <span className="gaia-note" style={{ flex: 1 }}>
                     {note.message}
                     {note.instructions && (
-                      <span style={{ display: "block", marginTop: "0.2rem", fontStyle: "italic" }}>
+                      <span style={{ display: "block", marginTop: "0.25rem", fontStyle: "italic" }}>
                         {note.instructions}
                       </span>
                     )}
@@ -270,7 +257,7 @@ export default function MixtureDetailPage() {
             className="gaia-btn gaia-btn-secondary"
             onClick={() => router.back()}
           >
-            ← Back to plan
+            Back to your plan
           </button>
           <Link href="/search" className="gaia-btn gaia-btn-ghost">
             Search conditions

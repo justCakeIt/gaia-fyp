@@ -1,116 +1,55 @@
-const API_BASE =
-  process.env.NEXT_PUBLIC_API_BASE ?? "http://localhost:3000/api";
+console.log("API FILE LOADED");
 
-export type BackendConditionMatch = {
-  conditionID: number;
-  conditionName: string;
-  description: string;
-  category: string;
-  matchType: string;
-  matchedOn: string;
-};
+// =====================================================
+// API BASE RESOLUTION (STABLE + ENV FIRST + DYNAMIC)
+// =====================================================
 
-export type BackendHerb = {
-  herbID: number;
-  herbName: string;
-  latinName: string | null;
-  overview: string | null;
-  usageNotes: string | null;
-  recommendationLevel: "recommended" | "neutral" | "avoid" | "unknown";
-  linkNotes: string | null;
-};
+function getApiBase(): string {
+  // allow manual override if explicitly set
+  if (process.env.NEXT_PUBLIC_API_BASE) {
+    return process.env.NEXT_PUBLIC_API_BASE;
+  }
 
-export type BackendRecipe = {
-  recipeID: number;
-  recipeName: string;
-  description: string | null;
-  prepTime: number | null;
-  dietTags: string | null;
-  notes: string | null;
-  ingredients: string | null;
-  instructions: string | null;
-  linkNotes: string | null;
-};
+  // dynamic resolution (works for localhost, LAN, hotspot)
+  if (typeof window !== "undefined") {
+    const { protocol, hostname } = window.location;
+    return `${protocol}//${hostname}:3000/api`;
+  }
 
-export type BackendMixture = {
-  mixtureID: number;
-  mixtureName: string;
-  purpose: string;
-  instructions: string | null;
-};
-
-export type BackendMixtureHerb = {
-  herbID: number;
-  herbName: string;
-  latinName: string | null;
-  amount: number | null;
-  unit: string | null;
-  role: "main" | "support" | "optional" | null;
-};
-
-export type BackendMixtureSafetyNote = {
-  safetyNoteID: number;
-  warningType: string;
-  severity: "low" | "medium" | "high" | "critical";
-  message: string;
-  instructions: string | null;
-};
-
-export type BackendMixtureDetail = BackendMixture & {
-  dosage: string | null;
-  herbs: BackendMixtureHerb[];
-  safetyNotes: BackendMixtureSafetyNote[];
-};
-
-export type BackendSafetyNote = {
-  safetyNoteID: number;
-  herbID: number | null;
-  mixtureID: number | null;
-  warningType: string;
-  severity: "low" | "medium" | "high" | "critical";
-  message: string;
-  instructions: string | null;
-};
-
-export type BackendRecommendations = {
-  condition: {
-    conditionID: number;
-    conditionName: string;
-    description: string;
-    category: string;
-  };
-  herbs: BackendHerb[];
-  recipes: BackendRecipe[];
-  mixtures: BackendMixture[];
-  safetyNotes: BackendSafetyNote[];
-  disclaimer: string;
-};
-
-export async function matchCondition(
-  query: string
-): Promise<BackendConditionMatch | null> {
-  const res = await fetch(
-    `${API_BASE}/conditions/match?query=${encodeURIComponent(query)}`
-  );
-  if (!res.ok) return null;
-  const payload = await res.json();
-  if (!payload.ok || !payload.matched) return null;
-  return payload.matched as BackendConditionMatch;
+  // fallback (SSR)
+  return "http://localhost:3000/api";
 }
 
-export async function getRecommendations(
-  conditionID: number
-): Promise<BackendRecommendations | null> {
+const API_BASE = getApiBase();
+
+// =====================================================
+// SAFE FETCH WRAPPER
+// =====================================================
+
+async function safeFetch(url: string, options: RequestInit = {}) {
   try {
-    const res = await fetch(`${API_BASE}/conditions/${conditionID}/recommendations`);
-    if (!res.ok) return null;
-    const payload = await res.json();
-    if (!payload.ok || !payload.data) return null;
-    return payload.data as BackendRecommendations;
-  } catch {
-    return null;
+    const res = await fetch(url, {
+      ...options,
+      headers: {
+        "Content-Type": "application/json",
+        ...(options.headers || {}),
+      },
+    });
+
+    return res;
+  } catch (err) {
+    console.error("Network error:", url, err);
+
+    return new Response(
+      JSON.stringify({ ok: false, error: "Network error" }),
+      { status: 500 }
+    );
   }
 }
+
+// =====================================================
+// TYPES
+// =====================================================
 
 export type UserPlan = {
   planID: number;
@@ -130,188 +69,248 @@ export type UserReminder = {
   planTitle: string | null;
 };
 
+export type BackendConditionMatch = {
+  conditionID: number;
+  conditionName: string;
+  description: string;
+  category?: string;
+};
+
+export type BackendRecommendations = {
+  condition: {
+    conditionID: number;
+    conditionName: string;
+    description: string;
+    category: string;
+  };
+  herbs: any[];
+  recipes: any[];
+  mixtures: any[];
+  safetyNotes: any[];
+  disclaimer: string;
+};
+
+// =====================================================
+// CONDITION MATCH
+// =====================================================
+
+export async function matchCondition(query: string): Promise<BackendConditionMatch | null> {
+  const res = await safeFetch(
+    `${API_BASE}/conditions/match?query=${encodeURIComponent(query)}`
+  );
+
+  if (!res.ok) return null;
+
+  const data = await res.json();
+
+  if (!data?.ok || !data?.matched) return null;
+
+  return data.matched;
+}
+
+// =====================================================
+// RECOMMENDATIONS
+// =====================================================
+
+export async function getRecommendations(
+  conditionID: number
+): Promise<BackendRecommendations | null> {
+  const res = await safeFetch(
+    `${API_BASE}/conditions/${conditionID}/recommendations`
+  );
+
+  if (!res.ok) return null;
+
+  const data = await res.json();
+
+  if (!data?.ok || !data?.data) return null;
+
+  return data.data;
+}
+
+// =====================================================
+// INGREDIENT IDENTIFIER
+// =====================================================
+
+export type IdentifyResultData = {
+  name: string;
+  latinName: string;
+  confidence: number;
+  description: string;
+  caution?: string;
+};
+
+export async function identifyIngredient(
+  payload: { image?: string; name?: string }
+): Promise<IdentifyResultData | null> {
+  const res = await safeFetch(`${API_BASE}/identify-ingredient`, {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+
+  if (!res.ok) return null;
+
+  const data = await res.json();
+
+  if (!data?.ok || !data?.data) return null;
+
+  return data.data;
+}
+
+// =====================================================
+// MIXTURE DETAIL
+// =====================================================
+
+export type BackendMixtureHerb = {
+  herbID: number;
+  herbName: string;
+  latinName: string;
+  amount?: string;
+  unit?: string;
+  role?: string;
+};
+
+export type BackendMixtureSafetyNote = {
+  noteID: number;
+  content: string;
+  severity: "low" | "medium" | "high" | "critical";
+};
+
+export type BackendMixtureDetail = {
+  mixtureID: number;
+  mixtureName: string;
+  purpose: string;
+  instructions: string;
+  dosage?: string;
+  herbs: BackendMixtureHerb[];
+  safetyNotes: BackendMixtureSafetyNote[];
+};
+
+export async function getMixture(
+  mixtureID: number
+): Promise<BackendMixtureDetail | null> {
+  console.log("GET MIXTURE CALLED");
+
+  const res = await safeFetch(`${API_BASE}/mixtures/${mixtureID}`);
+
+  if (!res.ok) return null;
+
+  const data = await res.json();
+
+  if (!data?.ok || !data?.data) return null;
+
+  return data.data;
+}
+
+// =====================================================
+// RECIPE DETAIL
+// =====================================================
+
+export type BackendRecipeDetail = {
+  recipeID: number;
+  recipeName: string;
+  ingredients: string;
+  instructions: string;
+  prepTime?: string;
+  dietTags?: string;
+};
+
+export async function getRecipe(
+  recipeID: number
+): Promise<BackendRecipeDetail | null> {
+  const res = await safeFetch(`${API_BASE}/recipes/${recipeID}`);
+
+  if (!res.ok) return null;
+
+  const data = await res.json();
+
+  if (!data?.ok || !data?.data) return null;
+
+  return data.data;
+}
+
+// =====================================================
+// USER DATA
+// =====================================================
+
 export async function fetchUserPlans(userID: number): Promise<UserPlan[]> {
-  try {
-    const res = await fetch(`${API_BASE}/plans?userID=${userID}`);
-    if (!res.ok) return [];
-    const payload = await res.json();
-    if (!payload.ok) return [];
-    return payload.data as UserPlan[];
-  } catch {
-    return [];
-  }
+  const res = await safeFetch(`${API_BASE}/plans?userID=${userID}`);
+  if (!res.ok) return [];
+
+  const data = await res.json();
+  return data?.data ?? [];
 }
 
 export async function fetchUserReminders(userID: number): Promise<UserReminder[]> {
-  try {
-    const res = await fetch(`${API_BASE}/reminders?userID=${userID}`);
-    if (!res.ok) return [];
-    const payload = await res.json();
-    if (!payload.ok) return [];
-    return payload.data as UserReminder[];
-  } catch {
-    return [];
-  }
+  const res = await safeFetch(`${API_BASE}/reminders?userID=${userID}`);
+  if (!res.ok) return [];
+
+  const data = await res.json();
+  return data?.data ?? [];
 }
 
-export async function deletePlan(
-  planID: number,
-  userID: number
-): Promise<{ ok: boolean; error?: string }> {
-  try {
-    const res = await fetch(
-      `${API_BASE}/plans/${planID}?userID=${userID}`,
-      { method: "DELETE" }
-    );
-    const payload = await res.json();
-    if (!res.ok || !payload.ok) {
-      return { ok: false, error: payload.error ?? "Failed to delete plan." };
-    }
-    return { ok: true };
-  } catch {
-    return { ok: false, error: "Could not reach the server." };
+// =====================================================
+// SAVE PLAN
+// =====================================================
+
+export async function savePlan(payload: any) {
+  const res = await safeFetch(`${API_BASE}/plans`, {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+
+  const data = await res.json();
+
+  if (!res.ok || !data.ok) {
+    return { ok: false, error: data.error };
   }
+
+  return {
+    ok: true,
+    planID: data.data?.planID,
+  };
 }
 
-export async function deleteReminder(
-  reminderID: number,
-  userID: number
-): Promise<{ ok: boolean; error?: string }> {
-  try {
-    const res = await fetch(
-      `${API_BASE}/reminders/${reminderID}?userID=${userID}`,
-      { method: "DELETE" }
-    );
-    const payload = await res.json();
-    if (!res.ok || !payload.ok) {
-      return { ok: false, error: payload.error ?? "Failed to delete reminder." };
-    }
-    return { ok: true };
-  } catch {
-    return { ok: false, error: "Could not reach the server." };
+// =====================================================
+// CREATE REMINDER
+// =====================================================
+
+export async function createReminder(payload: any) {
+  const res = await safeFetch(`${API_BASE}/reminders`, {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+
+  const data = await res.json();
+
+  if (!res.ok || !data.ok) {
+    return { ok: false, error: data.error };
   }
+
+  return {
+    ok: true,
+    reminderID: data.data?.reminderID,
+  };
 }
 
-export type PlanItem = {
-  itemType: "herb" | "recipe" | "mixture";
-  herbID?: number;
-  recipeID?: number;
-  mixtureID?: number;
-  scheduleHint?: string;
-};
+// =====================================================
+// DELETE
+// =====================================================
 
-export type SavePlanPayload = {
-  userID: number;
-  conditionID: number | null;
-  title: string;
-  items: PlanItem[];
-};
+export async function deletePlan(planID: number, userID: number) {
+  const res = await safeFetch(
+    `${API_BASE}/plans/${planID}?userID=${userID}`,
+    { method: "DELETE" }
+  );
 
-export type SavePlanResult =
-  | { ok: true; planID: number }
-  | { ok: false; error: string };
-
-export async function savePlan(payload: SavePlanPayload): Promise<SavePlanResult> {
-  try {
-    const res = await fetch(`${API_BASE}/plans`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-    const data = await res.json();
-    if (!res.ok || !data.ok) {
-      return { ok: false, error: data.error ?? "Failed to save plan." };
-    }
-    return { ok: true, planID: data.data.planID };
-  } catch {
-    return { ok: false, error: "Could not reach the server. Check your connection." };
-  }
+  return await res.json();
 }
 
-export type CreateReminderPayload = {
-  userID: number;
-  planID: number;
-  label: string;
-  remindTime: string | null;
-  dayOfWeek: string | null;
-};
+export async function deleteReminder(reminderID: number, userID: number) {
+  const res = await safeFetch(
+    `${API_BASE}/reminders/${reminderID}?userID=${userID}`,
+    { method: "DELETE" }
+  );
 
-export type CreateReminderResult =
-  | { ok: true; reminderID: number }
-  | { ok: false; error: string };
-
-export async function createReminder(
-  payload: CreateReminderPayload
-): Promise<CreateReminderResult> {
-  try {
-    const res = await fetch(`${API_BASE}/reminders`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-    const data = await res.json();
-    if (!res.ok || !data.ok) {
-      return { ok: false, error: data.error ?? "Failed to create reminder." };
-    }
-    return { ok: true, reminderID: data.data.reminderID };
-  } catch {
-    return { ok: false, error: "Could not reach the server. Check your connection." };
-  }
-}
-
-export type IdentifyResultData = {
-  configured: true;
-  name: string | null;
-  latinName?: string | null;
-  confidence?: "high" | "medium" | "low";
-  description?: string | null;
-  caution?: string | null;
-};
-
-export type IdentifyResult =
-  | { ok: true; data: IdentifyResultData }
-  | { ok: false; error: string };
-
-export async function getRecipe(recipeID: number): Promise<BackendRecipe | null> {
-  try {
-    const res = await fetch(`${API_BASE}/recipes/${recipeID}`);
-    if (!res.ok) return null;
-    const payload = await res.json();
-    if (!payload.ok || !payload.data) return null;
-    return payload.data as BackendRecipe;
-  } catch {
-    return null;
-  }
-}
-
-export async function getMixture(mixtureID: number): Promise<BackendMixtureDetail | null> {
-  try {
-    const res = await fetch(`${API_BASE}/mixtures/${mixtureID}`);
-    if (!res.ok) return null;
-    const payload = await res.json();
-    if (!payload.ok || !payload.data) return null;
-    return payload.data as BackendMixtureDetail;
-  } catch {
-    return null;
-  }
-}
-
-export async function identifyIngredient(
-  imageBase64: string,
-  mimeType: string
-): Promise<IdentifyResult> {
-  try {
-    const res = await fetch(`${API_BASE}/identify`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ imageBase64, mimeType }),
-    });
-    const data = await res.json();
-    if (!res.ok || !data.ok) {
-      return { ok: false, error: data.error ?? "Identification failed." };
-    }
-    return { ok: true, data: data.data as IdentifyResultData };
-  } catch {
-    return { ok: false, error: "Could not reach the server." };
-  }
+  return await res.json();
 }

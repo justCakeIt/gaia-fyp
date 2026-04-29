@@ -74,7 +74,7 @@ function ResultsContent() {
         <section className="gaia-shell">
           <article className="gaia-card gaia-loading-card">
             <h2>One moment...</h2>
-            <p>Checking your session.</p>
+            <p className="gaia-note">Verifying your session.</p>
           </article>
         </section>
       </main>
@@ -116,8 +116,8 @@ function ResultsContent() {
       <main className="gaia-page">
         <section className="gaia-shell">
           <article className="gaia-card gaia-loading-card">
-            <h2>Loading your support plan...</h2>
-            <p>Fetching your condition-specific wellness guidance.</p>
+            <h2>Preparing your path...</h2>
+            <p className="gaia-note">Gathering your botanical guidance.</p>
           </article>
         </section>
       </main>
@@ -129,14 +129,14 @@ function ResultsContent() {
       <main className="gaia-page">
         <section className="gaia-shell">
           <article className="gaia-card">
-            <h2>No path found</h2>
-            <p>
-              Gaia couldn&apos;t match this condition yet. Try a different
-              term from the search page.
+            <h2>No path found yet</h2>
+            <p className="gaia-note">
+              Gaia couldn&apos;t match this condition. Try a different term —
+              an abbreviation, synonym, or clinical name may work better.
             </p>
             <div className="gaia-actions">
               <Link href="/search" className="gaia-btn gaia-btn-primary">
-                Search again
+                Try another search
               </Link>
             </div>
           </article>
@@ -170,7 +170,7 @@ function ResultsContent() {
         {/* Header */}
         <header className="gaia-header-card">
           <NavArrows />
-          <p className="gaia-kicker">Support Plan</p>
+          <p className="gaia-kicker">Your Wellness Plan</p>
           <h1>{backend.condition?.conditionName ?? "Condition"}</h1>
           <p>{backend.condition?.description ?? ""}</p>
         </header>
@@ -207,62 +207,75 @@ function ResultsContent() {
                   style={{ display: "block", textDecoration: "none" }}
                 >
                   {mixtures.length > 1 && (
-                    <h3 style={{ marginBottom: "0.25rem" }}>{mixture.mixtureName}</h3>
+                    <h3 style={{ marginBottom: "0.3rem" }}>{mixture.mixtureName}</h3>
                   )}
                   <p>{mixture.purpose}</p>
-                  <p className="gaia-note" style={{ marginTop: "0.5rem", fontSize: "0.78rem" }}>
-                    View preparation →
-                  </p>
+                  <p className="gaia-cta-hint">Open elixir guide →</p>
                 </Link>
               ))}
             </div>
           )}
         </article>
 
-        {/* ── 2. Recommended Herbs ── */}
+        {/* ── 2. Botanical Support (Herbs) ── */}
         <article className="gaia-card">
           <div className="gaia-results-heading">
             {herbsBadge && <span className="gaia-section-badge" aria-hidden>{herbsBadge}</span>}
             <div className="gaia-section-title" style={{ flex: 1 }}>
-              <h2>Recommended Herbs</h2>
-              <span className="gaia-section-kicker">Botanical support</span>
+              <h2>Botanical Support</h2>
+              <span className="gaia-section-kicker">Botanically selected</span>
             </div>
           </div>
           <p className="gaia-note">
-            Herbs associated with this condition path. All are supportive only
-            — discuss with your clinician before adding supplements.
+            Plants chosen for their affinity with this condition. Always discuss with your
+            clinician before beginning any herbal supplement.
           </p>
           {recommendedHerbs.length === 0 ? (
             <p className="gaia-note">{EMPTY_STATES.herbs}</p>
           ) : (
             <>
               <hr className="gaia-divider" />
-              <ul>
+              <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "grid", gap: "0.55rem" }}>
                 {recommendedHerbs.map((herb) => (
-                  <li key={herb.herbID}>
-                    <strong>{herb.herbName}</strong>
-                    {herb.latinName ? (
-                      <span className="gaia-note"> — {herb.latinName}</span>
-                    ) : null}
-                    {herb.overview ? (
-                      <p className="gaia-note" style={{ margin: "0.15rem 0 0" }}>{herb.overview}</p>
-                    ) : null}
-                    {herb.usageNotes ? (
-                      <p className="gaia-note" style={{ margin: "0.1rem 0 0.4rem" }}>{herb.usageNotes}</p>
-                    ) : null}
+                  <li key={herb.herbID} className="gaia-herb-row">
+                    <span aria-hidden style={{ color: "var(--gaia-sage-500)", fontSize: "0.68rem", marginTop: "0.22rem", flexShrink: 0 }}>◆</span>
+                    <span>
+                      <strong>{herb.herbName}</strong>
+                      {herb.latinName ? (
+                        <span className="gaia-note"> — {herb.latinName}</span>
+                      ) : null}
+                      {herb.overview ? (
+                        <p className="gaia-note" style={{ margin: "0.18rem 0 0" }}>{herb.overview}</p>
+                      ) : null}
+                      {herb.usageNotes ? (
+                        <p className="gaia-note" style={{ margin: "0.1rem 0 0" }}>{herb.usageNotes}</p>
+                      ) : null}
+                    </span>
                   </li>
                 ))}
               </ul>
             </>
           )}
           {avoidHerbs.length > 0 && (
-            <div className="gaia-list-card gaia-avoid-card" style={{ marginTop: "0.75rem" }}>
-              <p className="gaia-section-kicker" style={{ marginBottom: "0.45rem" }}>Herbs to avoid with this condition</p>
-              <ul>
+            <div className="gaia-list-card gaia-avoid-card" style={{ marginTop: "0.85rem" }}>
+              <p style={{
+                fontSize: "0.66rem",
+                fontWeight: 700,
+                letterSpacing: "0.15em",
+                textTransform: "uppercase",
+                color: "rgba(252,165,165,0.82)",
+                marginBottom: "0.55rem",
+              }}>
+                Avoid with this condition
+              </p>
+              <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "grid", gap: "0.35rem" }}>
                 {avoidHerbs.map((herb) => (
-                  <li key={herb.herbID} className="gaia-note">
-                    <strong>{herb.herbName}</strong>
-                    {herb.linkNotes ? ` — ${herb.linkNotes}` : ""}
+                  <li key={herb.herbID} style={{ display: "flex", alignItems: "flex-start", gap: "0.5rem" }}>
+                    <span aria-hidden style={{ color: "rgba(252,165,165,0.65)", fontSize: "0.68rem", marginTop: "0.22rem", flexShrink: 0 }}>✕</span>
+                    <span className="gaia-note">
+                      <strong>{herb.herbName}</strong>
+                      {herb.linkNotes ? ` — ${herb.linkNotes}` : ""}
+                    </span>
                   </li>
                 ))}
               </ul>
@@ -274,17 +287,17 @@ function ResultsContent() {
         {sessionStatus === "authenticated" && (
           <article className="gaia-card gaia-identifier-card">
             <div className="gaia-section-title">
-              <h2>Ingredient Check</h2>
+              <h2>Ingredient Identifier</h2>
               <span className="gaia-section-kicker">Smart assist</span>
             </div>
             <p className="gaia-note">
-              Upload or capture an ingredient to identify its properties and relevance to your condition.
+              Photograph or upload an ingredient label to check its botanical properties and alignment with your wellness path.
             </p>
             <IngredientIdentifier />
           </article>
         )}
 
-        {/* ── 3. Recipes ── */}
+        {/* ── 3. Nourishing Recipes ── */}
         <article className="gaia-card gaia-surface-muted">
           <div className="gaia-results-heading">
             {recipesBadge && <span className="gaia-section-badge" aria-hidden>{recipesBadge}</span>}
@@ -292,10 +305,11 @@ function ResultsContent() {
               <h2>
                 {recipes.length === 1
                   ? recipes[0].recipeName
-                  : "Recipes"}
+                  : "Nourishing Recipes"}
               </h2>
-              <span className="gaia-section-kicker">Nutrition</span>
+              <span className="gaia-section-kicker">Whole food</span>
             </div>
+
           </div>
           {recipes.length === 0 ? (
             <p className="gaia-note">{EMPTY_STATES.recipes}</p>
@@ -310,7 +324,7 @@ function ResultsContent() {
                 >
                   <h3 style={{ marginBottom: "0.3rem" }}>{recipe.recipeName}</h3>
                   {recipe.dietTags && (
-                    <div className="gaia-chip-row" style={{ marginTop: "0.3rem", marginBottom: "0.5rem" }}>
+                    <div className="gaia-chip-row" style={{ marginTop: "0.3rem", marginBottom: "0.45rem" }}>
                       {recipe.dietTags.split(",").map((tag) => (
                         <span key={tag.trim()} className="gaia-chip">{tag.trim()}</span>
                       ))}
@@ -319,7 +333,7 @@ function ResultsContent() {
                   {recipe.description && (
                     <p className="gaia-note">{recipe.description}</p>
                   )}
-                  <p className="gaia-note" style={{ marginTop: "0.4rem", fontSize: "0.78rem" }}>
+                  <p className="gaia-cta-hint">
                     {recipe.prepTime != null ? `${recipe.prepTime} min · ` : ""}View full recipe →
                   </p>
                 </Link>
@@ -328,19 +342,22 @@ function ResultsContent() {
           )}
         </article>
 
-        {/* ── 4. Precautions & Safety ── */}
+        {/* ── 4. Safety & When to Seek Care ── */}
         <article className="gaia-card gaia-precautions-card">
           <div className="gaia-results-heading">
             <span className="gaia-section-badge" aria-hidden>{precautionsBadge}</span>
             <div className="gaia-section-title" style={{ flex: 1 }}>
-              <h2>Precautions &amp; When to See a Doctor</h2>
-              <span className="gaia-section-kicker">Safety first</span>
+              <h2>Safety &amp; When to Seek Care</h2>
+              <span className="gaia-section-kicker">Important to note</span>
             </div>
           </div>
           {backendSafetyMessages.length > 0 ? (
-            <ul>
+            <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "grid", gap: "0.65rem" }}>
               {backendSafetyMessages.map((msg, index) => (
-                <li key={index} className="gaia-note">{msg}</li>
+                <li key={index} className="gaia-safety-row">
+                  <span aria-hidden style={{ color: "var(--gaia-earth-400)", fontSize: "0.66rem", marginTop: "0.26rem", flexShrink: 0 }}>▲</span>
+                  <span className="gaia-note">{msg}</span>
+                </li>
               ))}
             </ul>
           ) : (

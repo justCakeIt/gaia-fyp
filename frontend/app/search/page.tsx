@@ -19,7 +19,7 @@ export default function SearchPage() {
         <section className="gaia-shell">
           <article className="gaia-card gaia-loading-card">
             <h2>Just a moment...</h2>
-            <p>Checking your session.</p>
+            <p className="gaia-note">Verifying your session.</p>
           </article>
         </section>
       </main>
@@ -31,10 +31,13 @@ export default function SearchPage() {
       <main className="gaia-page">
         <section className="gaia-shell">
           <article className="gaia-card gaia-surface-muted">
-            <h2>Sign in to search</h2>
-            <p>
-              Full condition search is available to members. Create a free
-              account or sign in to find your wellness path.
+            <div className="gaia-section-title">
+              <h2>Sign in to search</h2>
+              <span className="gaia-section-kicker">Members only</span>
+            </div>
+            <p className="gaia-note">
+              Condition search and botanical wellness plans are available to members.
+              Create a free account or sign in to find your path.
             </p>
             <div className="gaia-actions">
               <Link href="/entry?mode=login" className="gaia-btn gaia-btn-primary">
@@ -72,8 +75,8 @@ export default function SearchPage() {
           <p className="gaia-kicker">Gaia Guidance</p>
           <h1>Find Your Path</h1>
           <p>
-            Enter a diagnosed condition name. Gaia will find the matching
-            supportive wellness path for you.
+            Enter a diagnosed condition name. Gaia will find your
+            matching botanical wellness path.
           </p>
           <div className="gaia-chip-row">
             <span className="gaia-chip">Condition-matched</span>
@@ -83,15 +86,15 @@ export default function SearchPage() {
 
         <form onSubmit={handleSubmit} className="gaia-card gaia-form-card gaia-surface-muted">
           <div className="gaia-section-title">
-            <h2>Condition Search</h2>
-            <span className="gaia-section-kicker">Guided</span>
+            <h2>Your Search</h2>
+            <span className="gaia-section-kicker">Personalised</span>
           </div>
-          <p>
-            Use your diagnosed condition term, its abbreviation, or a common
-            synonym. Gaia will match it to the right guidance path.
+          <p className="gaia-note">
+            Enter a condition name, its abbreviation, or a common synonym —
+            Gaia will guide you to the right botanical path.
           </p>
           <hr className="gaia-divider" />
-          <label htmlFor="condition-query">Your Condition</label>
+          <label htmlFor="condition-query">Diagnosed Condition</label>
           <input
             id="condition-query"
             type="text"
@@ -101,7 +104,7 @@ export default function SearchPage() {
             className="gaia-input"
             autoFocus
           />
-{validationError ? <p className="gaia-error">{validationError}</p> : null}
+          {validationError ? <p className="gaia-error">{validationError}</p> : null}
           <div className="gaia-actions">
             <button type="submit" className="gaia-btn gaia-btn-primary">
               Find my path

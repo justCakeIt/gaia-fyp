@@ -473,8 +473,8 @@ export default function ProfilePage() {
                     gap: "0.6rem",
                     padding: "0.55rem 0.8rem",
                     borderRadius: "0.6rem",
-                    background: "rgba(74,122,100,0.08)",
-                    border: "1px solid rgba(74,122,100,0.18)",
+                    background: "rgba(124,156,255,0.06)",
+                    border: "1px solid rgba(124,156,255,0.14)",
                   }}
                 >
                   <span style={{ fontSize: "0.78rem", color: "var(--gaia-ink-700)", flex: 1 }}>

@@ -25,11 +25,10 @@ function isDayMatch(dayOfWeek: string | null): boolean {
 function isReminderDue(reminder: UserReminder): boolean {
   if (!reminder.enabled || !reminder.remindTime) return false;
   const now = new Date();
-  const hh = String(now.getHours()).padStart(2, "0");
-  const mm = String(now.getMinutes()).padStart(2, "0");
-  const currentHHMM = `${hh}:${mm}`;
-  const reminderHHMM = reminder.remindTime.slice(0, 5);
-  return currentHHMM === reminderHHMM && isDayMatch(reminder.dayOfWeek);
+  const currentMinutes = now.getHours() * 60 + now.getMinutes();
+  const [rh, rm] = reminder.remindTime.slice(0, 5).split(":").map(Number);
+  const reminderMinutes = rh * 60 + rm;
+  return currentMinutes === reminderMinutes && isDayMatch(reminder.dayOfWeek);
 }
 
 function firedKey(reminder: UserReminder): string {
@@ -110,7 +109,7 @@ export default function ReminderNotificationEngine() {
     }
 
     check();
-    const id = setInterval(check, 15_000);
+    const id = setInterval(check, 5_000);
     return () => clearInterval(id);
   }, [userID]);
 

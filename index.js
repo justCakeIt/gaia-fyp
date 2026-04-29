@@ -8,38 +8,59 @@ const app = require("./app/app");
 
 const PORT = Number(process.env.PORT || 3000);
 
-const server = app.listen(PORT, async () => {
-  console.log(`Server running at http://127.0.0.1:${PORT}/`);
-  console.log(`  DB_HOST=${process.env.DB_HOST}  DB_PORT=${process.env.DB_PORT}  DB_NAME=${process.env.DB_NAME}`);
+const server = app.listen(PORT, "0.0.0.0", async () => {
+  console.log("\nG.A.I.A. API — running\n");
 
-  // DB connectivity check — separate from demo account so a DB failure
-  // is clearly visible in logs
+  console.log(`Local:   http://localhost:${PORT}`);
+  console.log(`Network: http://172.20.10.5:${PORT}\n`);
+
+  console.log(
+    `DB → HOST=${process.env.DB_HOST} PORT=${process.env.DB_PORT} NAME=${process.env.DB_NAME}\n`
+  );
+
+  // --------------------------------------------------
+  // Database connectivity check
+  // --------------------------------------------------
   const dbOk = await db.checkConnectivity();
 
   if (!dbOk) {
     console.error(
-      "\n  *** DB NOT REACHABLE — auth and registration will fail ***\n" +
-        "  If running locally (no Docker), ensure docker compose is running\n" +
-        "  and that .env has DB_HOST=127.0.0.1, DB_PORT=3308\n"
+      "\n*** DATABASE NOT REACHABLE ***\n" +
+      "Auth, plans, and data fetching will fail.\n" +
+      "Make sure Docker DB is running and .env is correct.\n"
     );
     return;
   }
 
+  console.log("Database connection: OK\n");
+
+  // --------------------------------------------------
+  // Ensure demo account (non-blocking)
+  // --------------------------------------------------
   ensureDemoAccountWithRetry()
     .then((demo) => {
       if (!demo) return;
+
       const mode = demo.created ? "created" : "updated";
-      console.log(`Demo auth account ${mode}: ${demo.email} / ${demo.password}`);
+
+      console.log(
+        `Demo account ${mode}: ${demo.email}\n`
+      );
     })
     .catch((err) => {
-      console.error("Failed to ensure demo auth account:", err.message);
+      console.error("Demo account setup failed:", err.message);
     });
 });
 
+// --------------------------------------------------
+// Server error handling
+// --------------------------------------------------
 server.on("error", (err) => {
   if (err.code === "EADDRINUSE") {
-    console.error(`Port ${PORT} already in use.`);
+    console.error(`Port ${PORT} is already in use.`);
     process.exit(1);
   }
+
+  console.error("Server error:", err);
   throw err;
 });

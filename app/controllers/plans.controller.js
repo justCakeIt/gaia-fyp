@@ -21,11 +21,19 @@ async function create(req, res, next) {
     const title = typeof body.title === "string" ? body.title.trim() : "";
     const items = Array.isArray(body.items) ? body.items : [];
 
-    if (!userID) return res.status(400).json({ ok: false, error: "userID is required" });
-    if (!title) return res.status(400).json({ ok: false, error: "title is required" });
+    if (!userID) {
+      return res.status(400).json({ ok: false, error: "userID is required" });
+    }
 
-    // If provided but invalid (e.g. "abc"), reject
-    if (body.conditionID !== null && body.conditionID !== undefined && conditionID === null) {
+    if (!title) {
+      return res.status(400).json({ ok: false, error: "title is required" });
+    }
+
+    if (
+      body.conditionID !== null &&
+      body.conditionID !== undefined &&
+      conditionID === null
+    ) {
       return res.status(400).json({
         ok: false,
         error: "conditionID must be a positive integer or null",
@@ -33,11 +41,37 @@ async function create(req, res, next) {
     }
 
     if (!items.length) {
-      return res.status(400).json({ ok: false, error: "items must be a non-empty array" });
+      return res.status(400).json({
+        ok: false,
+        error: "items must be a non-empty array",
+      });
     }
 
-    const created = await plansService.createPlan({ userID, conditionID, title, items });
-    return res.status(201).json({ ok: true, data: created });
+    const created = await plansService.createPlan({
+      userID,
+      conditionID,
+      title,
+      items,
+    });
+
+    // FIX: always return planID in expected structure
+    const planID =
+      created?.planID ||
+      created?.id ||
+      created?.insertId ||
+      null;
+
+    if (!planID) {
+      return res.status(500).json({
+        ok: false,
+        error: "Plan created but ID not returned",
+      });
+    }
+
+    return res.status(201).json({
+      ok: true,
+      data: { planID },
+    });
   } catch (e) {
     next(e);
   }
@@ -47,7 +81,12 @@ async function create(req, res, next) {
 async function list(req, res, next) {
   try {
     const userID = toInt(req.query.userID);
-    if (!userID) return res.status(400).json({ ok: false, error: "userID is required" });
+    if (!userID) {
+      return res.status(400).json({
+        ok: false,
+        error: "userID is required",
+      });
+    }
 
     const data = await plansService.listPlans(userID);
     return res.json({ ok: true, data });
@@ -60,15 +99,27 @@ async function list(req, res, next) {
 async function getOne(req, res, next) {
   try {
     const planID = toInt(req.params.planID);
-    if (!planID) return res.status(400).json({ ok: false, error: "invalid planID" });
+    if (!planID) {
+      return res.status(400).json({
+        ok: false,
+        error: "invalid planID",
+      });
+    }
 
     const data = await plansService.getPlan(planID);
-    if (!data) return res.status(404).json({ ok: false, error: "plan not found" });
+    if (!data) {
+      return res.status(404).json({
+        ok: false,
+        error: "plan not found",
+      });
+    }
 
-    // If the caller supplies a userID, cross-check ownership
     const requestedUserID = toInt(req.query.userID);
     if (requestedUserID && data.plan.userID !== requestedUserID) {
-      return res.status(403).json({ ok: false, error: "access denied" });
+      return res.status(403).json({
+        ok: false,
+        error: "access denied",
+      });
     }
 
     return res.json({ ok: true, data });
@@ -81,16 +132,39 @@ async function getOne(req, res, next) {
 async function remove(req, res, next) {
   try {
     const planID = toInt(req.params.planID);
-    if (!planID) return res.status(400).json({ ok: false, error: "invalid planID" });
+    if (!planID) {
+      return res.status(400).json({
+        ok: false,
+        error: "invalid planID",
+      });
+    }
 
     const userID = toInt(req.query.userID);
-    if (!userID) return res.status(400).json({ ok: false, error: "userID is required" });
+    if (!userID) {
+      return res.status(400).json({
+        ok: false,
+        error: "userID is required",
+      });
+    }
 
     const ownerUserID = await plansService.getPlanOwner(planID);
-    if (ownerUserID === null) return res.status(404).json({ ok: false, error: "plan not found" });
-    if (ownerUserID !== userID) return res.status(403).json({ ok: false, error: "access denied" });
+
+    if (ownerUserID === null) {
+      return res.status(404).json({
+        ok: false,
+        error: "plan not found",
+      });
+    }
+
+    if (ownerUserID !== userID) {
+      return res.status(403).json({
+        ok: false,
+        error: "access denied",
+      });
+    }
 
     await plansService.deletePlan(planID);
+
     return res.json({ ok: true });
   } catch (e) {
     next(e);
