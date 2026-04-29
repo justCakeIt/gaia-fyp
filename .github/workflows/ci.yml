@@ -47,14 +47,21 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      # ✅ Apply schema
       - name: Apply database schema
-        run: mysql -h 127.0.0.1 -P 3306 -u admin -ppassword gaia_db < db-init/01-schema.sql
+        run: |
+          mysql -h 127.0.0.1 -P 3306 -u admin -ppassword gaia_db < db-init/01-schema.sql
 
+      # ✅ FIXED: correct seed files (your real structure)
       - name: Seed database
-        run: mysql -h 127.0.0.1 -P 3306 -u admin -ppassword gaia_db < db-init/02-seed.sql
+        run: |
+          mysql -h 127.0.0.1 -P 3306 -u admin -ppassword gaia_db < db-init/02-seed-core.sql
+          mysql -h 127.0.0.1 -P 3306 -u admin -ppassword gaia_db < db-init/03-seed-relations.sql
+          mysql -h 127.0.0.1 -P 3306 -u admin -ppassword gaia_db < db-init/04-migrations.sql
 
       - name: Run tests
         run: npm test
+
 
   # ── Frontend ─────────────────────────────────────────────────────────────────
   frontend-build:
@@ -84,6 +91,7 @@ jobs:
         working-directory: frontend
         run: npm ci
 
+      # ✅ Lint (will work after your package.json fix)
       - name: Lint
         working-directory: frontend
         run: npm run lint
