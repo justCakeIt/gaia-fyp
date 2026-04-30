@@ -49,9 +49,7 @@ async function login(req, res, next) {
     if (isConnectivityError(e)) {
       return res.status(503).json({
         ok: false,
-        error:
-          "Service temporarily unavailable — the database is not reachable. " +
-          "Ensure Docker is running (`docker compose up`) and try again.",
+        error: "Service temporarily unavailable — database is not reachable.",
       });
     }
     next(e);
@@ -70,9 +68,7 @@ async function register(req, res, next) {
     if (isConnectivityError(e)) {
       return res.status(503).json({
         ok: false,
-        error:
-          "Registration is temporarily unavailable — the database is not reachable. " +
-          "Ensure Docker is running (`docker compose up`) and try again.",
+        error: "Registration temporarily unavailable — database is not reachable.",
       });
     }
     next(e);
