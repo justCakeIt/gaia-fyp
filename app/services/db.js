@@ -2,30 +2,38 @@
 
 const mysql = require("mysql2/promise");
 
+// Validate required environment variables (fail fast in production)
+function getEnv(name) {
+  const value = process.env[name];
+  if (!value) {
+    console.error(`Missing required env variable: ${name}`);
+  }
+  return value;
+}
+
+// Create connection pool
 const pool = mysql.createPool({
-  host: process.env.DB_HOST || "127.0.0.1",
-  port: Number(process.env.DB_PORT) || 3306,
-  user: process.env.DB_USER || "admin",
-  password: process.env.DB_PASSWORD || "password",
-  database: process.env.DB_NAME || "gaia_db",
+  host: getEnv("DB_HOST"),
+  port: Number(getEnv("DB_PORT")),
+  user: getEnv("DB_USER"),
+  password: getEnv("DB_PASSWORD"),
+  database: getEnv("DB_NAME"),
 
-  // MySQL 8 compatibility
-  ssl: false,
-  authPlugins: undefined,
-
+  // Connection behaviour
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,
   connectTimeout: 10000,
 });
 
+// Standard query wrapper
 async function query(sql, params = []) {
   try {
     const [rows] = await pool.execute(sql, params);
     return rows;
   } catch (err) {
-    // Tag DB errors so the controller can classify them
     err.isDbError = true;
+
     console.error("DB query error:", {
       code: err.code,
       errno: err.errno,
@@ -34,10 +42,12 @@ async function query(sql, params = []) {
       host: process.env.DB_HOST,
       port: process.env.DB_PORT,
     });
+
     throw err;
   }
 }
 
+// Simple DB ping
 async function ping() {
   const conn = await pool.getConnection();
   await conn.ping();
@@ -45,7 +55,7 @@ async function ping() {
   return true;
 }
 
-// Startup DB connectivity check — logs but does not crash the server
+// Startup connectivity check
 async function checkConnectivity() {
   try {
     await ping();
@@ -55,9 +65,8 @@ async function checkConnectivity() {
     return true;
   } catch (err) {
     console.error(
-      `DB connectivity check FAILED: ${err.message}\n` +
-        `  host=${process.env.DB_HOST} port=${process.env.DB_PORT}\n` +
-        `  If running locally (not in Docker), set DB_HOST=127.0.0.1 and DB_PORT=3308 in .env`
+      `DB connectivity FAILED: ${err.message}\n` +
+        `host=${process.env.DB_HOST} port=${process.env.DB_PORT}`
     );
     return false;
   }
