@@ -1,0 +1,48 @@
+########################################
+# Text / line endings
+########################################
+* text=auto
+
+########################################
+# Generated build output
+########################################
+.next/** linguist-generated
+frontend/.next/** linguist-generated
+out/** linguist-generated
+frontend/out/** linguist-generated
+.turbo/** linguist-generated
+frontend/.turbo/** linguist-generated
+
+########################################
+# Vendored dependencies
+########################################
+node_modules/** linguist-vendored
+frontend/node_modules/** linguist-vendored
+.pnpm-store/** linguist-vendored
+
+########################################
+# Documentation
+########################################
+docs/** linguist-documentation
+README.md linguist-documentation
+CODE_OF_CONDUCT.md linguist-documentation
+LICENSE linguist-documentation
+env-sample linguist-documentation
+.env.example linguist-documentation
+frontend/.env.example linguist-documentation
+
+########################################
+# Non-source / demo / static reference files
+########################################
+test.html linguist-documentation
+
+########################################
+# Binary assets
+########################################
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.ico binary
+*.pdf binary
