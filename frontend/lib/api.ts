@@ -171,9 +171,11 @@ export type BackendMixtureHerb = {
 };
 
 export type BackendMixtureSafetyNote = {
-  noteID: number;
-  content: string;
-  severity: "low" | "medium" | "high" | "critical";
+  safetyNoteID: number;
+  warningType?: string;
+  severity: string;
+  message: string;
+  instructions?: string;
 };
 
 export type BackendMixtureDetail = {

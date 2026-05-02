@@ -1,17 +1,20 @@
 "use client";
 
 import { signOut, useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 export default function GaiaTopBar() {
   const { data: session, status } = useSession();
+  const router = useRouter();
 
   if (status !== "authenticated") return null;
 
   const user = session?.user as { name?: string | null } | undefined;
   const firstName = user?.name?.split(" ")[0]?.trim() || "Member";
 
-  function handleLogout() {
-    signOut({ callbackUrl: "/entry" });
+  async function handleLogout() {
+    await signOut({ redirect: false });
+    router.push("/entry");
   }
 
   return (

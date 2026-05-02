@@ -12,7 +12,7 @@ const server = app.listen(PORT, "0.0.0.0", async () => {
   console.log("\nG.A.I.A. API — running\n");
 
   console.log(`Local:   http://localhost:${PORT}`);
-  console.log(`Network: http://172.20.10.5:${PORT}\n`);
+  console.log(`Network: http://<LAN-IP>:${PORT}  (run 'ipconfig' to find your LAN IP)\n`);
 
   console.log(
     `DB → HOST=${process.env.DB_HOST} PORT=${process.env.DB_PORT} NAME=${process.env.DB_NAME}\n`

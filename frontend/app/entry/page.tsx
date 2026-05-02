@@ -87,13 +87,20 @@ function EntryContent() {
       return;
     }
 
-    const response = await signIn("credentials", {
-      redirect: false,
-      email: normalizedEmail,
-      password,
-    });
+    let response: Awaited<ReturnType<typeof signIn>>;
+    try {
+      response = await signIn("credentials", {
+        redirect: false,
+        email: normalizedEmail,
+        password,
+      });
+    } catch {
+      setError("Unable to reach authentication service. Check your connection and backend status.");
+      setLoadingState("idle");
+      return;
+    }
 
-    if (response?.error) {
+    if (!response || response.error) {
       setError("Invalid email or password. Please try again.");
       setLoadingState("idle");
       return;
@@ -180,6 +187,17 @@ function EntryContent() {
   async function handleGoogleAuth() {
     setError("");
     setSuccess("");
+
+    if (
+      typeof window !== "undefined" &&
+      window.location.hostname !== "localhost" &&
+      window.location.hostname !== "127.0.0.1"
+    ) {
+      setError(
+        "Google sign-in only works on localhost. When accessing via LAN or phone, please use email and password."
+      );
+      return;
+    }
 
     if (!googleEnabled) {
       setError(

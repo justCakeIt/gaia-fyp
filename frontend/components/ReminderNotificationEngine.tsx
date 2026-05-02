@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { fetchUserReminders, type UserReminder } from "@/lib/api";
 
@@ -22,15 +22,6 @@ function isDayMatch(dayOfWeek: string | null): boolean {
   }
 }
 
-function isReminderDue(reminder: UserReminder): boolean {
-  if (!reminder.enabled || !reminder.remindTime) return false;
-  const now = new Date();
-  const currentMinutes = now.getHours() * 60 + now.getMinutes();
-  const [rh, rm] = reminder.remindTime.slice(0, 5).split(":").map(Number);
-  const reminderMinutes = rh * 60 + rm;
-  return currentMinutes === reminderMinutes && isDayMatch(reminder.dayOfWeek);
-}
-
 function firedKey(reminder: UserReminder): string {
   const now = new Date();
   const date = now.toISOString().slice(0, 10);
@@ -50,19 +41,14 @@ export default function ReminderNotificationEngine() {
 
   const [reminders, setReminders] = useState<UserReminder[]>([]);
   const [alerts, setAlerts] = useState<InAppAlert[]>([]);
-  const remindersRef = useRef<UserReminder[]>([]);
 
-  useEffect(() => {
-    remindersRef.current = reminders;
-  }, [reminders]);
-
-  // Fetch reminders when userID is available
+  // Fetch reminders on login
   useEffect(() => {
     if (!userID) return;
     fetchUserReminders(userID).then(setReminders);
   }, [userID]);
 
-  // Re-fetch every 60s to pick up newly created reminders
+  // Re-fetch every 60s to pick up newly created/deleted reminders
   useEffect(() => {
     if (!userID) return;
     const id = setInterval(() => {
@@ -71,47 +57,68 @@ export default function ReminderNotificationEngine() {
     return () => clearInterval(id);
   }, [userID]);
 
-  // Poll every 15s to check if any reminder is due
+  // Schedule exact-time notifications using setTimeout.
+  // Re-runs whenever the reminders list changes (new reminder added/removed).
   useEffect(() => {
-    if (!userID) return;
+    if (!userID || reminders.length === 0) return;
 
-    function check() {
-      for (const rem of remindersRef.current) {
-        if (!isReminderDue(rem)) continue;
+    const pendingTimeouts: ReturnType<typeof setTimeout>[] = [];
 
-        const key = firedKey(rem);
-        if (sessionStorage.getItem(key)) continue;
-        sessionStorage.setItem(key, "1");
+    function fire(rem: UserReminder) {
+      if (!isDayMatch(rem.dayOfWeek)) return;
+      const key = firedKey(rem);
+      if (sessionStorage.getItem(key)) return;
+      sessionStorage.setItem(key, "1");
 
-        // Browser notification (if permission granted)
-        if ("Notification" in window && Notification.permission === "granted") {
-          try {
-            new Notification("G.A.I.A. Reminder", {
-              body: rem.label + (rem.planTitle ? ` · ${rem.planTitle}` : ""),
-              icon: "/favicon.ico",
-              tag: `gaia-reminder-${rem.reminderID}`,
-            });
-          } catch {
-            // Silently ignore — browser may restrict in certain contexts
-          }
+      if ("Notification" in window && Notification.permission === "granted") {
+        try {
+          new Notification("G.A.I.A. Reminder", {
+            body: rem.label + (rem.planTitle ? ` · ${rem.planTitle}` : ""),
+            icon: "/favicon.ico",
+            tag: `gaia-reminder-${rem.reminderID}`,
+          });
+        } catch {
+          // Silently ignore — browser may restrict in certain contexts
         }
-
-        // In-app toast (always shown)
-        const alertID = `${rem.reminderID}-${Date.now()}`;
-        setAlerts((prev) => [
-          ...prev,
-          { id: alertID, label: rem.label, planTitle: rem.planTitle },
-        ]);
-        setTimeout(() => {
-          setAlerts((prev) => prev.filter((a) => a.id !== alertID));
-        }, 15_000);
       }
+
+      const alertID = `${rem.reminderID}-${Date.now()}`;
+      setAlerts((prev) => [
+        ...prev,
+        { id: alertID, label: rem.label, planTitle: rem.planTitle },
+      ]);
+      setTimeout(() => {
+        setAlerts((prev) => prev.filter((a) => a.id !== alertID));
+      }, 15_000);
     }
 
-    check();
-    const id = setInterval(check, 5_000);
-    return () => clearInterval(id);
-  }, [userID]);
+    const now = new Date();
+
+    for (const rem of reminders) {
+      if (!rem.enabled || !rem.remindTime) continue;
+
+      const [rh, rm] = rem.remindTime.slice(0, 5).split(":").map(Number);
+      const trigger = new Date(now);
+      trigger.setHours(rh, rm, 0, 0);
+
+      let ms = trigger.getTime() - now.getTime();
+
+      if (ms >= -59_000 && ms <= 0) {
+        // Page was opened within 59s of trigger time — fire immediately if not already fired
+        fire(rem);
+        // Schedule next occurrence tomorrow
+        ms += 24 * 60 * 60 * 1000;
+      } else if (ms < 0) {
+        // Already past today's trigger — schedule for tomorrow
+        ms += 24 * 60 * 60 * 1000;
+      }
+
+      const t = setTimeout(() => fire(rem), ms);
+      pendingTimeouts.push(t);
+    }
+
+    return () => pendingTimeouts.forEach(clearTimeout);
+  }, [userID, reminders]);
 
   if (alerts.length === 0) return null;
 
