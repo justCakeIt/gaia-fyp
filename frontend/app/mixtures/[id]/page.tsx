@@ -15,18 +15,21 @@ type PageState =
 export default function MixturePage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
-  const [pageState, setPageState] = useState<PageState>({ status: "loading" });
+
+  const rawId = params?.id;
+  const numericID = rawId && /^\d+$/.test(rawId) ? parseInt(rawId, 10) : null;
+
+  const [pageState, setPageState] = useState<PageState>(
+    rawId && !numericID ? { status: "not_found" } : { status: "loading" }
+  );
 
   useEffect(() => {
-    const rawId = params?.id;
     if (!rawId) {
       router.replace("/profile");
       return;
     }
 
-    const numericID = /^\d+$/.test(rawId) ? parseInt(rawId, 10) : null;
     if (!numericID) {
-      setPageState({ status: "not_found" });
       return;
     }
 
@@ -54,7 +57,7 @@ export default function MixturePage() {
     return () => {
       cancelled = true;
     };
-  }, [params?.id, router]);
+  }, [rawId, numericID, router]);
 
   if (pageState.status === "loading") {
     return (
