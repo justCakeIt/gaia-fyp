@@ -1,0 +1,101 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  # ── Backend ──────────────────────────────────────────────────────────────────
+  backend-test:
+    name: Backend – integration tests
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: ci_root_pass
+          MYSQL_DATABASE: gaia_db
+          MYSQL_USER: admin
+          MYSQL_PASSWORD: password
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -u root -pci_root_pass --silent"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=12
+          --health-start-period=30s
+
+    env:
+      DB_HOST: 127.0.0.1
+      DB_PORT: 3306
+      DB_USER: admin
+      DB_PASSWORD: password
+      DB_NAME: gaia_db
+      NODE_ENV: test
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      # ✅ Apply schema
+      - name: Apply database schema
+        run: |
+          mysql -h 127.0.0.1 -P 3306 -u admin -ppassword gaia_db < db-init/01-schema.sql
+
+      # ✅ FIXED: correct seed files (your real structure)
+      - name: Seed database
+        run: |
+          mysql -h 127.0.0.1 -P 3306 -u admin -ppassword gaia_db < db-init/02-seed-core.sql
+          mysql -h 127.0.0.1 -P 3306 -u admin -ppassword gaia_db < db-init/03-seed-relations.sql
+          mysql -h 127.0.0.1 -P 3306 -u admin -ppassword gaia_db < db-init/04-migrations.sql
+
+      - name: Run tests
+        run: npm test
+
+
+  # ── Frontend ─────────────────────────────────────────────────────────────────
+  frontend-build:
+    name: Frontend – lint & build
+    runs-on: ubuntu-latest
+
+    env:
+      NEXTAUTH_URL: http://localhost:3001
+      NEXTAUTH_SECRET: ci-nextauth-secret-placeholder-for-build-only
+      NEXT_PUBLIC_API_BASE: http://localhost:3000/api
+      API_BASE: http://localhost:3000/api
+      GOOGLE_CLIENT_ID: placeholder
+      GOOGLE_CLIENT_SECRET: placeholder
+      NODE_OPTIONS: --max-old-space-size=4096
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm ci
+
+      # ✅ Lint (will work after your package.json fix)
+      - name: Lint
+        working-directory: frontend
+        run: npx eslint .
+
+      - name: Build
+        working-directory: frontend
+        run: npm run build
