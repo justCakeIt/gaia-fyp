@@ -151,7 +151,7 @@ export default function MixturePage() {
 
         {/* ── Dosage ── */}
         {data.dosage ? (
-          <article className="gaia-card">
+          <article className="gaia-card gaia-dosage-card">
             <div className="gaia-section-title">
               <h2>Dosage &amp; Usage</h2>
               <span className="gaia-section-kicker">Guidance</span>
@@ -181,11 +181,11 @@ export default function MixturePage() {
               }}
             >
               {herbs.map((herb) => (
-                <li key={herb.herbID} className="gaia-herb-row">
+                <li key={herb.herbID} className="gaia-elixir-herb-row">
                   <span
                     aria-hidden
                     style={{
-                      color: "var(--gaia-sage-500)",
+                      color: "var(--gaia-earth-400)",
                       fontSize: "0.68rem",
                       marginTop: "0.22rem",
                       flexShrink: 0,

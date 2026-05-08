@@ -84,14 +84,15 @@ export default function SearchPage() {
           </div>
         </header>
 
-        <form onSubmit={handleSubmit} className="gaia-card gaia-form-card gaia-surface-muted">
+        <form onSubmit={handleSubmit} className="gaia-card gaia-form-card gaia-surface-muted" style={{ borderTop: "3px solid var(--gaia-border-gold)" }}>
           <div className="gaia-section-title">
             <h2>Your Search</h2>
             <span className="gaia-section-kicker">Personalised</span>
           </div>
           <p className="gaia-note">
-            Enter a condition name, its abbreviation, or a common synonym —
-            Gaia will guide you to the right botanical path.
+            Enter a condition name, abbreviation, or common synonym.
+            G.A.I.A. will find your matching wellness path — for conditions
+            you have already been diagnosed with.
           </p>
           <hr className="gaia-divider" />
           <label htmlFor="condition-query">Diagnosed Condition</label>
@@ -113,6 +114,10 @@ export default function SearchPage() {
               Back to profile
             </Link>
           </div>
+          <p className="gaia-note" style={{ fontSize: "0.8rem", borderTop: "1px solid var(--gaia-border)", paddingTop: "0.75rem" }}>
+            G.A.I.A. does not diagnose. It provides supportive guidance
+            for conditions confirmed by a clinician.
+          </p>
         </form>
       </section>
     </main>

@@ -210,9 +210,9 @@ export default function ProfilePage() {
     alignItems: "flex-start",
     gap: "1rem",
     padding: "0.7rem 0.85rem",
-    borderRadius: "0.5rem",
-    background: "var(--gaia-surface, rgba(0,0,0,0.03))",
-    border: "1px solid var(--gaia-border, rgba(0,0,0,0.07))",
+    borderRadius: "var(--gaia-radius-sm)",
+    background: "var(--gaia-surface)",
+    border: "1px solid var(--gaia-border)",
   };
 
   const smallBtnStyle: React.CSSProperties = {
@@ -472,8 +472,8 @@ export default function ProfilePage() {
                     gap: "0.6rem",
                     padding: "0.55rem 0.8rem",
                     borderRadius: "0.6rem",
-                    background: "rgba(124,156,255,0.06)",
-                    border: "1px solid rgba(124,156,255,0.14)",
+                    background: "rgba(212,175,55,0.06)",
+                    border: "1px solid rgba(212,175,55,0.14)",
                   }}
                 >
                   <span style={{ fontSize: "0.78rem", color: "var(--gaia-ink-700)", flex: 1 }}>
@@ -617,7 +617,7 @@ export default function ProfilePage() {
             </div>
           </article>
 
-          <article className="gaia-card">
+          <article className="gaia-card gaia-action-secondary">
             <div className="gaia-section-title">
               <h2>Your Wellness Path</h2>
               <span className={`gaia-section-kicker${activePlan ? " status-badge--active" : " status-badge--empty"}`}>

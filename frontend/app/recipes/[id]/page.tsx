@@ -150,11 +150,11 @@ export default function RecipeDetailPage() {
           <article className="gaia-card">
             <div className="gaia-section-title">
               <h2>Ingredients</h2>
+              <span className="gaia-section-kicker">What you need</span>
             </div>
-
-            <ul>
+            <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "grid", gap: "0.45rem" }}>
               {ingredientLines.map((item, i) => (
-                <li key={i}>{item}</li>
+                <li key={i} className="gaia-ingredient-row">{item}</li>
               ))}
             </ul>
           </article>
@@ -165,12 +165,12 @@ export default function RecipeDetailPage() {
           <article className="gaia-card">
             <div className="gaia-section-title">
               <h2>Method</h2>
+              <span className="gaia-section-kicker">How to prepare</span>
             </div>
-
             {steps.length === 1 ? (
               <p>{steps[0]}</p>
             ) : (
-              <ol>
+              <ol className="gaia-steps">
                 {steps.map((step, i) => (
                   <li key={i}>{step}</li>
                 ))}
@@ -182,13 +182,12 @@ export default function RecipeDetailPage() {
         {/* Navigation */}
         <div className="gaia-results-nav">
           <button
-            className="gaia-btn gaia-btn-secondary"
+            className="gaia-btn gaia-btn-primary"
             onClick={() => router.back()}
           >
             Back to your plan
           </button>
-
-          <Link href="/search" className="gaia-btn gaia-btn-ghost">
+          <Link href="/search" className="gaia-btn gaia-btn-secondary">
             Search conditions
           </Link>
         </div>

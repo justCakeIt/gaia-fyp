@@ -114,10 +114,11 @@ function ConfirmContent() {
         <header className="gaia-header-card">
           <NavArrows />
           <p className="gaia-kicker">Condition Match</p>
-          <h1>Does This Look Right?</h1>
+          <h1>Confirm Your Condition</h1>
           <p>
-            Gaia searched for &ldquo;{query}&rdquo;. Please confirm this is the
-            condition you have already been diagnosed with before continuing.
+            G.A.I.A. found a match for &ldquo;{query}&rdquo;. Please confirm
+            this matches your diagnosed condition before opening your wellness
+            path.
           </p>
           <div className="gaia-chip-row">
             <span className="gaia-chip">Clinician-first</span>
@@ -151,16 +152,16 @@ function ConfirmContent() {
         )}
 
         {matchState.status === "matched" && (
-          <article className="gaia-card gaia-member-card">
+          <article className="gaia-card gaia-member-card" style={{ borderTop: "3px solid var(--gaia-border-gold)" }}>
             <div className="gaia-section-title">
               <h2>{matchState.match.conditionName}</h2>
               <span className="gaia-section-kicker">Match found</span>
             </div>
             <p>{matchState.match.description}</p>
             <div className="gaia-disclaimer">
-              <strong>Before you continue —</strong> this guidance is supportive
-              only. Proceed only if <em>{matchState.match.conditionName}</em> is a
-              condition you have already been diagnosed with by a clinician.
+              <strong>Please confirm this matches your diagnosed condition.</strong>{" "}
+              G.A.I.A. does not diagnose. It provides supportive wellness
+              guidance for conditions already confirmed by a clinician.
             </div>
             <div className="gaia-actions">
               <button

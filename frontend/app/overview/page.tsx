@@ -31,15 +31,12 @@ export default function OverviewPage() {
 
         {/* 2. Guest vs Member comparison */}
         <article className="gaia-card">
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "1fr 1fr",
-              gap: "2rem",
-            }}
-          >
-            <div>
-              <p className="gaia-section-kicker" style={{ marginBottom: "0.65rem" }}>
+          <h2 style={{ fontSize: "clamp(1.1rem, 2.2vw, 1.4rem)", marginBottom: "1rem" }}>
+            What you get
+          </h2>
+          <div className="gaia-grid gaia-grid-2">
+            <div className="gaia-list-card">
+              <p className="gaia-section-kicker" style={{ marginBottom: "0.75rem" }}>
                 As a guest
               </p>
               <ul>
@@ -48,8 +45,8 @@ export default function OverviewPage() {
                 <li>Understand the safety-first approach</li>
               </ul>
             </div>
-            <div>
-              <p className="gaia-section-kicker" style={{ marginBottom: "0.65rem" }}>
+            <div className="gaia-list-card" style={{ borderColor: "var(--gaia-border-gold)" }}>
+              <p className="gaia-section-kicker" style={{ marginBottom: "0.75rem" }}>
                 As a member
               </p>
               <ul>
@@ -67,18 +64,10 @@ export default function OverviewPage() {
           <p className="gaia-section-kicker" style={{ marginBottom: "0.85rem" }}>
             How it works
           </p>
-          <ol
-            style={{
-              padding: "0 0 0 1.1rem",
-              margin: 0,
-              display: "flex",
-              flexDirection: "column",
-              gap: "0.6rem",
-            }}
-          >
+          <ol className="gaia-steps">
             <li><strong>Search your diagnosed condition</strong></li>
             <li><strong>Confirm the matched support path</strong></li>
-            <li><strong>View your guidance — register to save it</strong></li>
+            <li>View your guidance — <strong>register to save it</strong></li>
           </ol>
         </article>
 

@@ -5,24 +5,24 @@
    ============================================================ */
 
 :root {
-  /* Ink scale — light text on dark */
-  --gaia-ink-950: #f5f8ff;
-  --gaia-ink-900: #e6edf3;
-  --gaia-ink-800: #d0dae5;
-  --gaia-ink-700: #b0bfce;
-  --gaia-ink-600: #9aa4af;
+  /* Ink scale — cream text on dark */
+  --gaia-ink-950: #f5f5dc;
+  --gaia-ink-900: #e2d9c4;
+  --gaia-ink-800: #c8bfa8;
+  --gaia-ink-700: #a8a29e;
+  --gaia-ink-600: #8a8480;
 
-  /* Accent — soft blue */
-  --gaia-sage-700: #3a5cba;
-  --gaia-sage-600: #5578d4;
-  --gaia-sage-500: #7c9cff;
-  --gaia-sage-400: #9ab4ff;
-  --gaia-sage-300: #bccfff;
-  --gaia-mint-200: #dce8ff;
-  --gaia-mint-100: #edf3ff;
-  --gaia-moss: #0b0f14;
+  /* Accent — warm gold / deep moss */
+  --gaia-sage-700: #2d4b3e;
+  --gaia-sage-600: #3d6352;
+  --gaia-sage-500: #d4af37;
+  --gaia-sage-400: #dfc060;
+  --gaia-sage-300: #ead090;
+  --gaia-mint-200: #f0e4c0;
+  --gaia-mint-100: #f8f4e0;
+  --gaia-moss:     #10141a;
 
-  /* Earth / amber — warm contrast accent */
+  /* Earth / amber — warm herbal accent */
   --gaia-earth-700: #92611e;
   --gaia-earth-600: #aa7428;
   --gaia-earth-500: #c48a3c;
@@ -30,17 +30,18 @@
   --gaia-earth-300: #eac080;
 
   /* Semantic */
-  --gaia-glow: #7c9cff;
-  --gaia-danger: #e57373;
+  --gaia-glow:       #d4af37;
+  --gaia-danger:     #e57373;
+  --gaia-amber:      #b45309;
   --gaia-success-fg: #66bb6a;
-  --gaia-forest: #0b0f14;
+  --gaia-forest:     #10141a;
 
-  /* Glass surfaces */
-  --gaia-surface: rgba(255, 255, 255, 0.04);
-  --gaia-surface-raised: rgba(255, 255, 255, 0.065);
-  --gaia-border: rgba(255, 255, 255, 0.08);
-  --gaia-border-strong: rgba(255, 255, 255, 0.14);
-  --gaia-border-gold: rgba(217, 168, 90, 0.24);
+  /* Glass surfaces — moss-tinted */
+  --gaia-surface:        rgba(27, 34, 29, 0.48);
+  --gaia-surface-raised: rgba(27, 34, 29, 0.62);
+  --gaia-border:         rgba(212, 175, 55, 0.12);
+  --gaia-border-strong:  rgba(212, 175, 55, 0.22);
+  --gaia-border-gold:    rgba(212, 175, 55, 0.32);
 
   /* Shadows */
   --gaia-shadow-xs:     0 2px 8px  rgba(0, 0, 0, 0.32);
@@ -70,11 +71,11 @@ body {
   line-height: 1.68;
   -webkit-font-smoothing: antialiased;
   background:
-    radial-gradient(ellipse 90% 60% at 50% -8%,  rgba(124, 156, 255, 0.13) 0%, transparent 60%),
-    radial-gradient(ellipse 55% 45% at  4% 96%,  rgba(99,  102, 241, 0.07) 0%, transparent 55%),
-    radial-gradient(ellipse 42% 32% at 96%  6%,  rgba(139,  92, 246, 0.06) 0%, transparent 50%),
-    radial-gradient(ellipse 65% 50% at 50% 58%,  rgba(124, 156, 255, 0.05) 0%, transparent 62%),
-    #0b0f14;
+    radial-gradient(ellipse 90% 60% at 50% -8%,  rgba(27, 34, 29, 0.22) 0%, transparent 60%),
+    radial-gradient(ellipse 55% 45% at  4% 96%,  rgba(45, 75, 62, 0.14) 0%, transparent 55%),
+    radial-gradient(ellipse 42% 32% at 96%  6%,  rgba(20, 55, 35, 0.10) 0%, transparent 50%),
+    radial-gradient(ellipse 65% 50% at 50% 58%,  rgba(27, 34, 29, 0.12) 0%, transparent 62%),
+    #10141a;
   background-attachment: fixed;
 }
 
@@ -115,7 +116,7 @@ li + li { margin-top: 0.4rem; }
   position: fixed;
   inset: 0;
   pointer-events: none;
-  background-image: radial-gradient(rgba(255, 255, 255, 0.045) 1px, transparent 1px);
+  background-image: radial-gradient(rgba(212, 175, 55, 0.032) 1px, transparent 1px);
   background-size: 28px 28px;
   opacity: 0.5;
 }
@@ -130,8 +131,8 @@ li + li { margin-top: 0.4rem; }
   border-radius: 50%;
   pointer-events: none;
   background: radial-gradient(circle,
-    rgba(124, 156, 255, 0.06) 0%,
-    rgba(99,  102, 241, 0.03) 44%,
+    rgba(45, 75, 62, 0.10) 0%,
+    rgba(27, 34, 29, 0.05) 44%,
     transparent 68%);
 }
 
@@ -164,18 +165,18 @@ li + li { margin-top: 0.4rem; }
   overflow: hidden;
   border-radius: calc(var(--gaia-radius) + 8px);
   padding: 3.0rem 2.8rem;
-  border: 1px solid rgba(124, 156, 255, 0.22);
+  border: 1px solid rgba(212, 175, 55, 0.22);
   background:
-    radial-gradient(ellipse at 18% 22%, rgba(124, 156, 255, 0.22) 0%, transparent 46%),
-    radial-gradient(ellipse at 82% 78%, rgba(99,  102, 241, 0.14) 0%, transparent 42%),
-    radial-gradient(ellipse at 62% 8%,  rgba(217, 168,  90, 0.09) 0%, transparent 34%),
-    linear-gradient(145deg, #141c2e 0%, #0f1624 40%, #0d1420 70%, #0b1219 100%);
+    radial-gradient(ellipse at 18% 22%, rgba(45, 75, 62, 0.30) 0%, transparent 46%),
+    radial-gradient(ellipse at 82% 78%, rgba(27, 34, 29, 0.22) 0%, transparent 42%),
+    radial-gradient(ellipse at 62% 8%,  rgba(212, 175, 55, 0.10) 0%, transparent 34%),
+    linear-gradient(145deg, #111a13 0%, #0f1710 40%, #0d1510 70%, #10141a 100%);
   color: var(--gaia-ink-900);
   box-shadow:
     0 1px 0 rgba(255, 255, 255, 0.06) inset,
     0 -2px 0 rgba(0, 0, 0, 0.22) inset,
-    0 0 0 1px rgba(124, 156, 255, 0.08),
-    0 0 80px rgba(124, 156, 255, 0.10),
+    0 0 0 1px rgba(212, 175, 55, 0.08),
+    0 0 80px rgba(45, 75, 62, 0.12),
     var(--gaia-shadow-deep);
 }
 
@@ -188,8 +189,8 @@ li + li { margin-top: 0.4rem; }
   height: 480px;
   border-radius: 50%;
   background: radial-gradient(circle,
-    rgba(124, 156, 255, 0.12) 0%,
-    rgba(99,  102, 241, 0.05) 38%,
+    rgba(45, 75, 62, 0.20) 0%,
+    rgba(27, 34, 29, 0.08) 38%,
     transparent 64%);
   pointer-events: none;
 }
@@ -199,8 +200,8 @@ li + li { margin-top: 0.4rem; }
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.05) 0%, transparent 22%),
-    linear-gradient( 90deg, rgba(124, 156, 255, 0.04) 0%, transparent 40%);
+    linear-gradient(180deg, rgba(255, 255, 255, 0.04) 0%, transparent 22%),
+    linear-gradient( 90deg, rgba(45, 75, 62, 0.06) 0%, transparent 40%);
   pointer-events: none;
 }
 
@@ -213,7 +214,7 @@ li + li { margin-top: 0.4rem; }
   line-height: 1.04;
   text-shadow:
     0 2px 24px rgba(0, 0, 0, 0.5),
-    0 0 80px rgba(124, 156, 255, 0.20);
+    0 0 80px rgba(212, 175, 55, 0.18);
   letter-spacing: 0.02em;
 }
 
@@ -232,15 +233,15 @@ li + li { margin-top: 0.4rem; }
   margin-bottom: 1rem;
   padding: 0.34rem 1rem;
   border-radius: 999px;
-  border: 1px solid rgba(124, 156, 255, 0.28);
-  background: rgba(124, 156, 255, 0.10);
+  border: 1px solid rgba(212, 175, 55, 0.28);
+  background: rgba(212, 175, 55, 0.08);
   letter-spacing: 0.28em;
   text-transform: uppercase;
   font-size: 0.62rem;
   font-weight: 700;
   color: var(--gaia-sage-400);
   box-shadow:
-    0 0 18px rgba(124, 156, 255, 0.10),
+    0 0 18px rgba(212, 175, 55, 0.10),
     0 1px 0 rgba(255, 255, 255, 0.05) inset;
 }
 
@@ -252,11 +253,11 @@ li + li { margin-top: 0.4rem; }
   padding: 1.85rem 1.7rem;
   display: grid;
   gap: 1.1rem;
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--gaia-surface);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   box-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.06) inset,
+    0 1px 0 rgba(255, 255, 255, 0.05) inset,
     0 10px 36px rgba(0, 0, 0, 0.48),
     0 2px 8px rgba(0, 0, 0, 0.18);
   transition: transform 240ms ease, box-shadow 240ms ease, border-color 240ms ease, background 240ms ease;
@@ -264,16 +265,16 @@ li + li { margin-top: 0.4rem; }
 
 .gaia-card:hover {
   transform: translateY(-5px);
-  border-color: rgba(255, 255, 255, 0.14);
+  border-color: var(--gaia-border-strong);
   background: var(--gaia-surface-raised);
   box-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.07) inset,
+    0 1px 0 rgba(255, 255, 255, 0.06) inset,
     0 20px 64px rgba(0, 0, 0, 0.56),
-    0 0 52px rgba(124, 156, 255, 0.08);
+    0 0 52px rgba(212, 175, 55, 0.06);
 }
 
 .gaia-surface-muted {
-  background: rgba(255, 255, 255, 0.025);
+  background: rgba(27, 34, 29, 0.30);
 }
 
 .gaia-card h2 {
@@ -308,8 +309,8 @@ li + li { margin-top: 0.4rem; }
   align-items: center;
   padding: 0.2rem 0.66rem;
   border-radius: 999px;
-  background: rgba(124, 156, 255, 0.08);
-  border: 1px solid rgba(124, 156, 255, 0.16);
+  background: rgba(212, 175, 55, 0.08);
+  border: 1px solid rgba(212, 175, 55, 0.16);
   color: var(--gaia-sage-500);
   font-size: 0.6rem;
   letter-spacing: 0.16em;
@@ -354,7 +355,7 @@ li + li { margin-top: 0.4rem; }
   border: 1px solid var(--gaia-border);
   border-radius: var(--gaia-radius-sm);
   padding: 1.1rem 1.25rem;
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(27, 34, 29, 0.35);
   box-shadow: var(--gaia-shadow-xs);
 }
 
@@ -377,8 +378,8 @@ li + li { margin-top: 0.4rem; }
 
 .gaia-chip {
   appearance: none;
-  border: 1px solid rgba(124, 156, 255, 0.20);
-  background: rgba(124, 156, 255, 0.08);
+  border: 1px solid rgba(212, 175, 55, 0.22);
+  background: rgba(212, 175, 55, 0.07);
   color: var(--gaia-sage-400);
   border-radius: 999px;
   padding: 0.34rem 0.96rem;
@@ -393,20 +394,20 @@ li + li { margin-top: 0.4rem; }
 button.gaia-chip { cursor: pointer; }
 button.gaia-chip:hover {
   transform: translateY(-2px);
-  border-color: rgba(124, 156, 255, 0.38);
-  background: rgba(124, 156, 255, 0.14);
-  box-shadow: 0 4px 16px rgba(124, 156, 255, 0.12);
+  border-color: rgba(212, 175, 55, 0.40);
+  background: rgba(212, 175, 55, 0.13);
+  box-shadow: 0 4px 16px rgba(212, 175, 55, 0.10);
 }
 
 .gaia-header-card .gaia-chip {
-  border-color: rgba(124, 156, 255, 0.22);
-  background: rgba(124, 156, 255, 0.10);
+  border-color: rgba(212, 175, 55, 0.24);
+  background: rgba(212, 175, 55, 0.10);
   color: var(--gaia-sage-300);
 }
 
 .gaia-header-card button.gaia-chip:hover {
-  background: rgba(124, 156, 255, 0.18);
-  border-color: rgba(124, 156, 255, 0.36);
+  background: rgba(212, 175, 55, 0.17);
+  border-color: rgba(212, 175, 55, 0.38);
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
 }
 
@@ -416,16 +417,16 @@ button.gaia-chip:hover {
   border: 1px solid var(--gaia-border);
   border-radius: var(--gaia-radius-sm);
   padding: 1.25rem 1.3rem;
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(27, 34, 29, 0.35);
   box-shadow: var(--gaia-shadow-xs);
   transition: border-color 220ms ease, transform 220ms ease, box-shadow 220ms ease, background 220ms ease;
 }
 
 .gaia-meal:hover {
-  border-color: rgba(124, 156, 255, 0.20);
+  border-color: rgba(212, 175, 55, 0.20);
   transform: translateY(-2px);
-  background: rgba(255, 255, 255, 0.05);
-  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.44), 0 0 22px rgba(124, 156, 255, 0.06);
+  background: rgba(27, 34, 29, 0.55);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.44), 0 0 22px rgba(212, 175, 55, 0.05);
 }
 
 /* ── GRID / ACTIONS ── */
@@ -453,9 +454,9 @@ button.gaia-chip:hover {
 }
 
 .gaia-input {
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(212, 175, 55, 0.16);
   border-radius: var(--gaia-radius-sm);
-  background: rgba(255, 255, 255, 0.055);
+  background: rgba(27, 34, 29, 0.50);
   color: var(--gaia-ink-900);
   font-family: var(--gaia-font-body);
   font-size: 1rem;
@@ -471,13 +472,19 @@ button.gaia-chip:hover {
 
 .gaia-input::placeholder { color: rgba(154, 164, 175, 0.42); font-style: italic; }
 
+select.gaia-input { cursor: pointer; }
+select.gaia-input option {
+  background-color: #141e14;
+  color: var(--gaia-ink-900);
+}
+
 .gaia-input:focus,
 .gaia-input:focus-visible {
   border-color: var(--gaia-sage-400);
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(27, 34, 29, 0.65);
   box-shadow:
-    0 0 0 3px rgba(124, 156, 255, 0.24),
-    0 0 12px rgba(124, 156, 255, 0.12),
+    0 0 0 3px rgba(212, 175, 55, 0.18),
+    0 0 12px rgba(212, 175, 55, 0.10),
     0 2px 10px rgba(0, 0, 0, 0.3);
 }
 
@@ -507,40 +514,40 @@ button.gaia-chip:hover {
 
 .gaia-btn:hover         { transform: translateY(-2.5px); }
 .gaia-btn:active        { transform: translateY(1px) scale(0.97); transition-duration: 70ms; }
-.gaia-btn:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(124, 156, 255, 0.30); }
+.gaia-btn:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.28); }
 .gaia-btn:disabled      { opacity: 0.42; transform: none; cursor: not-allowed; }
 
 .gaia-btn-primary {
-  color: #fff;
-  border-color: rgba(124, 156, 255, 0.28);
-  background: linear-gradient(135deg, #4a6cf7 0%, #6d8fff 55%, #7c9cff 100%);
+  color: #10141a;
+  border-color: rgba(212, 175, 55, 0.40);
+  background: linear-gradient(135deg, #c8a030 0%, #d4af37 55%, #dfc060 100%);
   box-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.18) inset,
-    0 6px 28px rgba(74, 108, 247, 0.52),
-    0 2px 8px  rgba(74, 108, 247, 0.34);
-  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.20);
+    0 1px 0 rgba(255, 255, 255, 0.20) inset,
+    0 6px 28px rgba(180, 140, 30, 0.44),
+    0 2px 8px  rgba(180, 140, 30, 0.28);
+  text-shadow: none;
 }
 
 .gaia-btn-primary:hover {
   transform: translateY(-3.5px);
-  filter: brightness(1.10);
+  filter: brightness(1.07);
   box-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.18) inset,
-    0 10px 44px rgba(74, 108, 247, 0.65),
-    0 0 28px rgba(124, 156, 255, 0.22),
-    0 4px 16px rgba(74, 108, 247, 0.44);
+    0 1px 0 rgba(255, 255, 255, 0.20) inset,
+    0 10px 44px rgba(180, 140, 30, 0.56),
+    0 0 28px rgba(212, 175, 55, 0.22),
+    0 4px 16px rgba(180, 140, 30, 0.38);
 }
 
 .gaia-btn-secondary {
   color: var(--gaia-ink-800);
-  border-color: rgba(255, 255, 255, 0.14);
-  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(45, 75, 62, 0.55);
+  background: rgba(27, 34, 29, 0.40);
 }
 
 .gaia-btn-secondary:hover {
-  background: rgba(255, 255, 255, 0.09);
-  border-color: rgba(124, 156, 255, 0.30);
-  color: var(--gaia-sage-400);
+  background: rgba(45, 75, 62, 0.30);
+  border-color: rgba(45, 75, 62, 0.82);
+  color: var(--gaia-ink-900);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.40);
 }
 
@@ -632,7 +639,7 @@ button.gaia-chip:hover {
   gap: 0.55rem;
   padding: 0.35rem 0.45rem 0.35rem 0.85rem;
   border-radius: 999px;
-  background: rgba(11, 15, 20, 0.82);
+  background: rgba(14, 19, 15, 0.88);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.10);
@@ -710,9 +717,9 @@ button.gaia-chip:hover {
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  background: rgba(124, 156, 255, 0.08);
-  border: 1px solid rgba(124, 156, 255, 0.18);
-  color: rgba(154, 180, 255, 0.70);
+  background: rgba(45, 75, 62, 0.18);
+  border: 1px solid rgba(45, 75, 62, 0.32);
+  color: rgba(212, 175, 55, 0.72);
   font-size: 0.9rem;
   line-height: 1;
   cursor: pointer;
@@ -725,11 +732,11 @@ button.gaia-chip:hover {
 }
 
 .gaia-nav-arrow:hover {
-  background: rgba(124, 156, 255, 0.16);
-  border-color: rgba(124, 156, 255, 0.34);
-  color: rgba(188, 207, 255, 0.96);
+  background: rgba(45, 75, 62, 0.32);
+  border-color: rgba(45, 75, 62, 0.56);
+  color: rgba(212, 175, 55, 0.96);
   transform: scale(1.10);
-  box-shadow: 0 0 12px rgba(124, 156, 255, 0.16);
+  box-shadow: 0 0 12px rgba(45, 75, 62, 0.22);
 }
 
 .gaia-nav-arrow:active { transform: scale(0.94); }
@@ -776,16 +783,16 @@ button.gaia-chip:hover {
   transition: border-top-color 240ms ease, transform 240ms ease, box-shadow 240ms ease;
 }
 
-.gaia-pillar-card:nth-child(2) { border-top-color: rgba(124, 156, 255, 0.55); }
+.gaia-pillar-card:nth-child(2) { border-top-color: rgba(45, 75, 62, 0.70); }
 .gaia-pillar-card:nth-child(3) { border-top-color: rgba(217, 168,  90, 0.55); }
 
 .gaia-pillar-card:hover            { border-top-color: var(--gaia-sage-400); }
-.gaia-pillar-card:nth-child(2):hover { border-top-color: rgba(124, 156, 255, 0.88); }
+.gaia-pillar-card:nth-child(2):hover { border-top-color: rgba(45, 75, 62, 0.96); }
 .gaia-pillar-card:nth-child(3):hover { border-top-color: rgba(217, 168,  90, 0.88); }
 
 .gaia-member-card {
-  border-color: rgba(124, 156, 255, 0.16);
-  background: rgba(124, 156, 255, 0.04);
+  border-color: rgba(212, 175, 55, 0.16);
+  background: rgba(27, 34, 29, 0.30);
   box-shadow:
     0 1px 0 rgba(255, 255, 255, 0.05) inset,
     var(--gaia-shadow-soft);
@@ -826,7 +833,7 @@ button.gaia-chip:hover {
   letter-spacing: 0;
   box-shadow:
     0 1px 0 rgba(255, 255, 255, 0.12) inset,
-    0 4px 14px rgba(74, 108, 247, 0.40);
+    0 4px 14px rgba(180, 140, 30, 0.36);
 }
 
 .gaia-elixir-badge {
@@ -850,12 +857,12 @@ button.gaia-chip:hover {
 }
 
 .gaia-precautions-card {
-  border-color: rgba(229, 115, 115, 0.20);
-  background: rgba(229, 115, 115, 0.035);
-  border-left: 3px solid rgba(229, 115, 115, 0.38);
+  border-color: rgba(180, 83, 9, 0.18);
+  background: rgba(180, 83, 9, 0.04);
+  border-left: 3px solid rgba(180, 83, 9, 0.38);
   box-shadow:
     0 1px 0 rgba(255, 255, 255, 0.04) inset,
-    0 0 24px rgba(229, 115, 115, 0.06),
+    0 0 24px rgba(180, 83, 9, 0.05),
     var(--gaia-shadow-soft);
 }
 
@@ -888,7 +895,7 @@ button.gaia-chip:hover {
   flex-wrap: wrap;
   gap: 0.9rem;
   padding-top: 0.9rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  border-top: 1px solid rgba(212, 175, 55, 0.08);
   margin-top: 0.25rem;
 }
 
@@ -907,14 +914,14 @@ button.gaia-chip:hover {
   gap: 0.65rem;
   padding: 0.9rem 1.05rem;
   border-radius: var(--gaia-radius-sm);
-  background: rgba(124, 156, 255, 0.04);
-  border: 1px solid rgba(124, 156, 255, 0.10);
+  background: rgba(45, 75, 62, 0.10);
+  border: 1px solid rgba(45, 75, 62, 0.18);
   transition: border-color 200ms ease, background 200ms ease;
 }
 
 .gaia-herb-row:hover {
-  border-color: rgba(124, 156, 255, 0.20);
-  background: rgba(124, 156, 255, 0.07);
+  border-color: rgba(45, 75, 62, 0.32);
+  background: rgba(45, 75, 62, 0.18);
 }
 
 .gaia-ingredient-row {
@@ -963,7 +970,7 @@ ol.gaia-steps > li::before {
   margin-top: 0.15rem;
   box-shadow:
     0 1px 0 rgba(255, 255, 255, 0.12) inset,
-    0 3px 8px rgba(74, 108, 247, 0.36);
+    0 3px 8px rgba(180, 140, 30, 0.30);
 }
 
 ol.gaia-steps.gaia-elixir-steps > li::before {
@@ -1021,8 +1028,8 @@ ol.gaia-steps.gaia-elixir-steps > li::before {
   gap: 0.68rem;
   padding: 0.82rem 1rem;
   border-radius: var(--gaia-radius-sm);
-  background: rgba(229, 115, 115, 0.045);
-  border: 1px solid rgba(229, 115, 115, 0.14);
+  background: rgba(180, 83, 9, 0.06);
+  border: 1px solid rgba(180, 83, 9, 0.16);
 }
 
 .gaia-safety-row--critical {
@@ -1425,11 +1432,11 @@ ol.gaia-steps.gaia-elixir-steps > li::before {
 .gaia-note a {
   text-decoration: underline;
   text-underline-offset: 2px;
-  text-decoration-color: rgba(124, 156, 255, 0.32);
+  text-decoration-color: rgba(212, 175, 55, 0.32);
   transition: text-decoration-color 200ms ease;
 }
 .gaia-note a:hover {
-  text-decoration-color: rgba(124, 156, 255, 0.72);
+  text-decoration-color: rgba(212, 175, 55, 0.72);
 }
 
 /* ============================================================
@@ -1438,9 +1445,9 @@ ol.gaia-steps.gaia-elixir-steps > li::before {
 
 .gaia-reminder-toast {
   background:
-    radial-gradient(ellipse at 10% 10%, rgba(124, 156, 255, 0.14), transparent 50%),
-    linear-gradient(145deg, #0e1320, #111824);
-  border: 1px solid rgba(124, 156, 255, 0.22);
+    radial-gradient(ellipse at 10% 10%, rgba(45, 75, 62, 0.22), transparent 50%),
+    linear-gradient(145deg, #111a13, #10141a);
+  border: 1px solid rgba(212, 175, 55, 0.18);
   border-radius: 1rem;
   padding: 0.9rem 1rem;
   box-shadow:

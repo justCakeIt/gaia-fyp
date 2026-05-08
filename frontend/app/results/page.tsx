@@ -263,7 +263,7 @@ function ResultsContent() {
                 fontWeight: 700,
                 letterSpacing: "0.15em",
                 textTransform: "uppercase",
-                color: "rgba(252,165,165,0.82)",
+                color: "var(--gaia-danger)",
                 marginBottom: "0.55rem",
               }}>
                 Avoid with this condition
@@ -271,7 +271,7 @@ function ResultsContent() {
               <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "grid", gap: "0.35rem" }}>
                 {avoidHerbs.map((herb) => (
                   <li key={herb.herbID} style={{ display: "flex", alignItems: "flex-start", gap: "0.5rem" }}>
-                    <span aria-hidden style={{ color: "rgba(252,165,165,0.65)", fontSize: "0.68rem", marginTop: "0.22rem", flexShrink: 0 }}>✕</span>
+                    <span aria-hidden style={{ color: "rgba(229,115,115,0.72)", fontSize: "0.68rem", marginTop: "0.22rem", flexShrink: 0 }}>✕</span>
                     <span className="gaia-note">
                       <strong>{herb.herbName}</strong>
                       {herb.linkNotes ? ` — ${herb.linkNotes}` : ""}

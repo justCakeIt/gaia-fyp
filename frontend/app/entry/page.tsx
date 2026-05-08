@@ -235,6 +235,9 @@ function EntryContent() {
         <article className="gaia-card">
           {mode === "choice" && (
             <div className="gaia-auth-stack">
+              <p style={{ textAlign: "center", color: "var(--gaia-ink-600)", fontSize: "0.82rem" }}>
+                Sign in to save your wellness path
+              </p>
               <button
                 type="button"
                 className="gaia-btn gaia-btn-primary"
@@ -272,6 +275,9 @@ function EntryContent() {
                   ? "Connecting to Google..."
                   : "Continue with Google"}
               </button>
+              <div className="gaia-auth-or" style={{ opacity: 0.5, fontSize: "0.68rem" }}>
+                or browse as guest
+              </div>
               <button
                 type="button"
                 className="gaia-btn gaia-btn-ghost"
